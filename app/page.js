@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import Navbar from '@/components/ui/Navbar'
+import Navbar from '@/components/ui/NAVBAR'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
 
