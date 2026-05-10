@@ -23,10 +23,10 @@ export default function Navbar() {
           <Link href="/editor" className="text-sm text-gray-600 hover:text-black">
             Editor
            </Link>
-          <Link href="/login" className="text-sm text-gray-600 hover:text-black">
+          <Link href="/auth/login" className="text-sm text-gray-600 hover:text-black">
             Login
           </Link>
-          <Link href="/signup" className="bg-black text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-800">
+          <Link href="/auth/signup" className="bg-black text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-800">
             Sign Up
           </Link>
         </div>
@@ -44,8 +44,8 @@ export default function Navbar() {
         <div className="md:hidden mt-4 flex flex-col gap-4 px-6 pb-4">
           <Link href="/templates">Templates</Link>
           <Link href="/generate">Generate</Link>
-          <Link href="/login">Login</Link>
-          <Link href="/signup">Sign Up</Link>
+          <Link href="/auth/login">Login</Link>
+          <Link href="/auth/signup">Sign Up</Link>
         </div>
       )}
     </nav>

@@ -1,0 +1,546 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   grapes-theme.css
+  
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* ── Hide default GrapesJS panels — we use our own sidebar ── */
+.gjs-pn-panels {
+  display: none !important;
+}
+
+/* ── Canvas background ── */
+.gjs-cv-canvas {
+  background: #ffffff !important;
+}
+
+.gjs-frame-wrapper__top {
+  background: #ffffff !important;
+}
+
+/* ── Block Manager ── */
+.gjs-blocks-c {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 6px !important;
+  padding: 10px !important;
+  background: #ffffff !important;
+}
+
+.gjs-block {
+  background: #fafafa !important;
+  color: #111111 !important;
+  border: 1px solid #e8e8e8 !important;
+  border-radius: 10px !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  padding: 14px 8px 10px !important;
+  text-align: center !important;
+  transition: all 0.15s ease !important;
+  cursor: grab !important;
+  box-shadow: none !important;
+  width: auto !important;
+  min-height: auto !important;
+  margin: 0 !important;
+}
+
+.gjs-block:hover {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border-color: #000000 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18) !important;
+}
+
+.gjs-block:hover svg,
+.gjs-block:hover path,
+.gjs-block:hover rect,
+.gjs-block:hover circle,
+.gjs-block:hover polyline,
+.gjs-block:hover line {
+  stroke: #ffffff !important;
+  fill: none !important;
+}
+
+.gjs-block__media {
+  display: block !important;
+  margin-bottom: 7px !important;
+  font-size: 20px !important;
+}
+
+.gjs-block svg {
+  width: 20px !important;
+  height: 20px !important;
+  stroke: #555555 !important;
+  fill: none !important;
+}
+
+.gjs-block-category {
+  background: #ffffff !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.gjs-block-category .gjs-title {
+  background: #ffffff !important;
+  color: #bbbbbb !important;
+  font-size: 9px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.15em !important;
+  text-transform: uppercase !important;
+  padding: 14px 10px 5px !important;
+  border: none !important;
+  cursor: default !important;
+  pointer-events: none !important;
+}
+
+.gjs-block-category .gjs-title:hover {
+  background: #ffffff !important;
+  color: #bbbbbb !important;
+}
+
+/* ── Style Manager ── */
+.gjs-sm-sector {
+  background: #ffffff !important;
+  border-bottom: 1px solid #f3f3f3 !important;
+}
+
+.gjs-sm-sector-title {
+  background: #ffffff !important;
+  color: #111111 !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  padding: 10px 14px !important;
+  border: none !important;
+  border-bottom: 1px solid #f3f3f3 !important;
+}
+
+.gjs-sm-sector-title:hover {
+  background: #fafafa !important;
+}
+
+.gjs-sm-properties {
+  padding: 4px 0 8px !important;
+  background: #ffffff !important;
+}
+
+.gjs-sm-property {
+  padding: 6px 14px !important;
+  border: none !important;
+  background: #ffffff !important;
+}
+
+.gjs-sm-label {
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  color: #999999 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  margin-bottom: 5px !important;
+}
+
+.gjs-sm-field,
+.gjs-field {
+  background: #fafafa !important;
+  border: 1px solid #ebebeb !important;
+  border-radius: 7px !important;
+  color: #111111 !important;
+}
+
+.gjs-sm-field input,
+.gjs-sm-field select,
+.gjs-field input,
+.gjs-field select {
+  background: transparent !important;
+  color: #111111 !important;
+  border: none !important;
+  font-size: 12px !important;
+  padding: 5px 8px !important;
+}
+
+.gjs-sm-field input:focus,
+.gjs-field input:focus {
+  outline: none !important;
+}
+
+.gjs-sm-field.gjs-sm-composite {
+  background: transparent !important;
+  border: none !important;
+}
+
+.gjs-radio-item label {
+  border: 1px solid #e8e8e8 !important;
+  border-radius: 5px !important;
+  background: #fafafa !important;
+  color: #555555 !important;
+  font-size: 11px !important;
+  padding: 4px 9px !important;
+}
+
+.gjs-radio-item input:checked + label {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border-color: #000000 !important;
+}
+
+/* ── Color Picker ── */
+.gjs-field-colorp {
+  border: 1px solid #ebebeb !important;
+  border-radius: 7px !important;
+  background: #fafafa !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 4px 8px !important;
+  cursor: pointer !important;
+  height: 32px !important;
+}
+
+.gjs-field-colorp .gjs-field-color-picker {
+  width: 20px !important;
+  height: 20px !important;
+  border-radius: 4px !important;
+  border: 1px solid #dddddd !important;
+  cursor: pointer !important;
+  display: inline-block !important;
+  flex-shrink: 0 !important;
+}
+
+.gjs-field-colorp input[type="text"] {
+  background: transparent !important;
+  border: none !important;
+  color: #111111 !important;
+  font-size: 12px !important;
+  padding: 0 6px !important;
+  width: 100% !important;
+  outline: none !important;
+}
+
+.gjs-clm-color,
+.sp-container {
+  background: #ffffff !important;
+  border: 1px solid #e8e8e8 !important;
+  border-radius: 10px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+  z-index: 9999 !important;
+}
+
+.sp-picker-container {
+  background: #ffffff !important;
+}
+
+.sp-top {
+  background: #ffffff !important;
+}
+
+.sp-hue-container {
+  cursor: pointer !important;
+}
+
+.sp-dragger {
+  border: 2px solid #ffffff !important;
+  box-shadow: 0 0 0 1px #cccccc !important;
+}
+
+.sp-slider {
+  background: #ffffff !important;
+  box-shadow: 0 0 0 1px #cccccc !important;
+}
+
+.sp-palette .sp-thumb-el {
+  border-radius: 3px !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  cursor: pointer !important;
+}
+
+.sp-palette .sp-thumb-el:hover {
+  transform: scale(1.15) !important;
+}
+
+.sp-input-container input {
+  background: #fafafa !important;
+  color: #111111 !important;
+  border: 1px solid #ebebeb !important;
+  border-radius: 5px !important;
+  font-size: 11px !important;
+}
+
+.sp-button-container .sp-choose {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 5px !important;
+  font-size: 11px !important;
+  padding: 5px 12px !important;
+  cursor: pointer !important;
+}
+
+.sp-button-container .sp-cancel {
+  color: #999999 !important;
+  font-size: 11px !important;
+}
+
+.sp-alpha-inner {
+  border-radius: 3px !important;
+}
+
+/* ── Layer Manager - Clean White Theme ── */
+.gjs-layers {
+  background: #ffffff !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  width: 100% !important;
+}
+
+#gjs-layers {
+  background: #ffffff !important;
+  width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.gjs-layer {
+  background: #ffffff !important;
+  color: #333333 !important;
+  border-bottom: 1px solid #e5e5e5 !important;
+  font-size: 12px !important;
+  padding: 10px 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 5px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.gjs-layer:hover {
+  background: #f5f5f5 !important;
+  color: #000000 !important;
+}
+
+.gjs-layer.gjs-selected {
+  background: #e8e8e8 !important;
+  color: #000000 !important;
+  font-weight: 600 !important;
+}
+
+.gjs-layer__icon {
+  color: #999999 !important;
+  background: transparent !important;
+  width: 16px !important;
+  height: 16px !important;
+  margin-right: 6px !important;
+  flex-shrink: 0 !important;
+}
+
+.gjs-layer__icon:hover {
+  color: #000000 !important;
+}
+
+.gjs-layer-title {
+  color: #333333 !important;
+  font-weight: normal !important;
+  background: transparent !important;
+  flex: 1 !important;
+  text-align: left !important;
+}
+
+.gjs-layer-count {
+  color: #666666 !important;
+  background: #f0f0f0 !important;
+  border-radius: 3px !important;
+  padding: 2px 6px !important;
+  font-size: 10px !important;
+  flex-shrink: 0 !important;
+}
+
+.gjs-layer-children {
+  border-left: 1px solid #e5e5e5 !important;
+  margin-left: 15px !important;
+  padding-left: 8px !important;
+  background: #ffffff !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.gjs-layer-vis {
+  color: #999999 !important;
+  background: transparent !important;
+  margin-right: 8px !important;
+  cursor: pointer !important;
+  flex-shrink: 0 !important;
+}
+
+.gjs-layer-vis:hover {
+  color: #000000 !important;
+}
+
+.gjs-layer-badge {
+  background: #f0f0f0 !important;
+  color: #666666 !important;
+  border-radius: 4px !important;
+  padding: 2px 6px !important;
+  font-size: 9px !important;
+  flex-shrink: 0 !important;
+}
+
+.gjs-layer-content {
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  gap: 8px !important;
+}
+
+.gjs-layer-name {
+  text-align: left !important;
+  flex: 1 !important;
+}
+
+/* Remove any right alignment */
+[class*="gjs-layer"] {
+  text-align: left !important;
+  background-color: transparent !important;
+}
+
+/* Override any dark theme */
+.gjs-one-bg,
+.gjs-two-bg,
+.gjs-three-bg,
+.gjs-four-bg {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+}
+
+/* ── Trait Manager (Settings tab) ── */
+.gjs-trt-traits {
+  background: #ffffff !important;
+}
+
+.gjs-trt-trait {
+  padding: 8px 14px !important;
+  border-bottom: 1px solid #f0f0f0 !important;
+  background: #ffffff !important;
+}
+
+.gjs-label {
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  color: #666666 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+}
+
+.gjs-trt-trait input,
+.gjs-trt-trait select,
+.gjs-trt-trait textarea {
+  background: #fafafa !important;
+  color: #111111 !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 7px !important;
+  font-size: 12px !important;
+  padding: 5px 9px !important;
+  width: 100% !important;
+}
+
+.gjs-trt-trait input:focus {
+  border-color: #000000 !important;
+  outline: none !important;
+}
+
+/* ── Canvas interactions ── */
+.gjs-selected {
+  outline: 2px solid #000000 !important;
+  outline-offset: 2px !important;
+}
+
+.gjs-hovered {
+  outline: 1px dashed #aaaaaa !important;
+  outline-offset: 2px !important;
+}
+
+.gjs-toolbar {
+  background: #111111 !important;
+  border-radius: 7px !important;
+  padding: 2px !important;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+.gjs-toolbar-item {
+  color: #ffffff !important;
+  border-radius: 5px !important;
+}
+
+.gjs-toolbar-item:hover {
+  background: #333333 !important;
+}
+
+.gjs-toolbar-item svg {
+  stroke: #ffffff !important;
+  fill: none !important;
+}
+
+.gjs-resizer-h {
+  background: #000000 !important;
+  border-color: #000000 !important;
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 2px !important;
+}
+
+.gjs-placeholder,
+.gjs-placeholder-int {
+  border: 2px dashed #000000 !important;
+  background: rgba(0, 0, 0, 0.03) !important;
+}
+
+.gjs-badge {
+  background: #000000 !important;
+  color: #ffffff !important;
+  font-size: 10px !important;
+  border-radius: 4px !important;
+}
+
+/* ── Color picker fixes ── */
+.gjs-field-colorp {
+  position: relative;
+  cursor: pointer;
+}
+
+.gjs-field-colorp .gjs-field-color-picker {
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.gjs-field-colorp .gjs-field-color-picker:hover {
+  transform: scale(1.05);
+}
+
+.sp-container {
+  z-index: 10000 !important;
+}
+
+.gjs-sm-property[property="color"] input,
+.gjs-sm-property[property="background-color"] input {
+  transition: color 0.1s ease;
+}
+
+/* ── Scrollbars ── */
+#gjs-blocks::-webkit-scrollbar,
+#gjs-styles::-webkit-scrollbar,
+#gjs-layers::-webkit-scrollbar {
+  width: 3px;
+}
+
+#gjs-blocks::-webkit-scrollbar-thumb,
+#gjs-styles::-webkit-scrollbar-thumb,
+#gjs-layers::-webkit-scrollbar-thumb {
+  background: #dddddd;
+  border-radius: 4px;
+}
+
+#gjs-blocks::-webkit-scrollbar-track,
+#gjs-styles::-webkit-scrollbar-track,
+#gjs-layers::-webkit-scrollbar-track {
+  background: transparent;
+}
