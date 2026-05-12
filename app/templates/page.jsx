@@ -7,6 +7,12 @@ import { supabase } from '@/lib/supabase/client'
 
 const categories = ['All', 'Portfolio', 'Business', 'Restaurant', 'Landing Page']
 
+const CARD_BG = 'rgba(255,255,255,0.02)'
+const CARD_BORDER = 'rgba(255,255,255,0.06)'
+const CYAN = '#06b6d4'
+const TEXT_SECONDARY = '#94a3b8'
+const TEXT_MUTED = '#64748b'
+
 const DEFAULT_CONTENT = {
   name: 'Sarah Johnson',
   role: 'Creative Developer & Designer',
@@ -38,15 +44,9 @@ function forceFillContent(html) {
   return filled
 }
 
-// Generic — covers any animation class name any future template might use
 const ANIMATION_OVERRIDE = `
-  [class*="fade"],
-  [class*="reveal"],
-  [class*="animate"],
-  [class*="scroll"],
-  [class*="aos"],
-  [class*="hidden"],
-  [class*="visible"] {
+  [class*="fade"],[class*="reveal"],[class*="animate"],
+  [class*="scroll"],[class*="aos"],[class*="hidden"],[class*="visible"] {
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;
@@ -72,10 +72,9 @@ export default function Templates() {
     setLoading(false)
   }
 
-  const filtered =
-    activeCategory === 'All'
-      ? templates
-      : templates.filter(t => t.category?.toLowerCase() === activeCategory.toLowerCase())
+  const filtered = activeCategory === 'All'
+    ? templates
+    : templates.filter(t => t.category?.toLowerCase() === activeCategory.toLowerCase())
 
   const handleUseTemplate = (templateId) => {
     router.push(`/editor/new?templateId=${templateId}`)
@@ -103,7 +102,6 @@ export default function Templates() {
 </html>`
     }
 
-    // Full preview — NO background hardcoded, template's own CSS controls it
     return `<!DOCTYPE html>
 <html>
 <head>
@@ -121,84 +119,175 @@ export default function Templates() {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-100">
+    <div className="min-h-screen">
       <Navbar />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl sm:text-5xl font-bold bg-linear-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent mb-3">
-            Choose Your Template
+      {/* Background glow */}
+      <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
+        <div
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-200 h-125 rounded-full"
+          style={{ background: 'radial-gradient(circle, rgba(6,182,212,0.06), transparent 70%)' }}
+        />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16">
+
+        {/* Header */}
+        <div className="text-center mb-12">
+          <div
+            className="inline-flex items-center gap-2 text-xs font-medium px-4 py-2 rounded-full mb-6 border"
+            style={{
+              background: 'rgba(6,182,212,0.08)',
+              borderColor: 'rgba(6,182,212,0.2)',
+              color: CYAN
+            }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <path d="M3 9h18M9 21V9"/>
+            </svg>
+            Template Library
+          </div>
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
+            Choose your template
           </h1>
-          <p className="text-gray-500 text-lg">Pick a design and make it yours in minutes</p>
+          <p style={{ color: TEXT_SECONDARY }}>
+            Pick a professionally designed template and make it yours in minutes
+          </p>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-2 mb-8">
-          {categories.map((cat) => (
-            <button key={cat} onClick={() => setActiveCategory(cat)}
-              className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+        {/* Category Filter */}
+        <div className="flex flex-wrap justify-center gap-2 mb-10">
+          {categories.map(cat => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className="px-5 py-2 rounded-full text-sm font-medium transition-all"
+              style={
                 activeCategory === cat
-                  ? 'bg-gray-900 text-white shadow-lg shadow-gray-900/25'
-                  : 'bg-white text-gray-600 hover:bg-gray-100 shadow-sm border border-gray-200'
-              }`}>
+                  ? {
+                      background: 'linear-gradient(135deg, #06b6d4, #0284c7)',
+                      color: 'white',
+                      boxShadow: '0 0 20px rgba(6,182,212,0.3)'
+                    }
+                  : {
+                      background: CARD_BG,
+                      border: `1px solid ${CARD_BORDER}`,
+                      color: TEXT_SECONDARY
+                    }
+              }
+              onMouseEnter={e => {
+                if (activeCategory !== cat) {
+                  e.currentTarget.style.borderColor = 'rgba(6,182,212,0.3)'
+                  e.currentTarget.style.color = 'white'
+                }
+              }}
+              onMouseLeave={e => {
+                if (activeCategory !== cat) {
+                  e.currentTarget.style.borderColor = CARD_BORDER
+                  e.currentTarget.style.color = TEXT_SECONDARY
+                }
+              }}>
               {cat}
             </button>
           ))}
         </div>
 
+        {/* Loading Skeleton */}
         {loading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1,2,3,4,5,6].map(i => (
-              <div key={i} className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 animate-pulse">
-                <div className="h-48 bg-gray-200" />
-                <div className="p-4">
-                  <div className="h-5 bg-gray-200 rounded w-3/4 mb-2" />
-                  <div className="h-4 bg-gray-200 rounded w-1/4 mb-3" />
-                  <div className="h-10 bg-gray-200 rounded-lg mt-4" />
+              <div
+                key={i}
+                className="rounded-2xl overflow-hidden animate-pulse border"
+                style={{ background: CARD_BG, borderColor: CARD_BORDER }}>
+                <div className="h-52 bg-white/5" />
+                <div className="p-5 space-y-3">
+                  <div className="h-4 bg-white/5 rounded w-3/4" />
+                  <div className="h-3 bg-white/5 rounded w-1/4" />
+                  <div className="h-10 bg-white/5 rounded-xl mt-4" />
                 </div>
               </div>
             ))}
           </div>
         )}
 
+        {/* Templates Grid */}
         {!loading && (
           <>
             {filtered.length === 0 ? (
-              <div className="text-center py-12 bg-white rounded-xl border border-gray-100">
+              <div
+                className="text-center py-20 rounded-2xl border"
+                style={{ background: CARD_BG, borderColor: CARD_BORDER }}>
                 <div className="text-5xl mb-4">🎨</div>
-                <p className="text-gray-500">No templates found in this category.</p>
+                <p style={{ color: TEXT_MUTED }}>No templates in this category yet.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {filtered.map((template) => (
-                  <div key={template.id}
-                    className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100">
-                    <div className="relative bg-gray-900 overflow-hidden" style={{ height: '220px' }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filtered.map(template => (
+                  <div
+                    key={template.id}
+                    className="group rounded-2xl overflow-hidden border transition-all duration-300"
+                    style={{ background: CARD_BG, borderColor: CARD_BORDER }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.borderColor = 'rgba(6,182,212,0.25)'
+                      e.currentTarget.style.boxShadow = '0 0 30px rgba(6,182,212,0.08)'
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.borderColor = CARD_BORDER
+                      e.currentTarget.style.boxShadow = 'none'
+                    }}>
+
+                    {/* Thumbnail */}
+                    <div className="relative overflow-hidden" style={{ height: '220px', background: '#0a0f23' }}>
                       <iframe
                         srcDoc={createCompleteHtml(template, true)}
                         className="absolute inset-0 w-full h-full border-0 pointer-events-none"
                         title={template.title}
                         sandbox="allow-same-origin allow-scripts"
                       />
+
+                      {/* Category badge */}
                       <div className="absolute top-3 left-3 z-10">
-                        <span className="px-2.5 py-1 bg-white/90 backdrop-blur-sm text-gray-900 text-xs font-medium rounded-lg shadow-sm">
+                        <span
+                          className="px-2.5 py-1 text-xs font-medium rounded-lg"
+                          style={{
+                            background: 'rgba(6,182,212,0.15)',
+                            border: '1px solid rgba(6,182,212,0.3)',
+                            color: CYAN
+                          }}>
                           {template.category}
                         </span>
                       </div>
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center z-20">
-                        <button onClick={() => setPreviewTemplate(template)}
-                          className="px-4 py-2 bg-white text-gray-900 rounded-lg text-sm font-medium hover:bg-gray-100 transition transform hover:scale-105">
-                          👁️ Quick Preview
+
+                      {/* Hover overlay */}
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center z-20"
+                        style={{ background: 'rgba(6,10,26,0.75)' }}>
+                        <button
+                          onClick={() => setPreviewTemplate(template)}
+                          className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:scale-105"
+                          style={{
+                            background: 'linear-gradient(135deg, #06b6d4, #0284c7)',
+                            boxShadow: '0 0 20px rgba(6,182,212,0.4)'
+                          }}>
+                          Quick Preview
                         </button>
                       </div>
                     </div>
 
-                    <div className="p-4">
-                      <h3 className="font-semibold text-gray-900 text-lg mb-1">{template.title}</h3>
-                      <p className="text-xs text-gray-400 uppercase tracking-wide mb-3">{template.category}</p>
-                      <button onClick={() => handleUseTemplate(template.id)}
-                        className="w-full bg-gray-900 hover:bg-gray-800 text-white py-2.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2">
+                    {/* Card Footer */}
+                    <div className="p-5">
+                      <h3 className="font-semibold text-white text-base mb-1">
+                        {template.title}
+                      </h3>
+                      <p className="text-xs uppercase tracking-widest mb-4" style={{ color: TEXT_MUTED }}>
+                        {template.category}
+                      </p>
+                      <button
+                        onClick={() => handleUseTemplate(template.id)}
+                        className="w-full py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 flex items-center justify-center gap-2"
+                        style={{ background: 'linear-gradient(135deg, #06b6d4, #0284c7)' }}>
                         Use Template
-                        <span className="opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1">→</span>
+                        <span className="opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1 inline-block">→</span>
                       </button>
                     </div>
                   </div>
@@ -211,24 +300,45 @@ export default function Templates() {
 
       {/* Preview Modal */}
       {previewTemplate && (
-        <div className="fixed inset-0 bg-black/85 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-5xl flex flex-col shadow-2xl"
-            style={{ height: '88vh', borderRadius: '16px', overflow: 'hidden', background: '#111827' }}>
+        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          style={{ background: 'rgba(6,10,26,0.9)' }}>
+          <div
+            className="w-full max-w-5xl flex flex-col border"
+            style={{
+              height: '88vh',
+              borderRadius: '16px',
+              overflow: 'hidden',
+              background: '#080e20',
+              borderColor: 'rgba(6,182,212,0.15)'
+            }}>
 
-            {/* Header — neutral dark, works for any template color */}
-            <div className="flex justify-between items-center px-5 py-3 shrink-0"
-              style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', background: '#111827' }}>
+            {/* Modal Header */}
+            <div
+              className="flex justify-between items-center px-6 py-4 shrink-0"
+              style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
               <div>
-                <h2 className="font-semibold text-lg text-white">{previewTemplate.title}</h2>
-                <p className="text-sm mt-0.5" style={{ color: '#9ca3af' }}>{previewTemplate.category} Template</p>
+                <h2 className="font-semibold text-white text-lg">{previewTemplate.title}</h2>
+                <p className="text-sm mt-0.5" style={{ color: TEXT_MUTED }}>
+                  {previewTemplate.category} Template
+                </p>
               </div>
-              <button onClick={() => setPreviewTemplate(null)}
-                className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-white hover:bg-white/10 transition">
+              <button
+                onClick={() => setPreviewTemplate(null)}
+                className="w-8 h-8 flex items-center justify-center rounded-full transition-all text-sm"
+                style={{ color: TEXT_MUTED, border: '1px solid rgba(255,255,255,0.08)' }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.color = 'white'
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.color = TEXT_MUTED
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'
+                }}>
                 ✕
               </button>
             </div>
 
-            {/* iframe fills completely — template's own background shows, no color clash */}
+            {/* iframe */}
             <div className="flex-1 min-h-0">
               <iframe
                 srcDoc={createCompleteHtml(previewTemplate, false)}
@@ -237,20 +347,26 @@ export default function Templates() {
               />
             </div>
 
-            {/* Footer */}
-            <div className="flex justify-end gap-3 px-5 py-3 shrink-0"
-              style={{ borderTop: '1px solid rgba(255,255,255,0.08)', background: '#111827' }}>
-              <button onClick={() => setPreviewTemplate(null)}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white transition"
-                style={{ border: '1px solid rgba(255,255,255,0.15)' }}>
+            {/* Modal Footer */}
+            <div
+              className="flex justify-end gap-3 px-6 py-4 shrink-0"
+              style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+              <button
+                onClick={() => setPreviewTemplate(null)}
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                style={{ color: TEXT_SECONDARY, border: '1px solid rgba(255,255,255,0.08)' }}
+                onMouseEnter={e => e.currentTarget.style.color = 'white'}
+                onMouseLeave={e => e.currentTarget.style.color = TEXT_SECONDARY}>
                 Close
               </button>
-              <button onClick={() => handleUseTemplate(previewTemplate.id)}
-                className="px-5 py-2 rounded-lg text-sm font-semibold text-white flex items-center gap-2 transition"
-                style={{ background: '#6366f1' }}
-                onMouseEnter={e => e.currentTarget.style.background = '#4f46e5'}
-                onMouseLeave={e => e.currentTarget.style.background = '#6366f1'}>
-                Use This Template <span>→</span>
+              <button
+                onClick={() => {
+                  setPreviewTemplate(null)
+                  handleUseTemplate(previewTemplate.id)
+                }}
+                className="px-6 py-2 rounded-lg text-sm font-semibold text-white transition-all hover:opacity-90 flex items-center gap-2"
+                style={{ background: 'linear-gradient(135deg, #06b6d4, #0284c7)' }}>
+                Use This Template →
               </button>
             </div>
           </div>

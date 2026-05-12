@@ -1,7 +1,7 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import dynamic from 'next/dynamic'
 import { supabase } from '@/lib/supabase/client'
 
@@ -11,14 +11,37 @@ const GrapesEditor = dynamic(
 )
 
 const defaultTemplate = `
-<section style="padding:60px;text-align:center">
-  <h1>Welcome to Editor 🚀</h1>
-  <p>Start designing your page</p>
-  <button>Click Me</button>
+<section style="
+  padding: 80px 40px;
+  text-align: center;
+  min-height: 100vh;
+  background: #060a1a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: Inter, sans-serif;
+">
+ 
+  <h1 style="
+    font-size: 28px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 12px;
+    letter-spacing: -0.02em;
+  ">Start building your website</h1>
+  <p style="
+    font-size: 15px;
+    color: #64748b;
+    margin: 0 0 32px;
+    max-width: 340px;
+    line-height: 1.6;
+  ">select a template or genertae via AI to get started</p>
+  
 </section>
 `
 
-export default function EditorPage() {
+function EditorPageInner() {
   const searchParams = useSearchParams()
   const templateId = searchParams.get('templateId')
 
@@ -54,18 +77,15 @@ export default function EditorPage() {
       const bodyHtml = doc.body.innerHTML
 
       const styleTags = [...doc.querySelectorAll('style')]
-      let cssContent = styleTags.map(s => s.textContent).join('\n') // ✅ was s.innerHTML
+      let cssContent = styleTags.map(s => s.textContent).join('\n')
 
       const fontLinks = [...doc.querySelectorAll('link[rel="stylesheet"]')]
-      const fontImports = fontLinks
-        .map(l => `@import url('${l.getAttribute('href')}');`) // ✅ was l.href (breaks in DOMParser)
-        .join('\n')
+      const fontImports = fontLinks.map(l => `@import url('${l.getAttribute('href')}');`).join('\n')
 
       if (fontImports) {
         cssContent = fontImports + '\n' + cssContent
       }
 
-      // ✅ Force all scroll-animated elements visible inside the editor
       cssContent += `
         .fade-in,
         .fade-in.visible {
@@ -87,7 +107,17 @@ export default function EditorPage() {
     console.log('Saved:', data)
   }
 
-  if (!ready) return null
+  if (!ready) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
+        <div
+          className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
+          style={{ borderColor: 'rgba(6,182,212,0.3)', borderTopColor: '#06b6d4' }}
+        />
+        <p className="text-sm" style={{ color: '#64748b' }}>Loading editor...</p>
+      </div>
+    </div>
+  )
 
   return (
     <GrapesEditor
@@ -95,5 +125,23 @@ export default function EditorPage() {
       initialCss={css}
       onSave={handleSave}
     />
+  )
+}
+
+export default function EditorPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div
+            className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
+            style={{ borderColor: 'rgba(6,182,212,0.3)', borderTopColor: '#06b6d4' }}
+          />
+          <p className="text-sm" style={{ color: '#64748b' }}>Loading editor...</p>
+        </div>
+      </div>
+    }>
+      <EditorPageInner />
+    </Suspense>
   )
 }
