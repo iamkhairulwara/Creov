@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Navbar from '@/components/ui/NAVBAR'
 
 const suggestions = [
@@ -16,21 +17,66 @@ const TEXT_SECONDARY = '#94a3b8'
 const TEXT_MUTED = '#64748b'
 
 export default function Generate() {
+  const router = useRouter()
   const [prompt, setPrompt] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   async function handleGenerate() {
     if (!prompt.trim()) return
     setLoading(true)
-    console.log('Generating for prompt:', prompt)
-    setTimeout(() => setLoading(false), 2000)
+    setError(null)
+
+    try {
+      console.log("🚀 Sending generation request...")
+      
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: prompt,
+          userId: 'temp-user'
+        })
+      })
+
+      const data = await res.json()
+      console.log("📦 API Response:", {
+        hasHtml: !!data.html,
+        htmlLength: data.html?.length,
+        error: data.error
+      })
+
+      if (data.html && data.html.length > 100) {
+        // Store in sessionStorage (better than localStorage for this use case)
+        sessionStorage.setItem('generatedHTML', data.html)
+        sessionStorage.setItem('generatedPrompt', prompt)
+        
+        // Verify it was stored
+        const verify = sessionStorage.getItem('generatedHTML')
+        console.log("💾 Stored in sessionStorage? Length:", verify?.length)
+        
+        if (verify && verify.length > 0) {
+          // Redirect to editor
+          window.location.href = '/editor'
+        } else {
+          throw new Error("Failed to save generated website")
+        }
+      } else {
+        setError(data.error || 'Generation failed. No HTML received')
+        setLoading(false)
+      }
+
+    } catch (err) {
+      console.error("❌ Generation error:", err)
+      setError(err.message || 'Something went wrong. Please try again.')
+      setLoading(false)
+    }
   }
 
   return (
     <div className="min-h-screen">
       <Navbar />
 
-      {/* Background glow */}
       <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
         <div
           className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150 rounded-full"
@@ -40,7 +86,6 @@ export default function Generate() {
 
       <div className="max-w-3xl mx-auto px-6 pt-36 pb-24">
 
-        {/* Header */}
         <div className="text-center mb-12">
           <div
             className="inline-flex items-center gap-2 text-xs font-medium px-4 py-2 rounded-full mb-6 border"
@@ -63,7 +108,6 @@ export default function Generate() {
           </p>
         </div>
 
-        {/* Prompt Box */}
         <div
           className="rounded-2xl border p-5 mb-3 transition-all"
           style={{ background: CARD_BG, borderColor: CARD_BORDER }}>
@@ -107,12 +151,34 @@ export default function Generate() {
           </div>
         </div>
 
-        {/* Tip */}
+        {error && (
+          <div
+            className="rounded-xl border px-4 py-3 mb-4 text-sm"
+            style={{
+              background: 'rgba(239,68,68,0.08)',
+              borderColor: 'rgba(239,68,68,0.2)',
+              color: '#f87171'
+            }}>
+            ⚠️ {error}
+          </div>
+        )}
+
+        {loading && (
+          <div
+            className="rounded-xl border px-4 py-3 mb-4 text-sm text-center"
+            style={{
+              background: 'rgba(6,182,212,0.05)',
+              borderColor: 'rgba(6,182,212,0.15)',
+              color: CYAN
+            }}>
+            ✨ AI is generating your website... this takes 20-40 seconds
+          </div>
+        )}
+
         <p className="text-xs mb-10 px-1" style={{ color: TEXT_MUTED }}>
           💡 Tip: Be specific about your industry, style, and sections for better results
         </p>
 
-        {/* Suggestions */}
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: TEXT_MUTED }}>
             Try these examples
@@ -122,9 +188,11 @@ export default function Generate() {
               <button
                 key={i}
                 onClick={() => setPrompt(s)}
-                className="w-full text-left px-5 py-3.5 rounded-xl border text-sm transition-all"
+                disabled={loading}
+                className="w-full text-left px-5 py-3.5 rounded-xl border text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                 style={{ background: CARD_BG, borderColor: CARD_BORDER, color: TEXT_SECONDARY }}
                 onMouseEnter={e => {
+                  if (loading) return
                   e.currentTarget.style.borderColor = 'rgba(6,182,212,0.25)'
                   e.currentTarget.style.color = 'white'
                   e.currentTarget.style.background = 'rgba(6,182,212,0.05)'

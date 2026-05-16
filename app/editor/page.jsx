@@ -3,104 +3,106 @@
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
 import dynamic from 'next/dynamic'
-import { supabase } from '@/lib/supabase/client'
 
 const GrapesEditor = dynamic(
   () => import('@/components/editor/GRAPESEDITOR'),
   { ssr: false }
 )
 
-const defaultTemplate = `
-<section style="
-  padding: 80px 40px;
-  text-align: center;
-  min-height: 100vh;
-  background: #060a1a;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-family: Inter, sans-serif;
-">
- 
-  <h1 style="
-    font-size: 28px;
-    font-weight: 700;
-    color: #ffffff;
-    margin: 0 0 12px;
-    letter-spacing: -0.02em;
-  ">Start building your website</h1>
-  <p style="
-    font-size: 15px;
-    color: #64748b;
-    margin: 0 0 32px;
-    max-width: 340px;
-    line-height: 1.6;
-  ">select a template or genertae via AI to get started</p>
-  
-</section>
-`
+const defaultTemplate = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Start Building</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        section {
+            padding: 80px 40px;
+            text-align: center;
+            min-height: 100vh;
+            background: #060a1a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: white;
+        }
+        p {
+            font-size: 18px;
+            color: #64748b;
+            max-width: 500px;
+        }
+    </style>
+</head>
+<body>
+    <section>
+        <h1>Start building your website</h1>
+        <p>Select a template or generate via AI to get started</p>
+    </section>
+</body>
+</html>`
 
 function EditorPageInner() {
   const searchParams = useSearchParams()
   const templateId = searchParams.get('templateId')
-
   const [html, setHtml] = useState('')
   const [css, setCss] = useState('')
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
-    async function fetchTemplate() {
-      if (!templateId) {
-        setHtml(defaultTemplate)
+    async function fetchContent() {
+      console.log("🔍 Editor: Checking for content...")
+      
+      // CRITICAL: Check sessionStorage FIRST (used by generate page)
+      const generatedHtml = sessionStorage.getItem('generatedHTML')
+      console.log("📦 Editor: sessionStorage has HTML?", !!generatedHtml, "Length:", generatedHtml?.length)
+      
+      if (generatedHtml && generatedHtml.length > 500) {
+        console.log("✅ Editor: Loading generated HTML from sessionStorage")
+        // Clear it after reading to prevent re-loading
+        sessionStorage.removeItem('generatedHTML')
+        sessionStorage.removeItem('generatedPrompt')
+        
+        setHtml(generatedHtml)
         setCss('')
         setReady(true)
         return
       }
-
-      const { data, error } = await supabase
-        .from('templates')
-        .select('html')
-        .eq('id', templateId)
-        .single()
-
-      if (error || !data?.html) {
-        setHtml(defaultTemplate)
+      
+      // Also check localStorage as fallback
+      const localGenerated = localStorage.getItem('generatedHTML')
+      if (localGenerated && localGenerated.length > 500) {
+        console.log("✅ Editor: Loading generated HTML from localStorage")
+        localStorage.removeItem('generatedHTML')
+        setHtml(localGenerated)
         setCss('')
         setReady(true)
         return
       }
-
-      const parser = new DOMParser()
-      const doc = parser.parseFromString(data.html, 'text/html')
-
-      const bodyHtml = doc.body.innerHTML
-
-      const styleTags = [...doc.querySelectorAll('style')]
-      let cssContent = styleTags.map(s => s.textContent).join('\n')
-
-      const fontLinks = [...doc.querySelectorAll('link[rel="stylesheet"]')]
-      const fontImports = fontLinks.map(l => `@import url('${l.getAttribute('href')}');`).join('\n')
-
-      if (fontImports) {
-        cssContent = fontImports + '\n' + cssContent
-      }
-
-      cssContent += `
-        .fade-in,
-        .fade-in.visible {
-          opacity: 1 !important;
-          transform: translateY(0) !important;
-          transition: none !important;
-        }
-      `
-
-      setHtml(bodyHtml || defaultTemplate)
-      setCss(cssContent)
+      
+      // If no generated content, load default
+      console.log("📄 Editor: No generated content found, loading default template")
+      setHtml(defaultTemplate)
+      setCss('')
       setReady(true)
     }
 
-    fetchTemplate()
+    fetchContent()
   }, [templateId])
 
   function handleSave(data) {
@@ -114,7 +116,7 @@ function EditorPageInner() {
           className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
           style={{ borderColor: 'rgba(6,182,212,0.3)', borderTopColor: '#06b6d4' }}
         />
-        <p className="text-sm" style={{ color: '#64748b' }}>Loading editor...</p>
+        <p style={{ color: '#64748b' }}>Loading editor...</p>
       </div>
     </div>
   )
@@ -137,7 +139,7 @@ export default function EditorPage() {
             className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
             style={{ borderColor: 'rgba(6,182,212,0.3)', borderTopColor: '#06b6d4' }}
           />
-          <p className="text-sm" style={{ color: '#64748b' }}>Loading editor...</p>
+          <p style={{ color: '#64748b' }}>Loading editor...</p>
         </div>
       </div>
     }>
