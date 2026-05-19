@@ -58,76 +58,132 @@ export default function GrapesEditor({ initialHtml = '', initialCss = '', onSave
         height: '100%',
         width: '100%',
         storageManager: false,
+        
+        dragMode: 'translate',
+        avoidInlineStyle: true,
+        fromElement: false,
+        clearOnRender: false,
+        
+        domComponents: {
+          draggableComponents: true,
+          components: {
+            wrapper: {
+              droppable: true,
+            }
+          }
+        },
+        
+        canvas: {
+          styles: ['/grapes-theme.css']
+        },
+        
         plugins: [],
         pluginsOpts: {},
         panels: { defaults: [] },
+        
         deviceManager: {
           devices: [
             { name: 'Desktop', width: '' },
-            { name: 'Tablet', width: '768px', widthMedia: '992px' },
+            { name: 'Tablet', width: '768px', widthMedia: '768px' },
             { name: 'Mobile', width: '375px', widthMedia: '480px' },
           ],
         },
+        
         blockManager: { appendTo: '#gjs-blocks' },
         layerManager: { appendTo: '#gjs-layers' },
         traitManager: { appendTo: '#gjs-traits' },
         styleManager: { appendTo: '#gjs-styles', sectors: [] },
       })
 
+      editor.DomComponents.addType('default', {
+        model: {
+          defaults: {
+            droppable: true,
+            draggable: true,
+            copyable: true,
+            selectable: true,
+            hoverable: true,
+          }
+        }
+      })
+
       editor.on('load', () => {
+        const imageComponent = editor.DomComponents.getType('image')
+        if (imageComponent) {
+          imageComponent.model.prototype.defaults.draggable = true
+          imageComponent.model.prototype.defaults.resizable = true
+        }
+        
         const bm = editor.BlockManager
         bm.getAll().reset()
 
         bm.add('text', {
           label: 'Text', category: 'Basic',
-          content: '<div style="padding: 10px; color: #000000;">Insert your text here</div>',
+          content: '<div style="padding: 10px;">Insert your text here</div>',
           media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 6.1H3M21 12.1H3M15.1 18H3"/></svg>`,
         })
+        
         bm.add('heading', {
           label: 'Heading', category: 'Basic',
-          content: '<h1 style="color: #000000; margin: 20px 0;">Heading Title</h1>',
+          content: '<h1 style="margin: 20px 0;">Heading Title</h1>',
           media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>`,
         })
+        
         bm.add('image', {
           label: 'Image', category: 'Media',
           content: { type: 'image' },
           media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`,
         })
+        
         bm.add('button', {
           label: 'Button', category: 'Basic',
           content: '<button style="padding: 10px 20px; background: #000; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Button</button>',
           media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="8" width="16" height="8" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/></svg>`,
         })
+        
         bm.add('link', {
           label: 'Link', category: 'Basic',
           content: '<a href="#" style="color: #0000EE;">Link text</a>',
           media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>`,
         })
+        
         bm.add('section', {
           label: 'Section', category: 'Layout',
-          content: '<section style="padding: 60px 40px; min-height: 180px; background: #f5f5f5;"><p>Your content here</p></section>',
+          content: '<section style="padding: 60px 40px; min-height: 180px; background: #f5f5f5; width: 100%;"><p>Your content here</p></section>',
           media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="2" y1="9" x2="22" y2="9"/></svg>`,
         })
+        
         bm.add('columns-2', {
           label: '2 Cols', category: 'Layout',
-          content: `<div style="display:flex;gap:20px;"><div style="flex:1;padding:20px;min-height:100px;background:#f9f9f9;">Column 1</div><div style="flex:1;padding:20px;min-height:100px;background:#f9f9f9;">Column 2</div></div>`,
+          content: `
+            <section style="padding:20px; width:100%;">
+              <div style="display:flex; flex-wrap:wrap; gap:20px;">
+                <div style="flex:1 1 300px; min-height:100px; padding:20px; background:#f9f9f9;">
+                  Column 1
+                </div>
+                <div style="flex:1 1 300px; min-height:100px; padding:20px; background:#f9f9f9;">
+                  Column 2
+                </div>
+              </div>
+            </section>
+          `,
           media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="9" height="18" rx="1"/><rect x="13" y="3" width="9" height="18" rx="1"/></svg>`,
         })
+        
         bm.add('columns-3', {
           label: '3 Cols', category: 'Layout',
-          content: `<div style="display:flex;gap:20px;"><div style="flex:1;padding:20px;min-height:100px;background:#f9f9f9;">Col 1</div><div style="flex:1;padding:20px;min-height:100px;background:#f9f9f9;">Col 2</div><div style="flex:1;padding:20px;min-height:100px;background:#f9f9f9;">Col 3</div></div>`,
+          content: `
+            <section style="padding:20px; width:100%;">
+              <div style="display:flex; flex-wrap:wrap; gap:20px;">
+                <div style="flex:1 1 250px; min-height:100px; padding:20px; background:#f9f9f9;">Col 1</div>
+                <div style="flex:1 1 250px; min-height:100px; padding:20px; background:#f9f9f9;">Col 2</div>
+                <div style="flex:1 1 250px; min-height:100px; padding:20px; background:#f9f9f9;">Col 3</div>
+              </div>
+            </section>
+          `,
           media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="6" height="18" rx="1"/><rect x="9" y="3" width="6" height="18" rx="1"/><rect x="17" y="3" width="6" height="18" rx="1"/></svg>`,
         })
-        bm.add('video', {
-          label: 'Video', category: 'Media',
-          content: { type: 'video', src: 'https://www.youtube.com/embed/dQw4w9WgXcQ', style: { height: '350px', width: '100%' } },
-          media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>`,
-        })
-        bm.add('map', {
-          label: 'Map', category: 'Media',
-          content: { type: 'map', style: { height: '350px', width: '100%' } },
-          media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>`,
-        })
+        
 
         const sm = editor.StyleManager
         sm.addSector('colors', {
@@ -137,7 +193,6 @@ export default function GrapesEditor({ initialHtml = '', initialCss = '', onSave
             { name: 'Background', property: 'background-color', type: 'color' },
           ],
         })
-        sm.addSector('size', { name: 'Size', open: false, buildProps: ['width', 'height', 'max-width', 'min-height'] })
         sm.addSector('spacing', { name: 'Spacing', open: false, buildProps: ['margin', 'padding'] })
         sm.addSector('typography', {
           name: 'Typography', open: false,
@@ -162,7 +217,18 @@ export default function GrapesEditor({ initialHtml = '', initialCss = '', onSave
         if (initialCss) editor.setStyle(initialCss)
       })
 
-      // Image upload command
+      // Device change handler
+      editor.on('device:change', (device) => {
+        setTimeout(() => {
+          const iframe = document.querySelector('.gjs-frame iframe')
+          if (iframe && iframe.contentWindow) {
+            const resizeEvent = new Event('resize')
+            iframe.contentWindow.dispatchEvent(resizeEvent)
+          }
+          editor.refresh()
+        }, 50)
+      })
+
       editor.Commands.add('upload-image', {
         run(ed) {
           const sel = ed.getSelected()
@@ -179,7 +245,6 @@ export default function GrapesEditor({ initialHtml = '', initialCss = '', onSave
         },
       })
 
-      // Add upload button to image toolbar
       editor.on('component:selected', (component) => {
         if (component?.get('type') !== 'image') return
         const toolbar = component.get('toolbar') || []

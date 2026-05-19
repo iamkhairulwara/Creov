@@ -2,7 +2,70 @@
 
 .gjs-pn-panels { display: none !important; }
 
-.gjs-cv-canvas { background: #ffffff !important; }
+/* Remove white border and make canvas take full space */
+.gjs-cv-canvas {
+  background: #ffffff !important;
+  overflow: visible !important;
+  height: 100% !important;
+  width: 100% !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Fix device toggle - allow iframe width changes */
+/* Fix text cutting off when changing devices */
+.gjs-frame {
+  transition: width 0.3s ease !important;
+  overflow: auto !important;
+  height: auto !important;
+  min-height: 100% !important;
+}
+
+.gjs-frame-wrapper {
+  overflow: auto !important;
+  height: 100% !important;
+}
+
+/* Make sure the iframe content reflows on resize */
+.gjs-cv-canvas iframe {
+  width: 100% !important;
+  height: 100% !important;
+  transition: all 0.3s ease !important;
+}
+
+/* Force content to reflow on device change */
+.gjs-frame body {
+  width: 100% !important;
+  overflow-x: auto !important;
+  min-width: fit-content !important;
+}
+
+/* Ensure text and elements wrap properly on smaller widths */
+.gjs-frame * {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Prevent text cutoff */
+.gjs-frame p, 
+.gjs-frame h1, 
+.gjs-frame h2, 
+.gjs-frame h3,
+.gjs-frame div {
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  white-space: normal !important;
+}
+
+/* Make sure flex containers wrap on smaller screens */
+.gjs-frame [style*="display: flex"] {
+  flex-wrap: wrap !important;
+}
 .gjs-frame-wrapper__top { background: #ffffff !important; }
 
 /* Block Manager */
@@ -327,7 +390,86 @@
   background-color: #080e20 !important;
   background: #080e20 !important;
 }
+/* Prevent absolute positioned elements from jumping */
+.gjs-comp-selected,
+.gjs-comp-selected-parent {
+  position: relative !important;
+}
 
+/* Keep dragged elements visible */
+.gjs-dragging {
+  opacity: 0.8 !important;
+  z-index: 9999 !important;
+  position: relative !important;
+}
+
+/* Ensure canvas has proper positioning context */
+.gjs-cv-canvas {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+/* Prevent elements from being pushed to bottom */
+.gjs-frame {
+  overflow: visible !important;
+}
+
+/* Keep absolutely positioned elements in place */
+[style*="position: absolute"] {
+  position: absolute !important;
+  z-index: 100;
+}
+/* FIX FOR DISAPPEARING ELEMENTS ON DRAG */
+.gjs-dragging {
+  opacity: 0.8 !important;
+  z-index: 9999 !important;
+  position: fixed !important; /* Change from relative to fixed */
+}
+
+.gjs-cv-canvas {
+  position: relative !important;
+  overflow: visible !important;
+  min-height: 500px !important; /* Add this */
+}
+
+.gjs-frame {
+  overflow: visible !important;
+  min-height: 500px !important; /* Add this */
+}
+
+/* Ensure dragged elements stay visible */
+.gjs-dragging .gjs-frame {
+  overflow: visible !important;
+}
+
+/* Fix for absolute positioned elements during drag */
+[style*="position: absolute"] {
+  position: absolute !important;
+  z-index: 100;
+}
+
+/* Make sure canvas wrapper doesn't clip dragged elements */
+.gjs-frame-wrapper {
+  overflow: visible !important;
+}
+/* Global box sizing for canvas content */
+.gjs-frame body,
+.gjs-frame body * {
+  box-sizing: border-box !important;
+  max-width: 100% !important;
+}
+
+/* Fix for columns layout on tablet */
+@media (max-width: 768px) {
+  .gjs-frame [style*="display: flex"] {
+    flex-direction: column !important;
+  }
+  
+  .gjs-frame [style*="flex: 1"] {
+    width: 100% !important;
+    flex: none !important;
+  }
+}
 /* Scrollbars */
 #gjs-blocks::-webkit-scrollbar,
 #gjs-styles::-webkit-scrollbar,
