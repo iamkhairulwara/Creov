@@ -1,167 +1,136 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
-const CYAN = '#06b6d4'
-const TEXT_MUTED = '#64748b'
-const TEXT_SECONDARY = '#94a3b8'
-const CARD_BORDER = 'rgba(255,255,255,0.06)'
-
-export default function Login() {
+export default function LoginPage() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [error, setError] = useState(null)
 
-  async function handleLogin(e) {
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) router.replace('/generate')
+    }
+    checkSession()
+  }, [router])
+
+  const handleEmailLogin = async (e) => {
     e.preventDefault()
     setLoading(true)
-    console.log('Login:', { email, password })
-    setLoading(false)
+    setError(null)
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+
+    if (error) {
+      setError(error.message)
+      setLoading(false)
+      return
+    }
+
+    router.replace('/generate')
+  }
+
+  const handleGoogleLogin = async () => {
+    setLoading(true)
+    setError(null)
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${window.location.origin}/auth/callback` }
+    })
+
+    if (error) {
+      setError(error.message)
+      setLoading(false)
+    }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-black">
+      <div className="bg-white/5 backdrop-blur-xl p-8 rounded-2xl border border-white/10 w-96">
 
-      {/* Background glow */}
-      <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
-        <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150 rounded-full"
-          style={{ background: 'radial-gradient(circle, rgba(6,182,212,0.07), transparent 70%)' }}
-        />
-      </div>
-
-      <div className="w-full max-w-md">
-
-        {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2.5">
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #06b6d4, #0284c7)' }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-              </svg>
-            </div>
-            <span className="text-white font-bold text-xl tracking-tight">Creov</span>
-          </Link>
+          <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
+          <p className="text-gray-400">Sign in to your Creov account</p>
         </div>
 
-        {/* Card */}
-        <div
-          className="rounded-2xl border p-8"
-          style={{ background: 'rgba(255,255,255,0.02)', borderColor: CARD_BORDER }}>
+        {error && (
+          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
+            ❌ {error}
+          </div>
+        )}
 
-          {/* Header */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-white mb-1">Welcome back</h2>
-            <p className="text-sm" style={{ color: TEXT_MUTED }}>
-              Login to your Creov account
-            </p>
+        <form onSubmit={handleEmailLogin} className="space-y-4 mb-4">
+          <div>
+            <label className="block text-sm text-gray-400 mb-1">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="you@example.com"
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition"
+            />
           </div>
 
-          {/* Error */}
-          {error && (
-            <div
-              className="text-sm rounded-xl p-3 mb-6 border"
-              style={{
-                background: 'rgba(239,68,68,0.08)',
-                borderColor: 'rgba(239,68,68,0.2)',
-                color: '#f87171'
-              }}>
-              {error}
-            </div>
-          )}
-
-          {/* Form */}
-          <form onSubmit={handleLogin} className="space-y-5">
-
-            <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: TEXT_SECONDARY }}>
-                Email
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="john@example.com"
-                required
-                className="w-full rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all placeholder-slate-600"
-                style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  caretColor: CYAN
-                }}
-                onFocus={e => e.target.style.borderColor = 'rgba(6,182,212,0.4)'}
-                onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
-              />
-            </div>
-
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <label className="block text-sm font-medium" style={{ color: TEXT_SECONDARY }}>
-                  Password
-                </label>
-                <a href="#" className="text-xs transition-colors" style={{ color: TEXT_MUTED }}
-                  onMouseEnter={e => e.target.style.color = CYAN}
-                  onMouseLeave={e => e.target.style.color = TEXT_MUTED}>
-                  Forgot password?
-                </a>
-              </div>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Your password"
-                required
-                className="w-full rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all placeholder-slate-600"
-                style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  caretColor: CYAN
-                }}
-                onFocus={e => e.target.style.borderColor = 'rgba(6,182,212,0.4)'}
-                onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              style={{
-                background: 'linear-gradient(135deg, #06b6d4, #0284c7)',
-                boxShadow: '0 0 25px rgba(6,182,212,0.25)'
-              }}>
-              {loading ? (
-                <>
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Logging in...
-                </>
-              ) : 'Login'}
-            </button>
-          </form>
-
-          {/* Divider */}
-          <div className="flex items-center gap-3 my-6">
-            <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
-            <span className="text-xs" style={{ color: TEXT_MUTED }}>or</span>
-            <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
+          <div>
+            <label className="block text-sm text-gray-400 mb-1">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder="••••••••"
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition"
+            />
           </div>
 
-          {/* Signup link */}
-          <p className="text-center text-sm" style={{ color: TEXT_MUTED }}>
-            Don't have an account?{' '}
-            <Link
-              href="/auth/signup"
-              className="font-semibold transition-colors"
-              style={{ color: CYAN }}
-              onMouseEnter={e => e.target.style.color = 'white'}
-              onMouseLeave={e => e.target.style.color = CYAN}>
-              Sign Up
+          <div className="text-right">
+            <Link href="/auth/forgot-password" className="text-sm text-cyan-400 hover:text-cyan-300">
+              Forgot password?
             </Link>
-          </p>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-semibold py-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Signing in...' : 'Sign In'}
+          </button>
+        </form>
+
+        <div className="flex items-center gap-3 my-4">
+          <div className="flex-1 h-px bg-white/10" />
+          <span className="text-gray-500 text-sm">or</span>
+          <div className="flex-1 h-px bg-white/10" />
         </div>
+
+        <button
+          onClick={handleGoogleLogin}
+          disabled={loading}
+          className="w-full flex items-center justify-center gap-3 bg-white text-gray-800 font-semibold py-3 px-4 rounded-lg hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <svg className="w-5 h-5" viewBox="0 0 24 24">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+          </svg>
+          Continue with Google
+        </button>
+
+        <p className="text-center text-gray-500 text-sm mt-6">
+          Don't have an account?{' '}
+          <Link href="/auth/signup" className="text-cyan-400 hover:text-cyan-300">
+            Sign up
+          </Link>
+        </p>
       </div>
     </div>
   )

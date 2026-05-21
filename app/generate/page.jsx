@@ -1,6 +1,7 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase/client'
 import Navbar from '@/components/ui/NAVBAR'
 
 const suggestions = [
@@ -21,21 +22,78 @@ export default function Generate() {
   const [prompt, setPrompt] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [user, setUser] = useState(null)
+  const [checkingAuth, setCheckingAuth] = useState(true)
+
+  // Check authentication on mount
+  useEffect(() => {
+    async function checkAuth() {
+      console.log('🔍 Generate page - checking authentication...')
+      
+      // Try to get session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      
+      if (sessionError) {
+        console.error('Session error:', sessionError)
+      }
+      
+      console.log('📦 Session found:', !!session, session?.user?.email)
+      
+      if (!session) {
+        console.log('❌ No session, redirecting to login')
+        router.replace('/auth/login')
+        return
+      }
+      
+      console.log('✅ User authenticated:', session.user.email)
+      setUser(session.user)
+      setCheckingAuth(false)
+    }
+    
+    checkAuth()
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('🔔 Auth state change:', event, session?.user?.email)
+      
+      if (event === 'SIGNED_OUT') {
+        console.log('User signed out, redirecting to login')
+        router.replace('/auth/login')
+      } else if (event === 'SIGNED_IN' && session) {
+        console.log('User signed in:', session.user.email)
+        setUser(session.user)
+        setCheckingAuth(false)
+      } else if (event === 'TOKEN_REFRESHED') {
+        console.log('Token refreshed for:', session?.user?.email)
+        if (session) {
+          setUser(session.user)
+        }
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [router])
 
   async function handleGenerate() {
     if (!prompt.trim()) return
+    if (!user) {
+      console.log('No user, redirecting to login')
+      router.push('/auth/login')
+      return
+    }
+
     setLoading(true)
     setError(null)
 
     try {
-      console.log("🚀 Sending generation request...")
-      
+      console.log("🚀 Sending generation request for user:", user.id)
+
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           prompt: prompt,
-          userId: 'temp-user'
+          userId: user.id
         })
       })
 
@@ -43,18 +101,21 @@ export default function Generate() {
       console.log("📦 API Response:", {
         hasHtml: !!data.html,
         htmlLength: data.html?.length,
+        websiteId: data.websiteId,
+        savedToDB: data.savedToDB,
         error: data.error
       })
 
       if (data.html && data.html.length > 100) {
-        // Store in sessionStorage (better than localStorage for this use case)
+        // Store in sessionStorage
         sessionStorage.setItem('generatedHTML', data.html)
         sessionStorage.setItem('generatedPrompt', prompt)
-        
+        sessionStorage.setItem('websiteId', data.websiteId || '')
+
         // Verify it was stored
         const verify = sessionStorage.getItem('generatedHTML')
         console.log("💾 Stored in sessionStorage? Length:", verify?.length)
-        
+
         if (verify && verify.length > 0) {
           // Redirect to editor
           window.location.href = '/editor'
@@ -71,6 +132,21 @@ export default function Generate() {
       setError(err.message || 'Something went wrong. Please try again.')
       setLoading(false)
     }
+  }
+
+  // Show loading while checking auth
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="flex flex-col items-center gap-4">
+          <div
+            className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
+            style={{ borderColor: 'rgba(6,182,212,0.3)', borderTopColor: '#06b6d4' }}
+          />
+          <p className="text-sm" style={{ color: '#64748b' }}>Checking authentication...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -95,7 +171,7 @@ export default function Generate() {
               color: CYAN
             }}>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
             </svg>
             AI Website Generator
           </div>
@@ -106,6 +182,11 @@ export default function Generate() {
           <p style={{ color: TEXT_SECONDARY }}>
             Type what you want and AI will generate a complete website for you
           </p>
+          {user && (
+            <p className="text-xs mt-2" style={{ color: TEXT_MUTED }}>
+              Signed in as: {user.email}
+            </p>
+          )}
         </div>
 
         <div
@@ -142,7 +223,7 @@ export default function Generate() {
               ) : (
                 <>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
                   </svg>
                   Generate Website
                 </>

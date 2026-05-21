@@ -3,6 +3,16 @@ import { callGemini } from '@/lib/gemini/geminiclient';
 import { parseIntent } from '@/lib/gemini/intentParser';
 import { buildPrompt } from '@/lib/gemini/promptBuilder';
 import { validateOutput } from '@/lib/gemini/outputValidator';
+import { createClient } from '@supabase/supabase-js';
+
+// Server-side Supabase client using service role key
+// This bypasses RLS and works in API routes
+function getSupabaseAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+  )
+}
 
 export async function POST(request) {
   try {
@@ -46,30 +56,66 @@ export async function POST(request) {
       generatedHTML = null;
     }
     
-    // Validate output (will return default template if validation fails)
+    // Validate output
     const finalHTML = validateOutput(generatedHTML);
     console.log("Final HTML length:", finalHTML.length);
     
-    // Return response WITHOUT database save for now (to test)
-    // Database save will be added after fixing Supabase server client
-    
+    // Save to Supabase using service role key
+    let websiteId = null;
+    try {
+      const supabaseAdmin = getSupabaseAdmin()
+      
+      // Check if service role key exists
+      if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        console.warn("⚠️ SUPABASE_SERVICE_ROLE_KEY not set - skipping DB save")
+      } else {
+        const { data, error } = await supabaseAdmin
+          .from('websites')
+          .insert({
+            user_id: userId || null,
+            title: `Generated - ${intent.industry}`,
+            html: finalHTML,
+            source: 'generated',
+            template_id: templateId || null
+          })
+          .select('id')
+          .single()
+
+        if (error) {
+          console.warn("DB save failed:", error.message)
+        } else {
+          websiteId = data.id
+          console.log("✅ Saved to DB with ID:", websiteId)
+
+          // Save prompt record
+          await supabaseAdmin
+            .from('prompts')
+            .insert({
+              website_id: websiteId,
+              user_id: userId || null,
+              original_prompt: prompt,
+              refined_prompts: []
+            })
+          console.log("✅ Prompt saved")
+        }
+      }
+    } catch (dbError) {
+      console.warn("DB error:", dbError.message)
+    }
+
     return NextResponse.json({
-      websiteId: `temp_${Date.now()}`,
+      websiteId: websiteId || `temp_${Date.now()}`,
       html: finalHTML,
       intent: intent,
       generated: !!generatedHTML,
-      note: "Website generated successfully! Save feature coming soon."
+      savedToDB: !!websiteId
     });
     
   } catch (error) {
     console.error("Fatal error:", error);
-    
-    // Return a fallback HTML so the user sees something
-    const fallbackHTML = getEmergencyTemplate();
-    
     return NextResponse.json({
       websiteId: null,
-      html: fallbackHTML,
+      html: getEmergencyTemplate(),
       error: error.message,
       intent: { industry: 'general', style: 'modern', sections: ['header', 'content', 'footer'] }
     });
