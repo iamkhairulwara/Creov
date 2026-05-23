@@ -1,21 +1,26 @@
 'use client'
-import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase/client'
+
 import Link from 'next/link'
+import { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
 export default function Navbar() {
-  const router = useRouter()
+  const [menuOpen, setMenuOpen] = useState(false)
   const [user, setUser] = useState(null)
 
+  const router = useRouter()
+
   useEffect(() => {
-    // Get initial session
+    // get session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user || null)
     })
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    // listen auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null)
     })
 
@@ -28,48 +33,175 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-black/50 backdrop-blur-xl border-b border-white/10">
-      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-lg flex items-center justify-center">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
+    <nav
+      className="fixed top-0 left-0 right-0 z-50 border-b"
+      style={{
+        background: 'rgba(6, 10, 26, 0.85)',
+        backdropFilter: 'blur(20px)',
+        borderColor: 'rgba(34, 211, 238, 0.08)',
+      }}
+    >
+      <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2.5">
+          <div
+            className="w-7 h-7 rounded-lg flex items-center justify-center"
+            style={{ background: 'linear-gradient(135deg, #06b6d4, #0891b2)' }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
               <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
             </svg>
           </div>
-          <span className="text-white font-bold text-lg">Creov</span>
+          <span className="text-white font-bold text-lg tracking-tight">
+            Creov
+          </span>
         </Link>
 
-        <div className="flex items-center gap-4">
+        {/* Desktop Links */}
+        <div className="hidden md:flex items-center gap-8">
+          {['Templates', 'Generate', 'Editor'].map((item) => (
+            <Link
+              key={item}
+              href={`/${item.toLowerCase()}`}
+              className="text-sm transition-colors"
+              style={{ color: '#94a3b8' }}
+              onMouseEnter={(e) => (e.target.style.color = '#22d3ee')}
+              onMouseLeave={(e) => (e.target.style.color = '#94a3b8')}
+            >
+              {item}
+            </Link>
+          ))}
+        </div>
+
+        {/* Auth Buttons (UPDATED WITH SUPABASE) */}
+        <div className="hidden md:flex items-center gap-3">
           {user ? (
             <>
-              <Link href="/generate" className="text-gray-300 hover:text-white transition-colors">
-                Generate
-              </Link>
-              <Link href="/dashboard" className="text-gray-300 hover:text-white transition-colors">
+              <Link
+                href="/dashboard"
+                className="text-sm px-4 py-2 rounded-lg transition-all"
+                style={{ color: '#94a3b8' }}
+              >
                 Dashboard
               </Link>
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-400">
-                  {user.email?.split('@')[0]}
-                </span>
+
+              <button
+                onClick={handleLogout}
+                className="text-sm px-4 py-2 rounded-lg transition-all"
+                style={{ color: '#94a3b8' }}
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/auth/login"
+                className="text-sm px-4 py-2 rounded-lg transition-all"
+                style={{ color: '#94a3b8' }}
+                onMouseEnter={(e) => (e.target.style.color = 'white')}
+                onMouseLeave={(e) => (e.target.style.color = '#94a3b8')}
+              >
+                Login
+              </Link>
+
+              <Link
+                href="/auth/signup"
+                className="text-sm font-semibold text-white px-5 py-2 rounded-lg transition-all hover:opacity-90"
+                style={{
+                  background: 'linear-gradient(135deg, #06b6d4, #0284c7)',
+                  boxShadow: '0 0 20px rgba(6, 182, 212, 0.3)',
+                }}
+              >
+                Get Started
+              </Link>
+            </>
+          )}
+        </div>
+
+        {/* Mobile Toggle */}
+        <button
+          className="md:hidden flex flex-col gap-1.5 p-1"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          <span
+            className={`block w-5 h-0.5 transition-all ${
+              menuOpen ? 'rotate-45 translate-y-2' : ''
+            }`}
+            style={{ background: '#94a3b8' }}
+          />
+          <span
+            className={`block w-5 h-0.5 transition-all ${
+              menuOpen ? 'opacity-0' : ''
+            }`}
+            style={{ background: '#94a3b8' }}
+          />
+          <span
+            className={`block w-5 h-0.5 transition-all ${
+              menuOpen ? '-rotate-45 -translate-y-2' : ''
+            }`}
+            style={{ background: '#94a3b8' }}
+          />
+        </button>
+      </div>
+
+      {/* Mobile Menu */}
+      {menuOpen && (
+        <div
+          className="md:hidden border-t px-6 py-5 flex flex-col gap-4"
+          style={{
+            background: 'rgba(6, 10, 26, 0.97)',
+            borderColor: 'rgba(34,211,238,0.08)',
+          }}
+        >
+          {['Templates', 'Generate', 'Editor'].map((item) => (
+            <Link
+              key={item}
+              href={`/${item.toLowerCase()}`}
+              className="text-sm py-1"
+              style={{ color: '#94a3b8' }}
+            >
+              {item}
+            </Link>
+          ))}
+
+          <div
+            className="border-t pt-4 flex flex-col gap-3"
+            style={{ borderColor: 'rgba(255,255,255,0.05)' }}
+          >
+            {user ? (
+              <>
+                <Link href="/dashboard" className="text-sm py-1" style={{ color: '#94a3b8' }}>
+                  Dashboard
+                </Link>
+
                 <button
                   onClick={handleLogout}
-                  className="text-sm px-4 py-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all"
+                  className="text-sm py-1 text-left"
+                  style={{ color: '#94a3b8' }}
                 >
                   Logout
                 </button>
-              </div>
-            </>
-          ) : (
-            <Link
-              href="/auth/login"
-              className="px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white text-sm font-medium hover:opacity-90 transition-opacity"
-            >
-              Sign In
-            </Link>
-          )}
+              </>
+            ) : (
+              <>
+                <Link href="/auth/login" className="text-sm py-1" style={{ color: '#94a3b8' }}>
+                  Login
+                </Link>
+
+                <Link
+                  href="/auth/signup"
+                  className="text-sm font-semibold text-white text-center px-4 py-2.5 rounded-lg"
+                  style={{ background: 'linear-gradient(135deg, #06b6d4, #0284c7)' }}
+                >
+                  Get Started
+                </Link>
+              </>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </nav>
   )
 }
