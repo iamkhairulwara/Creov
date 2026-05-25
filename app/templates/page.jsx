@@ -3,15 +3,10 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Navbar from '@/components/ui/NAVBAR'
+import Footer from '@/components/ui/FOOTER'
 import { supabase } from '@/lib/supabase/client'
 
 const categories = ['All', 'Portfolio', 'Business', 'Restaurant', 'Landing Page']
-
-const CARD_BG = 'rgba(255,255,255,0.02)'
-const CARD_BORDER = 'rgba(255,255,255,0.06)'
-const CYAN = '#06b6d4'
-const TEXT_SECONDARY = '#94a3b8'
-const TEXT_MUTED = '#64748b'
 
 const DEFAULT_CONTENT = {
   name: 'Sarah Johnson',
@@ -24,12 +19,12 @@ const DEFAULT_CONTENT = {
 function forceFillContent(html) {
   if (!html || html.trim() === '') {
     return `
-      <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;font-family:sans-serif;">
+      <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#06b6d4 0%,#0284c7 100%);color:white;font-family:sans-serif;">
         <div style="text-align:center;padding:40px;">
           <h1 style="font-size:48px;margin-bottom:20px;">${DEFAULT_CONTENT.name}</h1>
           <p style="font-size:24px;margin-bottom:20px;">${DEFAULT_CONTENT.role}</p>
           <p style="font-size:18px;max-width:500px;">${DEFAULT_CONTENT.bio}</p>
-          <button style="margin-top:30px;padding:12px 30px;background:white;color:#667eea;border:none;border-radius:50px;font-weight:bold;">Get In Touch</button>
+          <button style="margin-top:30px;padding:12px 30px;background:white;color:#06b6d4;border:none;border-radius:50px;font-weight:bold;cursor:pointer;">Get In Touch</button>
         </div>
       </div>`
   }
@@ -60,6 +55,9 @@ export default function Templates() {
   const [activeCategory, setActiveCategory] = useState('All')
   const [loading, setLoading] = useState(true)
   const [previewTemplate, setPreviewTemplate] = useState(null)
+  
+  // Responsive iframe viewport width state
+  const [viewportWidth, setViewportWidth] = useState('100%')
 
   useEffect(() => { fetchTemplates() }, [])
 
@@ -119,89 +117,68 @@ export default function Templates() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-[#030712] text-white selection:bg-cyan-500/30 selection:text-white">
       <Navbar />
 
-      {/* Background glow */}
+      {/* Cyber Glow background mesh */}
       <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
         <div
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-200 h-125 rounded-full"
-          style={{ background: 'radial-gradient(circle, rgba(6,182,212,0.06), transparent 70%)' }}
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] rounded-full bg-cyan-500/5 blur-[120px] animate-pulse-glow"
         />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16">
+      <div className="max-w-7xl mx-auto px-6 pt-36 pb-24">
 
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div
-            className="inline-flex items-center gap-2 text-xs font-medium px-4 py-2 rounded-full mb-6 border"
-            style={{
-              background: 'rgba(6,182,212,0.08)',
-              borderColor: 'rgba(6,182,212,0.2)',
-              color: CYAN
-            }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+        {/* Dynamic header */}
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-violet-500/20 bg-violet-950/20 mb-6 animate-float">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2.5">
               <rect x="3" y="3" width="18" height="18" rx="2"/>
               <path d="M3 9h18M9 21V9"/>
             </svg>
-            Template Library
+            <span className="text-xs font-semibold uppercase tracking-wider text-violet-300">
+              Template Library
+            </span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
-            Choose your template
+          
+          <h1 className="text-4xl md:text-6xl font-black mb-4 tracking-tight">
+            Choose your <span className="neon-text-cyan-blue">Template</span>
           </h1>
-          <p style={{ color: TEXT_SECONDARY }}>
-            Pick a professionally designed template and make it yours in minutes
+          <p className="text-slate-400 text-lg font-light max-w-xl mx-auto">
+            Kickstart your single-page design with professionally optimized, customizable layouts.
           </p>
         </div>
 
-        {/* Category Filter */}
-        <div className="flex flex-wrap justify-center gap-2 mb-10">
-          {categories.map(cat => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className="px-5 py-2 rounded-full text-sm font-medium transition-all"
-              style={
-                activeCategory === cat
-                  ? {
-                      background: 'linear-gradient(135deg, #06b6d4, #0284c7)',
-                      color: 'white',
-                      boxShadow: '0 0 20px rgba(6,182,212,0.3)'
-                    }
-                  : {
-                      background: CARD_BG,
-                      border: `1px solid ${CARD_BORDER}`,
-                      color: TEXT_SECONDARY
-                    }
-              }
-              onMouseEnter={e => {
-                if (activeCategory !== cat) {
-                  e.currentTarget.style.borderColor = 'rgba(6,182,212,0.3)'
-                  e.currentTarget.style.color = 'white'
-                }
-              }}
-              onMouseLeave={e => {
-                if (activeCategory !== cat) {
-                  e.currentTarget.style.borderColor = CARD_BORDER
-                  e.currentTarget.style.color = TEXT_SECONDARY
-                }
-              }}>
-              {cat}
-            </button>
-          ))}
+        {/* Immersive Category Filter */}
+        <div className="flex flex-wrap justify-center gap-3 mb-12">
+          {categories.map(cat => {
+            const isSelected = activeCategory === cat
+            return (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 border ${
+                  isSelected
+                    ? 'bg-gradient-to-r from-cyan-500 to-blue-500 border-cyan-400/40 text-white shadow-[0_0_20px_rgba(6,182,212,0.3)] scale-105'
+                    : 'border-white/5 bg-white/5 text-slate-400 hover:border-cyan-500/20 hover:text-white'
+                }`}
+              >
+                {cat}
+              </button>
+            )
+          })}
         </div>
 
-        {/* Loading Skeleton */}
+        {/* Loading skeleton */}
         {loading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1,2,3,4,5,6].map(i => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3].map(i => (
               <div
                 key={i}
-                className="rounded-2xl overflow-hidden animate-pulse border"
-                style={{ background: CARD_BG, borderColor: CARD_BORDER }}>
-                <div className="h-52 bg-white/5" />
-                <div className="p-5 space-y-3">
+                className="rounded-3xl overflow-hidden animate-pulse border border-white/5 bg-white/5 p-4"
+              >
+                <div className="h-48 bg-white/5 rounded-2xl mb-4" />
+                <div className="space-y-3">
                   <div className="h-4 bg-white/5 rounded w-3/4" />
                   <div className="h-3 bg-white/5 rounded w-1/4" />
                   <div className="h-10 bg-white/5 rounded-xl mt-4" />
@@ -211,83 +188,71 @@ export default function Templates() {
           </div>
         )}
 
-        {/* Templates Grid */}
+        {/* Interactive Templates Grid */}
         {!loading && (
           <>
             {filtered.length === 0 ? (
-              <div
-                className="text-center py-20 rounded-2xl border"
-                style={{ background: CARD_BG, borderColor: CARD_BORDER }}>
-                <div className="text-5xl mb-4">🎨</div>
-                <p style={{ color: TEXT_MUTED }}>No templates in this category yet.</p>
+              <div className="glass-card text-center py-24 rounded-3xl">
+                <div className="text-6xl mb-6">🎨</div>
+                <p className="text-slate-500 font-mono text-sm uppercase">Category Empty</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filtered.map(template => (
                   <div
                     key={template.id}
-                    className="group rounded-2xl overflow-hidden border transition-all duration-300"
-                    style={{ background: CARD_BG, borderColor: CARD_BORDER }}
-                    onMouseEnter={e => {
-                      e.currentTarget.style.borderColor = 'rgba(6,182,212,0.25)'
-                      e.currentTarget.style.boxShadow = '0 0 30px rgba(6,182,212,0.08)'
-                    }}
-                    onMouseLeave={e => {
-                      e.currentTarget.style.borderColor = CARD_BORDER
-                      e.currentTarget.style.boxShadow = 'none'
-                    }}>
-
-                    {/* Thumbnail */}
-                    <div className="relative overflow-hidden" style={{ height: '220px', background: '#0a0f23' }}>
+                    className="group rounded-3xl overflow-hidden border border-white/5 bg-white/5 backdrop-blur-xl transition-all duration-300 hover:border-cyan-500/20 hover:shadow-[0_8px_30px_rgba(6,182,212,0.06)]"
+                  >
+                    {/* Thumbnail Frame */}
+                    <div className="relative overflow-hidden border-b border-white/5" style={{ height: '220px', background: '#0a0f23' }}>
                       <iframe
                         srcDoc={createCompleteHtml(template, true)}
-                        className="absolute inset-0 w-full h-full border-0 pointer-events-none"
+                        className="absolute inset-0 w-full h-full border-0 pointer-events-none scale-[1.01] transition-transform duration-500 group-hover:scale-105"
                         title={template.title}
                         sandbox="allow-same-origin allow-scripts"
                       />
 
-                      {/* Category badge */}
-                      <div className="absolute top-3 left-3 z-10">
-                        <span
-                          className="px-2.5 py-1 text-xs font-medium rounded-lg"
-                          style={{
-                            background: 'rgba(6,182,212,0.15)',
-                            border: '1px solid rgba(6,182,212,0.3)',
-                            color: CYAN
-                          }}>
+                      {/* Category Pill Tag */}
+                      <div className="absolute top-4 left-4 z-10">
+                        <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-lg bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 backdrop-blur-md">
                           {template.category}
                         </span>
                       </div>
 
-                      {/* Hover overlay */}
+                      {/* Overlay card controls */}
                       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center z-20"
-                        style={{ background: 'rgba(6,10,26,0.75)' }}>
+                        style={{ background: 'rgba(3,7,18,0.85)' }}>
                         <button
-                          onClick={() => setPreviewTemplate(template)}
-                          className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:scale-105"
-                          style={{
-                            background: 'linear-gradient(135deg, #06b6d4, #0284c7)',
-                            boxShadow: '0 0 20px rgba(6,182,212,0.4)'
-                          }}>
+                          onClick={() => {
+                            setViewportWidth('100%') // Reset to default desktop
+                            setPreviewTemplate(template)
+                          }}
+                          className="px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(6,182,212,0.3)]"
+                        >
                           Quick Preview
                         </button>
                       </div>
                     </div>
 
-                    {/* Card Footer */}
-                    <div className="p-5">
-                      <h3 className="font-semibold text-white text-base mb-1">
-                        {template.title}
-                      </h3>
-                      <p className="text-xs uppercase tracking-widest mb-4" style={{ color: TEXT_MUTED }}>
-                        {template.category}
-                      </p>
+                    {/* Meta info footer */}
+                    <div className="p-6">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <h3 className="font-extrabold text-white text-lg tracking-tight">
+                            {template.title}
+                          </h3>
+                          <span className="text-[10px] uppercase font-mono tracking-widest text-slate-500 mt-1 block">
+                            {template.category} Category
+                          </span>
+                        </div>
+                      </div>
+                      
                       <button
                         onClick={() => handleUseTemplate(template.id)}
-                        className="w-full py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 flex items-center justify-center gap-2"
-                        style={{ background: 'linear-gradient(135deg, #06b6d4, #0284c7)' }}>
+                        className="w-full py-3 rounded-xl text-xs font-bold uppercase tracking-widest text-white bg-white/5 border border-white/10 transition-all duration-300 hover:bg-gradient-to-r hover:from-cyan-500 hover:to-blue-500 hover:border-transparent flex items-center justify-center gap-2"
+                      >
                         Use Template
-                        <span className="opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1 inline-block">→</span>
+                        <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-1">→</span>
                       </button>
                     </div>
                   </div>
@@ -297,77 +262,147 @@ export default function Templates() {
           </>
         )}
       </div>
+      <Footer />
 
-      {/* Preview Modal */}
+      {/* Multi-Device Live Viewport Preview Modal */}
       {previewTemplate && (
-        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-          style={{ background: 'rgba(6,10,26,0.9)' }}>
+        <div className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-50 p-4 sm:p-6"
+          style={{ background: 'rgba(3,7,18,0.95)' }}>
+          
           <div
-            className="w-full max-w-5xl flex flex-col border"
-            style={{
-              height: '88vh',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              background: '#080e20',
-              borderColor: 'rgba(6,182,212,0.15)'
-            }}>
-
-            {/* Modal Header */}
-            <div
-              className="flex justify-between items-center px-6 py-4 shrink-0"
-              style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            className="w-full max-w-6xl flex flex-col border border-white/10 rounded-3xl overflow-hidden bg-[#080d20] shadow-[0_0_80px_rgba(0,0,0,0.8)]"
+            style={{ height: '88vh' }}
+          >
+            {/* Control Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-center px-6 py-4 gap-4 shrink-0 border-b border-white/5">
               <div>
-                <h2 className="font-semibold text-white text-lg">{previewTemplate.title}</h2>
-                <p className="text-sm mt-0.5" style={{ color: TEXT_MUTED }}>
-                  {previewTemplate.category} Template
+                <h2 className="font-extrabold text-white text-lg tracking-tight">{previewTemplate.title}</h2>
+                <p className="text-xs uppercase font-mono tracking-widest text-slate-500 mt-0.5">
+                  Responsive Preview Sandbox
                 </p>
               </div>
+
+              {/* Viewport resizing toggles */}
+              <div className="flex items-center gap-2 bg-white/5 border border-white/5 p-1 rounded-xl">
+                {[
+                  {
+                    id: '100%',
+                    label: 'Desktop',
+                    icon: (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                        <line x1="8" y1="21" x2="16" y2="21"/>
+                        <line x1="12" y1="17" x2="12" y2="21"/>
+                      </svg>
+                    )
+                  },
+                  {
+                    id: '768px',
+                    label: 'Tablet',
+                    icon: (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="4" y="2" width="16" height="20" rx="2" ry="2" transform="rotate(90 12 12)"/>
+                        <line x1="12" y1="18" x2="12" y2="18"/>
+                      </svg>
+                    )
+                  },
+                  {
+                    id: '375px',
+                    label: 'Mobile',
+                    icon: (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+                        <line x1="12" y1="18" x2="12" y2="18"/>
+                      </svg>
+                    )
+                  }
+                ].map(mode => {
+                  const isActive = viewportWidth === mode.id
+                  return (
+                    <button
+                      key={mode.id}
+                      onClick={() => setViewportWidth(mode.id)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${
+                        isActive
+                          ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      {mode.icon}
+                      {mode.label}
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* Close controls */}
               <button
                 onClick={() => setPreviewTemplate(null)}
-                className="w-8 h-8 flex items-center justify-center rounded-full transition-all text-sm"
-                style={{ color: TEXT_MUTED, border: '1px solid rgba(255,255,255,0.08)' }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.color = 'white'
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.color = TEXT_MUTED
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'
-                }}>
+                className="w-8 h-8 flex items-center justify-center rounded-xl border border-white/5 bg-white/5 text-slate-400 hover:text-white hover:border-white/10 transition-all text-xs"
+              >
                 ✕
               </button>
             </div>
 
-            {/* iframe */}
-            <div className="flex-1 min-h-0">
-              <iframe
-                srcDoc={createCompleteHtml(previewTemplate, false)}
-                className="w-full h-full border-0"
-                title={previewTemplate.title}
+            {/* Sandbox Canvas */}
+            <div className="flex-1 min-h-0 bg-[#030610] p-6 flex justify-center items-center overflow-auto relative">
+              {/* Radial lighting background grid */}
+              <div 
+                className="absolute inset-0 opacity-[0.03]"
+                style={{
+                  backgroundImage: 'radial-gradient(rgba(34,211,238,0.4) 1.5px, transparent 1.5px)',
+                  backgroundSize: '24px 24px'
+                }} 
               />
+              
+              {/* Responsive Iframe Frame Wrapper */}
+              <div
+                className="h-full border border-white/10 rounded-2xl overflow-hidden transition-all duration-500 ease-in-out bg-black relative shadow-2xl"
+                style={{
+                  width: viewportWidth,
+                  maxHeight: '100%',
+                  borderRadius: viewportWidth === '375px' ? '32px' : '16px',
+                  borderWidth: viewportWidth === '375px' ? '8px' : '1px',
+                  borderColor: viewportWidth === '375px' ? '#1e293b' : 'rgba(255,255,255,0.06)'
+                }}
+              >
+                {/* Phone chassis camera lens mockup */}
+                {viewportWidth === '375px' && (
+                  <div className="absolute top-2 left-1/2 -translate-x-1/2 w-16 h-4 bg-[#1e293b] rounded-full z-30" />
+                )}
+                
+                <iframe
+                  srcDoc={createCompleteHtml(previewTemplate, false)}
+                  className="w-full h-full border-0 bg-[#030712] relative z-10"
+                  title={previewTemplate.title}
+                />
+              </div>
             </div>
 
-            {/* Modal Footer */}
+            {/* Modal Bottom Controls */}
             <div
-              className="flex justify-end gap-3 px-6 py-4 shrink-0"
-              style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-              <button
-                onClick={() => setPreviewTemplate(null)}
-                className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
-                style={{ color: TEXT_SECONDARY, border: '1px solid rgba(255,255,255,0.08)' }}
-                onMouseEnter={e => e.currentTarget.style.color = 'white'}
-                onMouseLeave={e => e.currentTarget.style.color = TEXT_SECONDARY}>
-                Close
-              </button>
-              <button
-                onClick={() => {
-                  setPreviewTemplate(null)
-                  handleUseTemplate(previewTemplate.id)
-                }}
-                className="px-6 py-2 rounded-lg text-sm font-semibold text-white transition-all hover:opacity-90 flex items-center gap-2"
-                style={{ background: 'linear-gradient(135deg, #06b6d4, #0284c7)' }}>
-                Use This Template →
-              </button>
+              className="flex flex-col sm:flex-row justify-between items-center gap-4 px-6 py-4 shrink-0 border-t border-white/5 bg-[#05091a]"
+            >
+              <div className="text-[10px] text-slate-500 font-mono">
+                CURRENT VIEWPORT: {viewportWidth === '100%' ? 'DESKTOP (100% WIDTH)' : viewportWidth === '768px' ? 'TABLET (768px WIDTH)' : 'MOBILE (375px WIDTH)'}
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setPreviewTemplate(null)}
+                  className="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-400 border border-white/5 hover:text-white hover:border-white/10 transition-all"
+                >
+                  Close Preview
+                </button>
+                <button
+                  onClick={() => {
+                    setPreviewTemplate(null)
+                    handleUseTemplate(previewTemplate.id)
+                  }}
+                  className="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(6,182,212,0.3)]"
+                >
+                  Use Template →
+                </button>
+              </div>
             </div>
           </div>
         </div>

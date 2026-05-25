@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import CreovLogo from '@/components/ui/CREOVLOGO'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -51,70 +52,98 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-black">
-      <div className="bg-white/5 backdrop-blur-xl p-8 rounded-2xl border border-white/10 w-96">
+    <div className="min-h-screen flex items-center justify-center bg-[#060a1a] text-white selection:bg-cyan-500/30 selection:text-white overflow-x-hidden relative">
+      {/* Immersive background glows */}
+      <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-cyan-500/10 blur-[100px] animate-pulse-glow" />
+        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-violet-600/5 blur-[90px] animate-pulse-glow" style={{ animationDelay: '2.5s' }} />
+      </div>
 
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
-          <p className="text-gray-400">Sign in to your Creov account</p>
+      {/* Cyber Grid Pattern */}
+      <div 
+        className="absolute inset-0 -z-10 opacity-[0.05] animate-grid-flow"
+        style={{
+          backgroundImage: 'radial-gradient(rgba(34,211,238,0.4) 1.5px, transparent 1.5px)',
+          backgroundSize: '32px 32px'
+        }} 
+      />
+
+      <div className="bg-[#080c1e]/60 backdrop-blur-2xl p-8 rounded-3xl border border-white/5 w-full max-w-md shadow-[0_0_50px_rgba(0,0,0,0.8)] glow-cyan transition-all duration-300 hover:border-cyan-500/10">
+        
+        {/* Unified CreovLogo Brand */}
+        <div className="flex flex-col items-center mb-8">
+          <Link href="/">
+            <CreovLogo className="w-12 h-12 mb-4" />
+          </Link>
+          <h1 className="text-3xl font-extrabold text-white tracking-tight text-center">Welcome Back</h1>
+          <p className="text-slate-400 text-sm mt-1">Sign in to your Creov account</p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
-            ❌ {error}
+          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm flex items-center gap-2">
+            <span>❌</span> {error}
           </div>
         )}
 
-        <form onSubmit={handleEmailLogin} className="space-y-4 mb-4">
+        <form onSubmit={handleEmailLogin} className="space-y-5 mb-5">
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Email</label>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Email Address</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="you@example.com"
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition duration-300"
             />
           </div>
 
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Password</label>
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400">Password</label>
+              <Link href="/auth/forgot-password" className="text-xs font-semibold text-cyan-400 hover:text-cyan-300 transition duration-300">
+                Forgot password?
+              </Link>
+            </div>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="••••••••"
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition duration-300"
             />
-          </div>
-
-          <div className="text-right">
-            <Link href="/auth/forgot-password" className="text-sm text-cyan-400 hover:text-cyan-300">
-              Forgot password?
-            </Link>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-semibold py-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="group relative w-full inline-flex items-center justify-center text-white font-bold py-3.5 px-4 rounded-xl transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            <span className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-600 to-violet-600 rounded-xl shadow-[0_4px_20px_rgba(6,182,212,0.25)] group-hover:shadow-[0_4px_30px_rgba(139,92,246,0.4)]" />
+            <span className="relative z-10 flex items-center gap-2">
+              {loading ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                'Sign In'
+              )}
+            </span>
           </button>
         </form>
 
-        <div className="flex items-center gap-3 my-4">
-          <div className="flex-1 h-px bg-white/10" />
-          <span className="text-gray-500 text-sm">or</span>
-          <div className="flex-1 h-px bg-white/10" />
+        <div className="flex items-center gap-3 my-6">
+          <div className="flex-1 h-px bg-white/5" />
+          <span className="text-slate-500 text-xs font-bold uppercase tracking-widest">or</span>
+          <div className="flex-1 h-px bg-white/5" />
         </div>
 
         <button
           onClick={handleGoogleLogin}
           disabled={loading}
-          className="w-full flex items-center justify-center gap-3 bg-white text-gray-800 font-semibold py-3 px-4 rounded-lg hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full flex items-center justify-center gap-3 bg-white text-gray-800 font-bold py-3 px-4 rounded-xl hover:bg-gray-100 transition duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -125,9 +154,9 @@ export default function LoginPage() {
           Continue with Google
         </button>
 
-        <p className="text-center text-gray-500 text-sm mt-6">
+        <p className="text-center text-slate-400 text-sm mt-8">
           Don't have an account?{' '}
-          <Link href="/auth/signup" className="text-cyan-400 hover:text-cyan-300">
+          <Link href="/auth/signup" className="text-cyan-400 font-semibold hover:text-cyan-300 transition duration-300">
             Sign up
           </Link>
         </p>

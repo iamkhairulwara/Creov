@@ -3,91 +3,89 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import Navbar from '@/components/ui/NAVBAR'
+import Footer from '@/components/ui/FOOTER'
 
 const suggestions = [
-  "A portfolio website for a graphic designer with dark theme",
-  "A restaurant website with menu and reservation section",
-  "A business landing page for a software agency",
-  "A personal blog with minimal white design",
+  "A dark portfolio website for a visual artist with high-contrast cards",
+  "A restaurant website featuring menu sections and table bookings",
+  "A tech agency landing page with floating cards and cyber theme",
+  "A minimalist creative agency hub with high-end glassmorphic borders",
 ]
 
-const CARD_BG = 'rgba(255,255,255,0.02)'
-const CARD_BORDER = 'rgba(255,255,255,0.06)'
-const CYAN = '#06b6d4'
-const TEXT_SECONDARY = '#94a3b8'
-const TEXT_MUTED = '#64748b'
+const pipelineSteps = [
+  { id: 1, text: "Analyzing prompt intent & style guides..." },
+  { id: 2, text: "Architecting responsive single-page hierarchy..." },
+  { id: 3, text: "Writing semantic, structure-rich HTML5 elements..." },
+  { id: 4, text: "Injecting custom high-fidelity responsive CSS..." },
+  { id: 5, text: "Polishing interactive micro-scripts & animations..." }
+]
 
 export default function Generate() {
   const router = useRouter()
   const [prompt, setPrompt] = useState('')
   const [loading, setLoading] = useState(false)
+  const [activeStep, setActiveStep] = useState(0)
   const [error, setError] = useState(null)
   const [user, setUser] = useState(null)
   const [checkingAuth, setCheckingAuth] = useState(true)
 
-  // Check authentication on mount
+  // Auth checks
   useEffect(() => {
     async function checkAuth() {
-      console.log('🔍 Generate page - checking authentication...')
-      
-      // Try to get session
       const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-      
-      if (sessionError) {
-        console.error('Session error:', sessionError)
-      }
-      
-      console.log('📦 Session found:', !!session, session?.user?.email)
-      
+      if (sessionError) console.error('Session error:', sessionError)
+
       if (!session) {
-        console.log('❌ No session, redirecting to login')
         router.replace('/auth/login')
         return
       }
-      
-      console.log('✅ User authenticated:', session.user.email)
       setUser(session.user)
       setCheckingAuth(false)
     }
     
     checkAuth()
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('🔔 Auth state change:', event, session?.user?.email)
-      
       if (event === 'SIGNED_OUT') {
-        console.log('User signed out, redirecting to login')
         router.replace('/auth/login')
       } else if (event === 'SIGNED_IN' && session) {
-        console.log('User signed in:', session.user.email)
         setUser(session.user)
         setCheckingAuth(false)
-      } else if (event === 'TOKEN_REFRESHED') {
-        console.log('Token refreshed for:', session?.user?.email)
-        if (session) {
-          setUser(session.user)
-        }
       }
     })
 
     return () => subscription.unsubscribe()
   }, [router])
 
+  // Pipeline simulation timer
+  useEffect(() => {
+    let interval
+    if (loading) {
+      setActiveStep(1)
+      interval = setInterval(() => {
+        setActiveStep((prev) => {
+          if (prev < 5) return prev + 1
+          return prev
+        })
+      }, 6000) // Change step every 6s to span ~30s generation time
+    } else {
+      setActiveStep(0)
+    }
+    return () => clearInterval(interval)
+  }, [loading])
+
   async function handleGenerate() {
     if (!prompt.trim()) return
     if (!user) {
-      console.log('No user, redirecting to login')
       router.push('/auth/login')
       return
     }
 
     setLoading(true)
     setError(null)
+    setActiveStep(1)
 
     try {
-      console.log("🚀 Sending generation request for user:", user.id)
-
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -98,199 +96,226 @@ export default function Generate() {
       })
 
       const data = await res.json()
-      console.log("📦 API Response:", {
-        hasHtml: !!data.html,
-        htmlLength: data.html?.length,
-        websiteId: data.websiteId,
-        savedToDB: data.savedToDB,
-        error: data.error
-      })
 
       if (data.html && data.html.length > 100) {
-        // Store in sessionStorage
+        // Complete the pipeline visuals instantly
+        setActiveStep(5)
+        
         sessionStorage.setItem('generatedHTML', data.html)
         sessionStorage.setItem('generatedPrompt', prompt)
         sessionStorage.setItem('websiteId', data.websiteId || '')
 
-        // Verify it was stored
         const verify = sessionStorage.getItem('generatedHTML')
-        console.log("💾 Stored in sessionStorage? Length:", verify?.length)
-
         if (verify && verify.length > 0) {
-          // Redirect to editor
           window.location.href = '/editor'
         } else {
-          throw new Error("Failed to save generated website")
+          throw new Error("Failed to cache generated design local context")
         }
       } else {
-        setError(data.error || 'Generation failed. No HTML received')
+        setError(data.error || 'Generation failed. No layout was successfully compiled.')
         setLoading(false)
       }
 
     } catch (err) {
-      console.error("❌ Generation error:", err)
-      setError(err.message || 'Something went wrong. Please try again.')
+      console.error("Generation error:", err)
+      setError(err.message || 'AI processing encountered an unexpected event.')
       setLoading(false)
     }
   }
 
-  // Show loading while checking auth
   if (checkingAuth) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
+      <div className="min-h-screen flex items-center justify-center bg-[#030712]">
         <div className="flex flex-col items-center gap-4">
-          <div
-            className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
-            style={{ borderColor: 'rgba(6,182,212,0.3)', borderTopColor: '#06b6d4' }}
-          />
-          <p className="text-sm" style={{ color: '#64748b' }}>Checking authentication...</p>
+          <div className="w-10 h-10 rounded-full border-2 border-cyan-500/20 border-t-cyan-400 animate-spin" />
+          <p className="text-sm text-slate-500 font-mono">Securing gateway handshake...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-[#030712] text-white selection:bg-cyan-500/30 selection:text-white">
       <Navbar />
 
+      {/* Cyber Mesh Glow */}
       <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
-        <div
-          className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150 rounded-full"
-          style={{ background: 'radial-gradient(circle, rgba(6,182,212,0.07), transparent 70%)' }}
-        />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] rounded-full bg-cyan-500/5 blur-[120px] animate-pulse-glow" />
       </div>
 
-      <div className="max-w-3xl mx-auto px-6 pt-36 pb-24">
-
-        <div className="text-center mb-12">
-          <div
-            className="inline-flex items-center gap-2 text-xs font-medium px-4 py-2 rounded-full mb-6 border"
-            style={{
-              background: 'rgba(6,182,212,0.08)',
-              borderColor: 'rgba(6,182,212,0.2)',
-              color: CYAN
-            }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-            </svg>
-            AI Website Generator
+      <div className="max-w-7xl mx-auto px-6 pt-36 pb-24 grid grid-cols-12 gap-8">
+        
+        {/* Left Side: Prompt Tips & Quick Suggestions (Bento layout sidebar) */}
+        <div className="col-span-12 lg:col-span-4 flex flex-col gap-6">
+          
+          {/* User Status Profile widget */}
+          <div className="glass-card rounded-2xl p-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 blur-xl rounded-full" />
+            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">Workspace Portal</h2>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center font-extrabold text-white font-mono uppercase">
+                {user.email?.slice(0, 2)}
+              </div>
+              <div className="flex flex-col overflow-hidden">
+                <span className="text-xs text-slate-500">Authenticated Account</span>
+                <span className="text-sm font-semibold text-white truncate">{user.email}</span>
+              </div>
+            </div>
           </div>
 
-          <h1 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">
-            Describe your website
-          </h1>
-          <p style={{ color: TEXT_SECONDARY }}>
-            Type what you want and AI will generate a complete website for you
-          </p>
-          {user && (
-            <p className="text-xs mt-2" style={{ color: TEXT_MUTED }}>
-              Signed in as: {user.email}
-            </p>
-          )}
-        </div>
-
-        <div
-          className="rounded-2xl border p-5 mb-3 transition-all"
-          style={{ background: CARD_BG, borderColor: CARD_BORDER }}>
-          <textarea
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder="e.g. A portfolio website for a UI/UX designer with dark theme, hero section, projects grid and contact form..."
-            rows={6}
-            className="w-full text-sm resize-none focus:outline-none bg-transparent placeholder-slate-600"
-            style={{ color: 'white', caretColor: CYAN }}
-          />
-
-          <div
-            className="flex justify-between items-center mt-4 pt-4 border-t"
-            style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-            <span className="text-xs" style={{ color: TEXT_MUTED }}>
-              {prompt.length} characters
-            </span>
-            <button
-              onClick={handleGenerate}
-              disabled={loading || !prompt.trim()}
-              className="inline-flex items-center gap-2 text-white font-semibold px-6 py-2.5 rounded-xl text-sm transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
-              style={{
-                background: 'linear-gradient(135deg, #06b6d4, #0284c7)',
-                boxShadow: prompt.trim() ? '0 0 20px rgba(6,182,212,0.3)' : 'none'
-              }}>
-              {loading ? (
-                <>
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-                  </svg>
-                  Generate Website
-                </>
-              )}
-            </button>
+          {/* Quick Suggestions container */}
+          <div className="glass-card rounded-2xl p-6">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4 flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-violet-400" />
+              Try Prompt Examples
+            </h2>
+            <div className="flex flex-col gap-3">
+              {suggestions.map((s, i) => (
+                <button
+                  key={i}
+                  onClick={() => setPrompt(s)}
+                  disabled={loading}
+                  className="w-full text-left p-4 rounded-xl border border-white/5 bg-[#080d20]/30 text-xs text-slate-400 leading-relaxed font-light hover:border-cyan-500/30 hover:bg-[#06b6d4]/5 hover:text-white transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
-        {error && (
-          <div
-            className="rounded-xl border px-4 py-3 mb-4 text-sm"
-            style={{
-              background: 'rgba(239,68,68,0.08)',
-              borderColor: 'rgba(239,68,68,0.2)',
-              color: '#f87171'
-            }}>
-            ⚠️ {error}
-          </div>
-        )}
+        {/* Right Side: Terminals & Generation Pipeline */}
+        <div className="col-span-12 lg:col-span-8 flex flex-col gap-6">
+          
+          {/* Main Prompt Command Terminal */}
+          <div className="glass-card rounded-3xl p-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 blur-2xl rounded-full pointer-events-none" />
+            
+            <div className="flex justify-between items-center pb-4 mb-4 border-b border-white/5">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-cyan-500/20" />
+                <span className="text-xs font-bold uppercase tracking-widest text-cyan-400 font-mono">Creov Prompt Terminal v2.0</span>
+              </div>
+              <span className="text-[10px] text-slate-500 font-mono">STATUS: ONLINE</span>
+            </div>
 
-        {loading && (
-          <div
-            className="rounded-xl border px-4 py-3 mb-4 text-sm text-center"
-            style={{
-              background: 'rgba(6,182,212,0.05)',
-              borderColor: 'rgba(6,182,212,0.15)',
-              color: CYAN
-            }}>
-            ✨ AI is generating your website... this takes 20-40 seconds
-          </div>
-        )}
+            <textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Describe your design in detail, e.g. A gorgeous modern portfolio website for a visual photographer, featuring dark glassmorphic styling, an elegant hero header with glowing cyan buttons, a three-column gallery grid, and a sleek contact details footer."
+              rows={8}
+              disabled={loading}
+              className="w-full text-sm resize-none focus:outline-none bg-transparent placeholder-slate-600 text-white caret-cyan-400 font-light leading-relaxed disabled:opacity-50"
+            />
 
-        <p className="text-xs mb-10 px-1" style={{ color: TEXT_MUTED }}>
-          💡 Tip: Be specific about your industry, style, and sections for better results
-        </p>
-
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: TEXT_MUTED }}>
-            Try these examples
-          </p>
-          <div className="space-y-2.5">
-            {suggestions.map((s, i) => (
+            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mt-6 pt-4 border-t border-white/5">
+              <span className="text-xs text-slate-500 font-mono flex items-center">
+                &gt; {prompt.length} CHARS PREPARED
+              </span>
+              
               <button
-                key={i}
-                onClick={() => setPrompt(s)}
-                disabled={loading}
-                className="w-full text-left px-5 py-3.5 rounded-xl border text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                style={{ background: CARD_BG, borderColor: CARD_BORDER, color: TEXT_SECONDARY }}
-                onMouseEnter={e => {
-                  if (loading) return
-                  e.currentTarget.style.borderColor = 'rgba(6,182,212,0.25)'
-                  e.currentTarget.style.color = 'white'
-                  e.currentTarget.style.background = 'rgba(6,182,212,0.05)'
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.borderColor = CARD_BORDER
-                  e.currentTarget.style.color = TEXT_SECONDARY
-                  e.currentTarget.style.background = CARD_BG
-                }}>
-                <span className="mr-2" style={{ color: CYAN }}>→</span>
-                {s}
+                onClick={handleGenerate}
+                disabled={loading || !prompt.trim()}
+                className="group relative inline-flex items-center justify-center gap-2 text-white font-bold px-8 py-3.5 rounded-xl text-sm transition-all duration-300 hover:scale-[1.02] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+              >
+                <span className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-600 to-violet-600 rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all duration-300 group-hover:shadow-[0_0_30px_rgba(139,92,246,0.5)]" />
+                <span className="relative z-10 flex items-center gap-2">
+                  {loading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Synthesizing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                      </svg>
+                      <span>Synthesize Website</span>
+                    </>
+                  )}
+                </span>
               </button>
-            ))}
+            </div>
           </div>
-        </div>
 
+          {/* Generative Error Banner */}
+          {error && (
+            <div className="rounded-2xl border border-red-500/20 bg-red-950/10 p-5 text-sm text-red-400 flex items-start gap-3 shadow-lg">
+              <span className="text-lg">⚠️</span>
+              <div className="flex flex-col gap-1">
+                <span className="font-bold">Synthesis Blocked</span>
+                <span className="font-light">{error}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Fully Interactive Animated Generation Pipeline */}
+          {loading && (
+            <div className="glass-card rounded-3xl p-6 shadow-2xl transition-all duration-500">
+              <div className="flex items-center gap-3 mb-6">
+                <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping" />
+                <h3 className="text-xs font-bold uppercase tracking-widest text-cyan-400 font-mono">
+                  Synthesizer Neural Pipeline
+                </h3>
+              </div>
+
+              <div className="space-y-4">
+                {pipelineSteps.map((step) => {
+                  const isFinished = activeStep > step.id
+                  const isActive = activeStep === step.id
+                  const isPending = activeStep < step.id
+
+                  return (
+                    <div
+                      key={step.id}
+                      className={`flex items-center gap-4 transition-all duration-500 ${
+                        isFinished ? "opacity-100" : isActive ? "opacity-100" : "opacity-30"
+                      }`}
+                    >
+                      {/* Visual Indicator Indicator */}
+                      <div className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center font-mono text-[10px] font-bold">
+                        {isFinished ? (
+                          <div className="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center border border-cyan-500/40">
+                            ✓
+                          </div>
+                        ) : isActive ? (
+                          <div className="w-5 h-5 rounded-full bg-cyan-500 text-white flex items-center justify-center animate-pulse shadow-[0_0_10px_#06b6d4]">
+                            ★
+                          </div>
+                        ) : (
+                          <div className="w-5 h-5 rounded-full bg-white/5 text-slate-600 flex items-center justify-center border border-white/5">
+                            {step.id}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Step Text */}
+                      <div className="flex-1 flex flex-col">
+                        <span
+                          className={`text-xs font-mono font-medium transition-colors ${
+                            isFinished ? "text-slate-400 font-light" : isActive ? "text-cyan-300 font-bold" : "text-slate-600 font-light"
+                          }`}
+                        >
+                          {step.text}
+                        </span>
+                        
+                        {/* Progress Bar inside active step */}
+                        {isActive && (
+                          <div className="h-[2px] bg-cyan-950 rounded-full w-full mt-2 overflow-hidden">
+                            <div className="h-full bg-cyan-400 rounded-full animate-[grid-flow_2s_linear_infinite]" style={{ width: '100%' }} />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+        </div>
       </div>
+      <Footer />
     </div>
   )
 }
