@@ -58,29 +58,22 @@ export default function GrapesEditor({ initialHtml = '', initialCss = '', onSave
         height: '100%',
         width: '100%',
         storageManager: false,
-        
         dragMode: 'translate',
         avoidInlineStyle: true,
         fromElement: false,
         clearOnRender: false,
-        
         domComponents: {
           draggableComponents: true,
           components: {
-            wrapper: {
-              droppable: true,
-            }
+            wrapper: { droppable: true }
           }
         },
-        
         canvas: {
           styles: ['/grapes-theme.css']
         },
-        
         plugins: [],
         pluginsOpts: {},
         panels: { defaults: [] },
-        
         deviceManager: {
           devices: [
             { name: 'Desktop', width: '' },
@@ -88,7 +81,6 @@ export default function GrapesEditor({ initialHtml = '', initialCss = '', onSave
             { name: 'Mobile', width: '375px', widthMedia: '480px' },
           ],
         },
-        
         blockManager: { appendTo: '#gjs-blocks' },
         layerManager: { appendTo: '#gjs-layers' },
         traitManager: { appendTo: '#gjs-traits' },
@@ -113,7 +105,7 @@ export default function GrapesEditor({ initialHtml = '', initialCss = '', onSave
           imageComponent.model.prototype.defaults.draggable = true
           imageComponent.model.prototype.defaults.resizable = true
         }
-        
+
         const bm = editor.BlockManager
         bm.getAll().reset()
 
@@ -122,68 +114,41 @@ export default function GrapesEditor({ initialHtml = '', initialCss = '', onSave
           content: '<div style="padding: 10px;">Insert your text here</div>',
           media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 6.1H3M21 12.1H3M15.1 18H3"/></svg>`,
         })
-        
         bm.add('heading', {
           label: 'Heading', category: 'Basic',
           content: '<h1 style="margin: 20px 0;">Heading Title</h1>',
           media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>`,
         })
-        
         bm.add('image', {
           label: 'Image', category: 'Media',
           content: { type: 'image' },
           media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`,
         })
-        
         bm.add('button', {
           label: 'Button', category: 'Basic',
           content: '<button style="padding: 10px 20px; background: #000; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Button</button>',
           media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="8" width="16" height="8" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/></svg>`,
         })
-        
         bm.add('link', {
           label: 'Link', category: 'Basic',
           content: '<a href="#" style="color: #0000EE;">Link text</a>',
           media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>`,
         })
-        
         bm.add('section', {
           label: 'Section', category: 'Layout',
           content: '<section style="padding: 60px 40px; min-height: 180px; background: #f5f5f5; width: 100%;"><p>Your content here</p></section>',
           media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="2" y1="9" x2="22" y2="9"/></svg>`,
         })
-        
         bm.add('columns-2', {
           label: '2 Cols', category: 'Layout',
-          content: `
-            <section style="padding:20px; width:100%;">
-              <div style="display:flex; flex-wrap:wrap; gap:20px;">
-                <div style="flex:1 1 300px; min-height:100px; padding:20px; background:#f9f9f9;">
-                  Column 1
-                </div>
-                <div style="flex:1 1 300px; min-height:100px; padding:20px; background:#f9f9f9;">
-                  Column 2
-                </div>
-              </div>
-            </section>
-          `,
+          content: `<section style="padding:20px; width:100%;"><div style="display:flex; flex-wrap:wrap; gap:20px;"><div style="flex:1 1 300px; min-height:100px; padding:20px; background:#f9f9f9;">Column 1</div><div style="flex:1 1 300px; min-height:100px; padding:20px; background:#f9f9f9;">Column 2</div></div></section>`,
           media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="9" height="18" rx="1"/><rect x="13" y="3" width="9" height="18" rx="1"/></svg>`,
         })
-        
         bm.add('columns-3', {
           label: '3 Cols', category: 'Layout',
-          content: `
-            <section style="padding:20px; width:100%;">
-              <div style="display:flex; flex-wrap:wrap; gap:20px;">
-                <div style="flex:1 1 250px; min-height:100px; padding:20px; background:#f9f9f9;">Col 1</div>
-                <div style="flex:1 1 250px; min-height:100px; padding:20px; background:#f9f9f9;">Col 2</div>
-                <div style="flex:1 1 250px; min-height:100px; padding:20px; background:#f9f9f9;">Col 3</div>
-              </div>
-            </section>
-          `,
+          content: `<section style="padding:20px; width:100%;"><div style="display:flex; flex-wrap:wrap; gap:20px;"><div style="flex:1 1 250px; min-height:100px; padding:20px; background:#f9f9f9;">Col 1</div><div style="flex:1 1 250px; min-height:100px; padding:20px; background:#f9f9f9;">Col 2</div><div style="flex:1 1 250px; min-height:100px; padding:20px; background:#f9f9f9;">Col 3</div></div></section>`,
           media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="6" height="18" rx="1"/><rect x="9" y="3" width="6" height="18" rx="1"/><rect x="17" y="3" width="6" height="18" rx="1"/></svg>`,
         })
-        
 
         const sm = editor.StyleManager
         sm.addSector('colors', {
@@ -215,15 +180,26 @@ export default function GrapesEditor({ initialHtml = '', initialCss = '', onSave
 
         if (initialHtml) editor.setComponents(initialHtml)
         if (initialCss) editor.setStyle(initialCss)
+
+        // Inject CSS into iframe so body/html styles actually apply
+        setTimeout(() => {
+          const iframe = editor.Canvas.getFrameEl()
+          if (iframe && iframe.contentDocument) {
+            const existing = iframe.contentDocument.getElementById('injected-body-styles')
+            if (existing) existing.remove()
+            const style = iframe.contentDocument.createElement('style')
+            style.id = 'injected-body-styles'
+            style.textContent = initialCss
+            iframe.contentDocument.head.appendChild(style)
+          }
+        }, 300)
       })
 
-      // Device change handler
-      editor.on('device:change', (device) => {
+      editor.on('device:change', () => {
         setTimeout(() => {
           const iframe = document.querySelector('.gjs-frame iframe')
           if (iframe && iframe.contentWindow) {
-            const resizeEvent = new Event('resize')
-            iframe.contentWindow.dispatchEvent(resizeEvent)
+            iframe.contentWindow.dispatchEvent(new Event('resize'))
           }
           editor.refresh()
         }, 50)
@@ -273,6 +249,21 @@ export default function GrapesEditor({ initialHtml = '', initialCss = '', onSave
     if (!gjsRef.current) return
     if (initialHtml) gjsRef.current.setComponents(initialHtml)
     if (initialCss) gjsRef.current.setStyle(initialCss)
+
+    // Re-inject CSS when props change
+    setTimeout(() => {
+      const editor = gjsRef.current
+      if (!editor) return
+      const iframe = editor.Canvas.getFrameEl()
+      if (iframe && iframe.contentDocument) {
+        const existing = iframe.contentDocument.getElementById('injected-body-styles')
+        if (existing) existing.remove()
+        const style = iframe.contentDocument.createElement('style')
+        style.id = 'injected-body-styles'
+        style.textContent = initialCss
+        iframe.contentDocument.head.appendChild(style)
+      }
+    }, 300)
   }, [initialHtml, initialCss])
 
   function switchDevice(device) {
@@ -306,12 +297,7 @@ export default function GrapesEditor({ initialHtml = '', initialCss = '', onSave
     const html = gjsRef.current.getHtml()
     const css = gjsRef.current.getCss()
     const js = gjsRef.current.getJs()
-
-    localStorage.setItem('export_website', JSON.stringify({
-      html, css, js,
-      title: 'my-website'
-    }))
-
+    localStorage.setItem('export_website', JSON.stringify({ html, css, js, title: 'my-website' }))
     window.location.href = '/export'
   }
 
@@ -333,7 +319,6 @@ export default function GrapesEditor({ initialHtml = '', initialCss = '', onSave
         className="flex items-center justify-between px-4 shrink-0 border-b"
         style={{ height: 52, background: TOOLBAR_BG, borderColor: BORDER }}>
 
-        {/* Left */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <div
@@ -352,7 +337,6 @@ export default function GrapesEditor({ initialHtml = '', initialCss = '', onSave
           </div>
         </div>
 
-        {/* Center — Device Toggle */}
         <div
           className="flex items-center rounded-xl p-1 gap-0.5"
           style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${BORDER}` }}>
@@ -362,11 +346,7 @@ export default function GrapesEditor({ initialHtml = '', initialCss = '', onSave
               onClick={() => switchDevice(d)}
               title={d}
               className="flex items-center justify-center w-8 h-7 rounded-lg transition-all text-sm"
-              style={
-                activeDevice === d
-                  ? { background: 'rgba(6,182,212,0.15)', color: CYAN }
-                  : { color: TEXT_MUTED }
-              }
+              style={activeDevice === d ? { background: 'rgba(6,182,212,0.15)', color: CYAN } : { color: TEXT_MUTED }}
               onMouseEnter={e => { if (activeDevice !== d) e.currentTarget.style.color = TEXT_SECONDARY }}
               onMouseLeave={e => { if (activeDevice !== d) e.currentTarget.style.color = TEXT_MUTED }}>
               {d === 'Desktop' ? <DesktopIcon /> : d === 'Tablet' ? <TabletIcon /> : <MobileIcon />}
@@ -374,20 +354,13 @@ export default function GrapesEditor({ initialHtml = '', initialCss = '', onSave
           ))}
         </div>
 
-        {/* Right — Actions */}
         <div className="flex items-center gap-2">
           <button
             onClick={handlePreview}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all"
             style={{ color: TEXT_SECONDARY, border: `1px solid ${BORDER}` }}
-            onMouseEnter={e => {
-              e.currentTarget.style.color = 'white'
-              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.color = TEXT_SECONDARY
-              e.currentTarget.style.borderColor = BORDER
-            }}>
+            onMouseEnter={e => { e.currentTarget.style.color = 'white'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)' }}
+            onMouseLeave={e => { e.currentTarget.style.color = TEXT_SECONDARY; e.currentTarget.style.borderColor = BORDER }}>
             <EyeIcon /> Preview
           </button>
 
@@ -399,24 +372,15 @@ export default function GrapesEditor({ initialHtml = '', initialCss = '', onSave
             onClick={handleExport}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all"
             style={{ color: TEXT_SECONDARY, border: `1px solid ${BORDER}` }}
-            onMouseEnter={e => {
-              e.currentTarget.style.color = 'white'
-              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.color = TEXT_SECONDARY
-              e.currentTarget.style.borderColor = BORDER
-            }}>
+            onMouseEnter={e => { e.currentTarget.style.color = 'white'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)' }}
+            onMouseLeave={e => { e.currentTarget.style.color = TEXT_SECONDARY; e.currentTarget.style.borderColor = BORDER }}>
             <ExportIcon /> Export
           </button>
 
           <button
             onClick={handleSave}
             className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold rounded-lg transition-all text-white hover:opacity-90"
-            style={{
-              background: 'linear-gradient(135deg, #06b6d4, #0284c7)',
-              boxShadow: '0 0 16px rgba(6,182,212,0.3)'
-            }}>
+            style={{ background: 'linear-gradient(135deg, #06b6d4, #0284c7)', boxShadow: '0 0 16px rgba(6,182,212,0.3)' }}>
             <SaveIcon /> Save
           </button>
         </div>
@@ -424,13 +388,9 @@ export default function GrapesEditor({ initialHtml = '', initialCss = '', onSave
 
       {/* Body */}
       <div className="flex flex-1 overflow-hidden">
-
-        {/* Sidebar */}
         <div
           className="flex flex-col shrink-0 border-r"
           style={{ width: 216, background: SIDEBAR_BG, borderColor: BORDER }}>
-
-          {/* Panel Tabs */}
           <div
             className="flex shrink-0 border-b px-1 pt-1 gap-0.5"
             style={{ borderColor: BORDER }}>
@@ -439,19 +399,13 @@ export default function GrapesEditor({ initialHtml = '', initialCss = '', onSave
                 key={p.id}
                 onClick={() => setActivePanel(p.id)}
                 className="flex-1 py-2 text-[9px] font-bold tracking-widest uppercase rounded-t-lg transition-all"
-                style={
-                  activePanel === p.id
-                    ? { background: CYAN_DIM, color: CYAN }
-                    : { color: TEXT_MUTED }
-                }
+                style={activePanel === p.id ? { background: CYAN_DIM, color: CYAN } : { color: TEXT_MUTED }}
                 onMouseEnter={e => { if (activePanel !== p.id) e.currentTarget.style.color = TEXT_SECONDARY }}
                 onMouseLeave={e => { if (activePanel !== p.id) e.currentTarget.style.color = TEXT_MUTED }}>
                 {p.label}
               </button>
             ))}
           </div>
-
-          {/* Panel Content */}
           <div className="flex-1 overflow-y-auto min-h-0">
             <div id="gjs-blocks" style={{ display: activePanel === 'blocks' ? 'block' : 'none' }} />
             <div id="gjs-styles" style={{ display: activePanel === 'styles' ? 'block' : 'none' }} />
@@ -460,7 +414,6 @@ export default function GrapesEditor({ initialHtml = '', initialCss = '', onSave
           </div>
         </div>
 
-        {/* Canvas */}
         <div ref={editorRef} className="flex-1 min-h-0" />
       </div>
     </div>
@@ -474,14 +427,8 @@ function IconBtn({ onClick, title, children }) {
       title={title}
       className="w-8 h-8 flex items-center justify-center rounded-lg transition-all"
       style={{ color: TEXT_MUTED }}
-      onMouseEnter={e => {
-        e.currentTarget.style.color = 'white'
-        e.currentTarget.style.background = 'rgba(255,255,255,0.05)'
-      }}
-      onMouseLeave={e => {
-        e.currentTarget.style.color = TEXT_MUTED
-        e.currentTarget.style.background = 'transparent'
-      }}>
+      onMouseEnter={e => { e.currentTarget.style.color = 'white'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
+      onMouseLeave={e => { e.currentTarget.style.color = TEXT_MUTED; e.currentTarget.style.background = 'transparent' }}>
       {children}
     </button>
   )
