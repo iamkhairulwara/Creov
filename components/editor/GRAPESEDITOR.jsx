@@ -53,6 +53,7 @@ export default function GrapesEditor({
   const [activePanel, setActivePanel] = useState('blocks')
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [selectedComponent, setSelectedComponent] = useState(null)
+  const [editingComponentInfo, setEditingComponentInfo] = useState(null)
   const [isChatOpen, setIsChatOpen] = useState(false)
   const [messages, setMessages] = useState([])
   const [inputMessage, setInputMessage] = useState('')
@@ -97,6 +98,167 @@ export default function GrapesEditor({
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  // ============================================
+  // HTML SANITIZER
+  // ============================================
+  function sanitizeAiHtml(html) {
+    if (!html) return ''
+    
+    return html
+      .replace(/<!DOCTYPE[^>]*>/gi, '')
+      .replace(/<\/?html[^>]*>/gi, '')
+      .replace(/<\/?body[^>]*>/gi, '')
+      .replace(/<\/?head[^>]*>/gi, '')
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/\son\w+\s*=\s*["'][^"']*["']/gi, '')
+      .trim()
+  }
+
+  // ============================================
+  // ENHANCE HTML WITH BETTER STYLES
+  // ============================================
+  function enhanceHtmlWithStyles(html, componentType) {
+    if (!html) return html
+    
+    // If it's a section/hero without proper styling, add default modern styles
+    if (componentType === 'section' || componentType === 'header' || html.includes('<section') || html.includes('<header')) {
+      // Check if it has basic styling
+      if (!html.includes('gradient') && !html.includes('box-shadow') && !html.includes('border-radius')) {
+        // Add modern default styles
+        html = html.replace(/<section/, '<section style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 100px 40px; color: white; text-align: center; border-radius: 0; margin: 0;"')
+        html = html.replace(/<h1/, '<h1 style="font-size: 3.5rem; margin-bottom: 20px; font-weight: 700;"')
+        html = html.replace(/<p/, '<p style="font-size: 1.2rem; margin-bottom: 30px; opacity: 0.95;"')
+        
+        // Add buttons if missing
+        if (!html.includes('button')) {
+          html = html.replace(/<\/section>/, `
+  <div style="display: flex; gap: 20px; justify-content: center; margin-top: 20px;">
+    <button style="padding: 14px 32px; background: white; color: #667eea; border: none; border-radius: 50px; font-weight: 600; cursor: pointer; transition: transform 0.2s;">Get Started</button>
+    <button style="padding: 14px 32px; background: transparent; color: white; border: 2px solid white; border-radius: 50px; font-weight: 600; cursor: pointer; transition: all 0.2s;">Learn More</button>
+  </div>
+</section>`)
+        }
+      }
+    }
+    
+    // Add hover effect styles if missing
+    if (!html.includes('hover')) {
+      html = html.replace(/<button/g, '<button style="transition: all 0.3s ease;" onmouseover="this.style.transform=\'translateY(-2px)\'; this.style.boxShadow=\'0 10px 20px rgba(0,0,0,0.2)\';" onmouseout="this.style.transform=\'translateY(0)\'; this.style.boxShadow=\'none\';"')
+    }
+    
+    return html
+  }
+
+  // ============================================
+  // FIND BEST COMPONENT FOR EDITING
+  // ============================================
+  function getBestEditableComponent(selectedComponent) {
+    if (!selectedComponent) return null
+    
+    // List of component types that should be edited at parent level
+    const blockLevelTypes = ['navbar', 'nav', 'header', 'section', 'footer', 'hero', 'aside', 'main', 'article']
+    
+    let current = selectedComponent
+    let best = selectedComponent
+    
+    // Traverse up to find the best parent for editing
+    while (current) {
+      const tagName = current.get('tagName')?.toLowerCase() || ''
+      const type = current.get('type')?.toLowerCase() || ''
+      const classes = current.get('classes').models.map(c => c.get('name').toLowerCase())
+      
+      // Check if this is a block-level element
+      const isBlockLevel = blockLevelTypes.includes(tagName) || 
+                           blockLevelTypes.includes(type) ||
+                           classes.some(c => blockLevelTypes.includes(c))
+      
+      if (isBlockLevel) {
+        best = current
+        break // Found a good parent, stop going up
+      }
+      
+      // If no block-level found, use parent if it exists and it's different
+      const parent = current.parent()
+      if (parent && parent !== current) {
+        best = parent
+        current = parent
+      } else {
+        break
+      }
+    }
+    
+    return best
+  }
+
+  //  injectCssIntoCanvas with proper error checking
+  const injectCssIntoCanvas = useCallback((editor, css) => {
+    if (!editor || !css) return
+    
+    // Wait for canvas to be ready
+    setTimeout(() => {
+      try {
+        // Check if editor and canvas exist
+        if (!editor.Canvas) {
+          console.warn('Editor canvas not ready yet')
+          return
+        }
+        
+        const iframe = editor.Canvas.getFrameEl()
+        if (iframe && iframe.contentDocument) {
+          // Remove existing style to avoid duplicates
+          const existing = iframe.contentDocument.getElementById('injected-body-styles')
+          if (existing) existing.remove()
+          
+          // Create new style element
+          const style = iframe.contentDocument.createElement('style')
+          style.id = 'injected-body-styles'
+          style.textContent = css
+          iframe.contentDocument.head.appendChild(style)
+          
+          // Also ensure body has basic visibility
+          if (iframe.contentDocument.body) {
+            iframe.contentDocument.body.style.display = 'block'
+            iframe.contentDocument.body.style.visibility = 'visible'
+          }
+          
+          // Safely refresh canvas if method exists
+          if (editor.refresh) editor.refresh()
+          if (editor.getCanvas && editor.getCanvas().render) {
+            editor.getCanvas().render()
+          }
+        }
+      } catch (err) {
+        console.error('Error injecting CSS:', err)
+      }
+    }, 300)
+  }, [])
+
+  // ============================================
+  // SAFE COMPONENT REPLACER - FIXED VERSION
+  // ============================================
+ function safeReplaceComponent(component, newHtml) {
+  try {
+    if (!component || !newHtml) return false
+    
+    const cleanHtml = sanitizeAiHtml(newHtml)
+    if (!cleanHtml) return false
+    
+    // Replace the component content
+    component.components('')
+    component.components(cleanHtml)
+    
+    // Simple refresh - this is all that's needed
+    setTimeout(() => {
+      if (gjsRef.current?.refresh) gjsRef.current.refresh()
+    }, 50)
+    
+    return true
+  } catch (err) {
+    console.error('Failed to replace component:', err)
+    return false
+  }
+}
+  // Editor initialization effect
   useEffect(() => {
     if (typeof window === 'undefined') return
     if (isEditorReady.current) return
@@ -112,14 +274,19 @@ export default function GrapesEditor({
         width: '100%',
         storageManager: false,
         dragMode: 'translate',
-        avoidInlineStyle: true,
+        avoidInlineStyle: false,
         fromElement: false,
         clearOnRender: false,
         domComponents: {
           draggableComponents: true,
           components: { wrapper: { droppable: true } }
         },
-        canvas: { styles: ['/grapes-theme.css'] },
+        canvas: {
+          styles: [
+            'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap',
+            'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css'
+          ]
+        },
         plugins: [],
         pluginsOpts: {},
         panels: { defaults: [] },
@@ -149,6 +316,86 @@ export default function GrapesEditor({
       })
 
       editor.on('load', () => {
+        // Add default base styles to ensure visibility
+        const defaultStyles = `
+          body { 
+            margin: 0; 
+            padding: 20px; 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            min-height: 100vh;
+            line-height: 1.5;
+          }
+          * { 
+            box-sizing: border-box; 
+          }
+          img { 
+            max-width: 100%; 
+            height: auto; 
+          }
+          .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+          }
+          h1, h2, h3, h4, h5, h6 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+          }
+          p {
+            margin-top: 0;
+            margin-bottom: 1rem;
+          }
+          @keyframes fadeInUp {
+            from {
+              opacity: 0;
+              transform: translateY(30px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          .animate-fadeInUp {
+            animation: fadeInUp 0.6s ease-out;
+          }
+        `
+        
+        // Inject default styles first
+        injectCssIntoCanvas(editor, defaultStyles)
+        
+        // Load initial HTML with modern hero section
+        let htmlToLoad = initialHtml && initialHtml.trim() && initialHtml.length > 10
+          ? initialHtml 
+          : `<section style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 120px 40px; color: white; text-align: center; font-family: 'Inter', sans-serif;">
+  <div style="max-width: 800px; margin: 0 auto;">
+    <h1 style="font-size: 4rem; margin-bottom: 20px; font-weight: 800; animation: fadeInUp 0.6s ease-out;">Welcome to Aurora Bistro</h1>
+    <p style="font-size: 1.3rem; margin-bottom: 30px; opacity: 0.95; line-height: 1.6;">Experience culinary excellence where passion meets plate. Savor exquisite flavors and unforgettable moments.</p>
+    <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+      <button style="padding: 14px 32px; background: white; color: #667eea; border: none; border-radius: 50px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s ease;">View Our Menu</button>
+      <button style="padding: 14px 32px; background: transparent; color: white; border: 2px solid white; border-radius: 50px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s ease;">Reserve a Table</button>
+    </div>
+  </div>
+</section>`
+        
+        // Set components
+        editor.setComponents(htmlToLoad)
+        
+        // Set CSS if provided
+        if (initialCss && initialCss.length > 0) {
+          editor.setStyle(initialCss)
+          injectCssIntoCanvas(editor, initialCss)
+        }
+        
+        // Force canvas to render
+        setTimeout(() => {
+          if (editor.refresh) editor.refresh()
+          if (editor.getCanvas && editor.getCanvas().render) {
+            editor.getCanvas().render()
+          }
+        }, 300)
+
         const imageComponent = editor.DomComponents.getType('image')
         if (imageComponent) {
           imageComponent.model.prototype.defaults.draggable = true
@@ -158,45 +405,54 @@ export default function GrapesEditor({
         const bm = editor.BlockManager
         bm.getAll().reset()
 
+        bm.add('navbar', {
+          label: 'Navbar', category: 'Layout',
+          content: `<nav style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); box-shadow: 0 2px 20px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000;">
+  <div style="font-size: 1.5rem; font-weight: bold; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Aurora</div>
+  <div style="display: flex; gap: 2rem;">
+    <a href="#" style="text-decoration: none; color: #333; font-weight: 500; transition: color 0.3s;">Home</a>
+    <a href="#" style="text-decoration: none; color: #333; font-weight: 500; transition: color 0.3s;">Menu</a>
+    <a href="#" style="text-decoration: none; color: #333; font-weight: 500; transition: color 0.3s;">About</a>
+    <a href="#" style="text-decoration: none; color: #333; font-weight: 500; transition: color 0.3s;">Contact</a>
+  </div>
+</nav>`,
+          media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>`,
+        })
+        bm.add('hero', {
+          label: 'Hero Section', category: 'Layout',
+          content: `<section style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 120px 40px; color: white; text-align: center;">
+  <div style="max-width: 800px; margin: 0 auto;">
+    <h1 style="font-size: 3.5rem; margin-bottom: 20px; font-weight: 800;">Amazing Hero Title</h1>
+    <p style="font-size: 1.2rem; margin-bottom: 30px;">Compelling description that captures attention</p>
+    <button style="padding: 14px 32px; background: white; color: #667eea; border: none; border-radius: 50px; font-weight: 600; cursor: pointer;">Get Started</button>
+  </div>
+</section>`,
+          media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>`,
+        })
         bm.add('text', {
           label: 'Text', category: 'Basic',
-          content: '<div style="padding: 10px;">Insert your text here</div>',
+          content: '<div style="padding: 10px; font-family: inherit;">Insert your text here</div>',
           media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 6.1H3M21 12.1H3M15.1 18H3"/></svg>`,
         })
         bm.add('heading', {
           label: 'Heading', category: 'Basic',
-          content: '<h1 style="margin: 20px 0;">Heading Title</h1>',
+          content: '<h1 style="margin: 20px 0; font-family: inherit;">Heading Title</h1>',
           media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>`,
         })
         bm.add('image', {
           label: 'Image', category: 'Media',
-          content: { type: 'image' },
+          content: { type: 'image', style: 'max-width: 100%; height: auto; border-radius: 12px;' },
           media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`,
         })
         bm.add('button', {
           label: 'Button', category: 'Basic',
-          content: '<button style="padding: 10px 20px; background: #000; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Button</button>',
+          content: '<button style="padding: 12px 24px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Button</button>',
           media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="8" width="16" height="8" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/></svg>`,
-        })
-        bm.add('link', {
-          label: 'Link', category: 'Basic',
-          content: '<a href="#" style="color: #0000EE;">Link text</a>',
-          media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>`,
-        })
-        bm.add('section', {
-          label: 'Section', category: 'Layout',
-          content: '<section style="padding: 60px 40px; min-height: 180px; background: #f5f5f5; width: 100%;"><p>Your content here</p></section>',
-          media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="2" y1="9" x2="22" y2="9"/></svg>`,
         })
         bm.add('columns-2', {
           label: '2 Cols', category: 'Layout',
-          content: `<section style="padding:20px; width:100%;"><div style="display:flex; flex-wrap:wrap; gap:20px;"><div style="flex:1 1 300px; min-height:100px; padding:20px; background:#f9f9f9;">Column 1</div><div style="flex:1 1 300px; min-height:100px; padding:20px; background:#f9f9f9;">Column 2</div></div></section>`,
+          content: `<section style="padding:60px 20px;"><div style="display:flex; flex-wrap:wrap; gap:30px; max-width:1200px; margin:0 auto;"><div style="flex:1; min-width:250px; padding:30px; background:#f9f9f9; border-radius:16px;">Column 1</div><div style="flex:1; min-width:250px; padding:30px; background:#f9f9f9; border-radius:16px;">Column 2</div></div></section>`,
           media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="9" height="18" rx="1"/><rect x="13" y="3" width="9" height="18" rx="1"/></svg>`,
-        })
-        bm.add('columns-3', {
-          label: '3 Cols', category: 'Layout',
-          content: `<section style="padding:20px; width:100%;"><div style="display:flex; flex-wrap:wrap; gap:20px;"><div style="flex:1 1 250px; min-height:100px; padding:20px; background:#f9f9f9;">Col 1</div><div style="flex:1 1 250px; min-height:100px; padding:20px; background:#f9f9f9;">Col 2</div><div style="flex:1 1 250px; min-height:100px; padding:20px; background:#f9f9f9;">Col 3</div></div></section>`,
-          media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="6" height="18" rx="1"/><rect x="9" y="3" width="6" height="18" rx="1"/><rect x="17" y="3" width="6" height="18" rx="1"/></svg>`,
         })
 
         const sm = editor.StyleManager
@@ -211,29 +467,11 @@ export default function GrapesEditor({
         sm.addSector('typography', {
           name: 'Typography', open: false,
           properties: [
-            { property: 'font-family', type: 'select', options: [{ value: 'Arial, sans-serif', name: 'Arial' }, { value: 'Georgia, serif', name: 'Georgia' }, { value: 'Courier New, monospace', name: 'Courier New' }] },
+            { property: 'font-family', type: 'select', options: [{ value: 'Inter, sans-serif', name: 'Inter' }, { value: 'Arial, sans-serif', name: 'Arial' }, { value: 'Georgia, serif', name: 'Georgia' }] },
             { property: 'font-size', type: 'integer', units: ['px', 'em', 'rem'] },
-            { property: 'font-weight', type: 'select', options: [{ value: '300', name: 'Light' }, { value: '400', name: 'Regular' }, { value: '600', name: 'Semi Bold' }, { value: '700', name: 'Bold' }] },
-            { property: 'text-align', type: 'radio', options: [{ value: 'left' }, { value: 'center' }, { value: 'right' }] },
+            { property: 'font-weight', type: 'select', options: [{ value: '300', name: 'Light' }, { value: '400', name: 'Regular' }, { value: '600', name: 'Semi Bold' }, { value: '700', name: 'Bold' }, { value: '800', name: 'Extra Bold' }] },
           ],
         })
-        sm.addSector('border', {
-          name: 'Border', open: false,
-          properties: [
-            { property: 'border-width', type: 'integer', units: ['px'] },
-            { property: 'border-style', type: 'select', options: [{ value: 'none' }, { value: 'solid' }, { value: 'dashed' }] },
-            { name: 'Border Color', property: 'border-color', type: 'color' },
-            { property: 'border-radius', type: 'integer', units: ['px', '%'] },
-          ],
-        })
-
-        if (initialHtml && initialHtml.length > 0) {
-          editor.setComponents(initialHtml)
-        }
-        if (initialCss && initialCss.length > 0) {
-          editor.setStyle(initialCss)
-          injectCssIntoCanvas(editor, initialCss)
-        }
       })
 
       editor.on('device:change', () => {
@@ -242,7 +480,7 @@ export default function GrapesEditor({
           if (iframe && iframe.contentWindow) {
             iframe.contentWindow.dispatchEvent(new Event('resize'))
           }
-          editor.refresh()
+          if (editor.refresh) editor.refresh()
         }, 50)
       })
 
@@ -256,15 +494,46 @@ export default function GrapesEditor({
               const el = sel.getEl()
               if (el) el.src = dataUrl
             } else {
-              ed.addComponents(`<img src="${dataUrl}" style="max-width:100%;display:block;" />`)
+              ed.addComponents(`<img src="${dataUrl}" style="max-width:100%; display:block; border-radius:12px;" />`)
             }
           })
         },
       })
 
+      // ============================================
+      // UPDATED COMPONENT SELECTION HANDLER
+      // ============================================
       editor.on('component:selected', (component) => {
-        setSelectedComponent(component)
+        // Find the best editable component (navbar, section, etc.)
+        const editableComponent = getBestEditableComponent(component)
+        setSelectedComponent(editableComponent)
+        
+        // Store info about what's being edited
+        const tagName = editableComponent?.get('tagName')?.toLowerCase() || 'component'
+        const classes = editableComponent?.get('classes')?.models?.map(c => c.get('name')) || []
+        setEditingComponentInfo({ tagName, classes })
+        
+        console.log(`📝 Editing: <${tagName}>`, classes)
+        
+        // Visual feedback - briefly highlight the component being edited
+        if (editableComponent && editableComponent !== component) {
+          const originalOutline = editableComponent.getStyle()?.outline
+          editableComponent.setStyle({ outline: '2px solid #8b5cf6', outlineOffset: '2px' })
+          setTimeout(() => {
+            if (editableComponent) {
+              if (originalOutline) {
+                editableComponent.setStyle({ outline: originalOutline })
+              } else {
+                const style = editableComponent.getStyle()
+                delete style.outline
+                delete style.outlineOffset
+                editableComponent.setStyle(style)
+              }
+            }
+          }, 1500)
+        }
 
+        // Image toolbar handling
         if (component?.get('type') !== 'image') return
         const toolbar = component.get('toolbar') || []
         if (!toolbar.find(t => t.command === 'upload-image')) {
@@ -279,6 +548,7 @@ export default function GrapesEditor({
 
       editor.on('component:deselected', () => {
         setSelectedComponent(null)
+        setEditingComponentInfo(null)
       })
 
       gjsRef.current = editor
@@ -293,37 +563,78 @@ export default function GrapesEditor({
         gjsRef.current = null
       }
     }
-  }, [])
+  }, [initialHtml, initialCss, injectCssIntoCanvas])
 
-  function injectCssIntoCanvas(editor, css) {
-    setTimeout(() => {
-      const iframe = editor.Canvas.getFrameEl()
-      if (iframe && iframe.contentDocument) {
-        const existing = iframe.contentDocument.getElementById('injected-body-styles')
-        if (existing) existing.remove()
-        const style = iframe.contentDocument.createElement('style')
-        style.id = 'injected-body-styles'
-        style.textContent = css
-        iframe.contentDocument.head.appendChild(style)
-      }
-    }, 300)
-  }
-
-  const isMounted = useRef(false)
+  // Separate effect to update content when props change
   useEffect(() => {
-    if (!isMounted.current) {
-      isMounted.current = true
-      return
-    }
     if (!gjsRef.current) return
-    if (initialHtml && initialHtml.length > 0) {
-      gjsRef.current.setComponents(initialHtml)
+    
+    const updateContent = () => {
+      const editor = gjsRef.current
+      if (!editor) return
+      
+      if (initialHtml && initialHtml.trim() && initialHtml.length > 10) {
+        editor.setComponents(initialHtml)
+      }
+      if (initialCss && initialCss.length > 0) {
+        editor.setStyle(initialCss)
+        injectCssIntoCanvas(editor, initialCss)
+      }
+      setTimeout(() => {
+        if (editor.refresh) editor.refresh()
+        if (editor.getCanvas && editor.getCanvas().render) {
+          editor.getCanvas().render()
+        }
+      }, 200)
     }
-    if (initialCss && initialCss.length > 0) {
-      gjsRef.current.setStyle(initialCss)
-      injectCssIntoCanvas(gjsRef.current, initialCss)
+    
+    const timer = setTimeout(updateContent, 500)
+    return () => clearTimeout(timer)
+  }, [initialHtml, initialCss, injectCssIntoCanvas])
+
+  // Force canvas visibility after mount
+  useEffect(() => {
+    if (!gjsRef.current) return
+    
+    const forceCanvasVisibility = () => {
+      const editor = gjsRef.current
+      if (!editor) return
+      
+      try {
+        if (!editor.Canvas) return
+        
+        const frame = editor.Canvas.getFrameEl()
+        if (frame && frame.contentDocument) {
+          const body = frame.contentDocument.body
+          if (body) {
+            body.style.outline = 'none'
+            body.style.border = 'none'
+            body.style.display = 'block'
+            body.style.visibility = 'visible'
+            
+            const allElements = body.querySelectorAll('*')
+            allElements.forEach(el => {
+              if (el.style.outline === '1px dashed red' || 
+                  el.style.outline === '1px dashed blue' ||
+                  el.style.outline === '1px dashed green') {
+                el.style.outline = 'none'
+              }
+            })
+          }
+          
+          if (editor.refresh) editor.refresh()
+          if (editor.getCanvas && editor.getCanvas().render) {
+            editor.getCanvas().render()
+          }
+        }
+      } catch (err) {
+        console.error('Error forcing canvas visibility:', err)
+      }
     }
-  }, [initialHtml, initialCss])
+    
+    const timer = setTimeout(forceCanvasVisibility, 1000)
+    return () => clearTimeout(timer)
+  }, [])
 
   function switchDevice(device) {
     gjsRef.current?.setDevice(device)
@@ -338,7 +649,7 @@ export default function GrapesEditor({
     const html = gjsRef.current.getHtml()
     const css = gjsRef.current.getCss()
     const win = window.open()
-    win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><style>${css}</style></head><body>${html}</body></html>`)
+    win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>${css}</style></head><body>${html}</body></html>`)
     win.document.close()
   }
 
@@ -347,7 +658,7 @@ export default function GrapesEditor({
     const html = gjsRef.current.getHtml()
     const css = gjsRef.current.getCss()
     const js = gjsRef.current.getJs()
-    const fullHtml = `<!DOCTYPE html>\n<html>\n<head>\n<meta charset="utf-8">\n<style>${css}</style>\n</head>\n<body>\n${html}\n<script>${js}<\/script>\n</body>\n</html>`
+    const fullHtml = `<!DOCTYPE html>\n<html>\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<style>${css}</style>\n</head>\n<body>\n${html}\n<script>${js}<\/script>\n</body>\n</html>`
     if (onSave) onSave({ html, css, js, fullHtml })
   }
 
@@ -360,8 +671,7 @@ export default function GrapesEditor({
     window.location.href = '/export'
   }
 
-  // ============ VERSION HISTORY FUNCTIONS ============
-  
+  // Version History Functions
   function saveCurrentVersion() {
     if (!gjsRef.current) {
       alert('Editor not ready')
@@ -422,6 +732,15 @@ export default function GrapesEditor({
       if (version.css) gjsRef.current.setStyle(version.css)
       if (version.js) gjsRef.current.setJs(version.js)
       
+      setTimeout(() => {
+        if (gjsRef.current) {
+          if (gjsRef.current.refresh) gjsRef.current.refresh()
+          if (gjsRef.current.getCanvas && gjsRef.current.getCanvas().render) {
+            gjsRef.current.getCanvas().render()
+          }
+        }
+      }, 100)
+      
       setSelectedVersionForPreview(null)
       setShowVersionHistory(false)
       
@@ -460,6 +779,7 @@ export default function GrapesEditor({
   }
 
   function getStructuredComponentData(component) {
+    if (!component) return {}
     return {
       tag: component.get('tagName') || 'div',
       classes: component.get('classes').models.map(c => c.get('name')),
@@ -470,16 +790,6 @@ export default function GrapesEditor({
     }
   }
 
-  function safeReplaceComponent(component, newHtml) {
-    try {
-      component.set('content', newHtml)
-      return true
-    } catch (err) {
-      console.error('Failed to replace component:', err)
-      return false
-    }
-  }
-
   function showPreviewModal(newHtml) {
     setPreviewHtml(newHtml)
     setShowPreview(true)
@@ -487,9 +797,44 @@ export default function GrapesEditor({
 
   function applyPreview() {
     if (previewHtml && selectedComponent) {
-      safeReplaceComponent(selectedComponent, previewHtml)
-      setShowPreview(false)
-      setPreviewHtml(null)
+      const cleanHtml = sanitizeAiHtml(previewHtml)
+      const componentType = selectedComponent.get('tagName')?.toLowerCase() || 'section'
+      const enhancedHtml = enhanceHtmlWithStyles(cleanHtml, componentType)
+      
+      // Log for debugging
+      console.log('Applying redesign to:', selectedComponent.get('tagName'))
+      console.log('HTML length:', enhancedHtml.length)
+      
+      const success = safeReplaceComponent(selectedComponent, enhancedHtml)
+      
+      if (success) {
+        setShowPreview(false)
+        setPreviewHtml(null)
+        
+        // Show success feedback
+        const flash = document.createElement('div')
+        flash.textContent = '✅ Redesign applied successfully!'
+        flash.style.cssText = `
+          position: fixed; bottom: 20px; right: 20px;
+          background: #10b981; color: white; padding: 8px 16px;
+          border-radius: 8px; z-index: 10001; font-size: 14px;
+          animation: fadeInOut 2s ease;
+        `
+        document.body.appendChild(flash)
+        setTimeout(() => flash.remove(), 2000)
+      } else {
+        console.error('Failed to apply redesign')
+        const flash = document.createElement('div')
+        flash.textContent = '❌ Failed to apply redesign. Check console for errors.'
+        flash.style.cssText = `
+          position: fixed; bottom: 20px; right: 20px;
+          background: #ef4444; color: white; padding: 8px 16px;
+          border-radius: 8px; z-index: 10001; font-size: 14px;
+          animation: fadeInOut 2s ease;
+        `
+        document.body.appendChild(flash)
+        setTimeout(() => flash.remove(), 2000)
+      }
     }
   }
 
@@ -506,34 +851,64 @@ export default function GrapesEditor({
     setIsRefining(true)
 
     try {
-      const conversationHistory = messagesRef.current
-        .map(m => `${m.role === 'user' ? 'User' : 'AI'}: ${m.content}`)
-        .join('\n\n')
-
-      const componentData = getStructuredComponentData(selectedComponent)
+      const componentHtml = selectedComponent.toHTML()
+      const componentTag = selectedComponent.get('tagName')?.toLowerCase() || 'div'
+      const componentClasses = selectedComponent.get('classes').models.map(c => c.get('name')).join(' ')
       
+      // Enhanced powerful prompt for complete redesign
       const refinementPrompt = `
-You are a professional UI designer.
+You are a senior UI/UX designer. Transform the HTML/CSS of this component COMPLETELY.
 
-${conversationHistory ? `Previous conversation:\n${conversationHistory}\n\n` : ''}
-Current request: ${messageToSend}
+## CURRENT COMPONENT:
+${componentHtml}
 
-Current component:
-- Type: ${componentData.type}
-- Tag: ${componentData.tag}
-- Classes: ${componentData.classes.join(', ')}
-- Content: ${componentData.content}
+## USER REQUEST:
+${messageToSend}
 
-STRICT RULES:
-- Return ONLY valid HTML for this section
-- Preserve existing structure unless improvement is required
-- Do NOT remove essential classes or layout containers
-- Ensure responsive design (mobile-first)
-- Use clean semantic HTML
-- Do NOT include full page wrapper, only section content
-- NO markdown, NO backticks, NO explanations
+## CRITICAL RULES - FOLLOW STRICTLY:
 
-Return ONLY the raw HTML.`.trim()
+1. **RETURN COMPLETE NEW HTML** - Don't just change text, redesign the ENTIRE component
+2. **INCLUDE FULL INLINE STYLES** - Every element must have proper styling
+3. **MODERN DESIGN ELEMENTS REQUIRED**:
+   - Use gradient backgrounds (linear-gradient or radial-gradient)
+   - Add border-radius (12px-24px for cards/buttons)
+   - Include box-shadow for depth
+   - Add transition effects on hover
+   - Use proper spacing (padding/margin in rem or px)
+   - Modern typography (font weights 600-800 for headings)
+   - Add subtle animations (fadeInUp, slideIn)
+
+4. **FOR HERO SECTIONS (headers/hero)**:
+   - Full width gradient background (e.g., #667eea to #764ba2, or #f093fb to #f5576c)
+   - Large heading (3rem - 5rem) with bold font-weight
+   - Descriptive subheading (1.2rem - 1.5rem)
+   - Two buttons: primary (solid white/colored) and secondary (outline)
+   - Add floating elements or decorative shapes for visual interest
+   - Text alignment centered or left based on design
+
+5. **FOR NAVBARS**:
+   - Sticky position with backdrop blur (backdrop-filter: blur(10px))
+   - Logo with gradient text
+   - Navigation links with hover effects
+   - Mobile responsive design
+   - Smooth shadow on scroll
+
+6. **COLOR SCHEMES TO USE**:
+   - Modern: Indigo/Purple (#667eea, #764ba2)
+   - Corporate: Blue/Cyan (#3b82f6, #06b6d4)
+   - Luxury: Gold/Dark (#d4af37, #1a1a1a)
+   - Vibrant: Pink/Orange (#f43f5e, #f97316)
+   - Nature: Emerald/Teal (#10b981, #14b8a6)
+
+7. **RESPONSIVE DESIGN** - Use flexbox or grid, ensure mobile-friendly
+
+8. **OUTPUT ONLY THE RAW HTML** - No explanations, no markdown, no backticks
+
+9. **PRESERVE SEMANTIC HTML** - Keep appropriate tags (<section>, <header>, <nav>)
+
+10. **replace previous sections** - when replacing replace the entire previous section with the new one don't just add to it and make sure to cover the entire space of previous section 
+
+Return ONLY the redesigned HTML now:`.trim()
 
       const response = await fetch('/api/refine', {
         method: 'POST',
@@ -542,22 +917,29 @@ Return ONLY the raw HTML.`.trim()
           websiteId,
           userId,
           refinement: refinementPrompt,
-          sectionHtml: selectedComponent.toHTML(),
+          sectionHtml: componentHtml,
         })
       })
 
       const data = await response.json()
 
       if (data.html && typeof data.html === 'string' && data.html.includes('<')) {
-        showPreviewModal(data.html)
-
+        let cleanHtml = sanitizeAiHtml(data.html)
+        
+        // Enhance with better styles based on component type
+        const componentType = selectedComponent.get('tagName')?.toLowerCase() || 
+                              selectedComponent.get('type')?.toLowerCase() || 'section'
+        cleanHtml = enhanceHtmlWithStyles(cleanHtml, componentType)
+        
+        showPreviewModal(cleanHtml)
+        
         setMessages(prev => [...prev, {
           role: 'assistant',
-          content: `✨ I've prepared the changes. Click "Apply" to see them, or "Reject" to cancel.`
+          content: `✨ I've **completely redesigned** your ${componentTag} with modern styles, gradients, and hover effects! Click "Apply" to see the transformation.`
         }])
 
         const flash = document.createElement('div')
-        flash.textContent = '✨ Changes ready! Review them first.'
+        flash.textContent = '✨ Complete redesign ready! Preview it before applying.'
         flash.style.cssText = `
           position: fixed; bottom: 20px; right: 20px;
           background: #8b5cf6; color: white; padding: 8px 16px;
@@ -575,7 +957,7 @@ Return ONLY the raw HTML.`.trim()
       } else {
         setMessages(prev => [...prev, {
           role: 'assistant',
-          content: `❌ Invalid response from AI. Please try again.`
+          content: `❌ Invalid response. Please try again with a clearer request.`
         }])
       }
     } catch (err) {
@@ -598,12 +980,12 @@ Return ONLY the raw HTML.`.trim()
   }
 
   const quickActions = [
-    { icon: '🎨', label: 'Make modern', prompt: 'Make this section more modern and visually appealing with clean design and subtle shadows' },
-    { icon: '📱', label: 'Mobile friendly', prompt: 'Make this section fully responsive and mobile-friendly with proper spacing' },
-    { icon: '🎯', label: 'Add CTA', prompt: 'Add a compelling call-to-action button that stands out' },
-    { icon: '✨', label: 'Improve design', prompt: 'Improve the typography, spacing, and overall visual design' },
-    { icon: '🌙', label: 'Dark mode', prompt: 'Convert this section to a modern dark mode color scheme' },
-    { icon: '⚡', label: 'Better layout', prompt: 'Improve the layout and alignment of all elements' },
+    { icon: '🌈', label: 'Modern Hero', prompt: 'Completely redesign this as a stunning modern hero section with gradient background, large bold heading, descriptive subheading, two CTA buttons, and floating decorative elements. Use modern colors and smooth animations.' },
+    { icon: '✨', label: 'Glassmorphism', prompt: 'Apply glassmorphism style: semi-transparent background with backdrop blur (10px), subtle white border, rounded corners (20px), and modern shadow effects. Make it look like frosted glass.' },
+    { icon: '🎨', label: 'Premium Luxury', prompt: 'Redesign with luxury aesthetics: gold/dark color scheme, serif fonts for headings, elegant spacing, subtle patterns or gradients, and sophisticated animations.' },
+    { icon: '🚀', label: 'Startup Modern', prompt: 'Modern startup style: clean gradients, large sans-serif fonts (800 weight), rounded corners, floating cards, and micro-interactions. Make it bold and energetic.' },
+    { icon: '💎', label: 'Neumorphism', prompt: 'Apply neumorphism design: soft shadows, matching background colors, subtle inset/outset effects, and clean minimalist typography.' },
+    { icon: '🎯', label: 'Bold & Vibrant', prompt: 'Create a bold, vibrant design with eye-catching gradient colors, large typography, dramatic shadows, and energetic hover animations. Make it stand out.' },
   ]
 
   const devices = ['Desktop', 'Tablet', 'Mobile']
@@ -707,7 +1089,7 @@ Return ONLY the raw HTML.`.trim()
                         <meta name="viewport" content="width=device-width, initial-scale=1.0">
                         <style>
                           * { margin: 0; padding: 0; box-sizing: border-box; }
-                          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; line-height: 1.6; padding: 20px; }
+                          body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; }
                           ${selectedVersionForPreview.css || ''}
                         </style>
                       </head>
@@ -726,14 +1108,14 @@ Return ONLY the raw HTML.`.trim()
       {/* Preview Modal for AI Changes */}
       {showPreview && previewHtml && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.8)' }}>
-          <div className="rounded-xl w-[800px] max-w-[90vw] max-h-[80vh] overflow-hidden" style={{ background: '#0f172a' }}>
+          <div className="rounded-xl w-[900px] max-w-[90vw] max-h-[80vh] overflow-hidden" style={{ background: '#0f172a' }}>
             <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: BORDER }}>
-              <h3 className="text-white font-semibold">Preview Changes</h3>
+              <h3 className="text-white font-semibold">Preview Redesigned Component</h3>
               <button onClick={() => setShowPreview(false)} className="text-gray-400 hover:text-white">
                 <CloseIcon />
               </button>
             </div>
-            <div className="p-4 max-h-[60vh] overflow-auto">
+            <div className="p-4 max-h-[60vh] overflow-auto" style={{ background: '#f5f5f5' }}>
               <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
             </div>
             <div className="flex justify-end gap-2 p-4 border-t" style={{ borderColor: BORDER }}>
@@ -745,9 +1127,9 @@ Return ONLY the raw HTML.`.trim()
               </button>
               <button
                 onClick={applyPreview}
-                className="px-4 py-2 rounded-lg text-white"
+                className="px-4 py-2 rounded-lg text-white transition-all hover:scale-105"
                 style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-                Apply Changes
+                Apply Redesign
               </button>
             </div>
           </div>
@@ -817,7 +1199,7 @@ Return ONLY the raw HTML.`.trim()
               color: isChatOpen ? '#a78bfa' : TEXT_SECONDARY,
               border: `1px solid ${isChatOpen ? '#8b5cf6' : BORDER}`
             }}>
-            <SparkleIcon /> Refinement
+            <SparkleIcon /> AI Redesign
             {selectedComponent && !isChatOpen && (
               <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
             )}
@@ -856,7 +1238,7 @@ Return ONLY the raw HTML.`.trim()
         {/* Left Sidebar */}
         <div
           className="flex flex-col shrink-0 border-r"
-          style={{ width: 216, background: SIDEBAR_BG, borderColor: BORDER }}>
+          style={{ width: 240, background: SIDEBAR_BG, borderColor: BORDER }}>
           <div
             className="flex shrink-0 border-b px-1 pt-1 gap-0.5"
             style={{ borderColor: BORDER }}>
@@ -883,13 +1265,12 @@ Return ONLY the raw HTML.`.trim()
         {/* Canvas */}
         <div ref={editorRef} className="flex-1 min-h-0" />
 
-        {/* Version History Sidebar - PROFESSIONAL VERSION (no raw HTML) */}
+        {/* Version History Sidebar */}
         {showVersionHistory && !isChatOpen && (
           <div
             className="flex flex-col shrink-0 border-l"
             style={{ width: 380, background: '#0f172a', borderColor: BORDER }}>
             
-            {/* Header */}
             <div
               className="flex items-center justify-between p-4 border-b"
               style={{ borderColor: BORDER }}>
@@ -908,7 +1289,6 @@ Return ONLY the raw HTML.`.trim()
               </button>
             </div>
 
-            {/* Versions List - Professional design with visual preview */}
             <div className="flex-1 overflow-y-auto p-3">
               {versions.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center p-4">
@@ -931,19 +1311,14 @@ Return ONLY the raw HTML.`.trim()
                     }}
                     onClick={() => openVersionPreview(version)}>
                     
-                    {/* Version Header */}
                     <div className="flex items-center justify-between p-3 border-b" style={{ borderColor: BORDER }}>
                       <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          
-                          <h4 className="text-white font-medium text-sm">{version.name}</h4>
-                        </div>
+                        <h4 className="text-white font-medium text-sm">{version.name}</h4>
                         <p className="text-xs mt-1" style={{ color: TEXT_MUTED }}>
                           {formatDate(version.timestamp)}
                         </p>
                       </div>
                       
-                      {/* Delete Button */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
@@ -955,7 +1330,6 @@ Return ONLY the raw HTML.`.trim()
                       </button>
                     </div>
                     
-                    {/* Visual Preview - Mini iframe preview (no raw code) */}
                     <div className="p-2 bg-gray-900/50">
                       <div className="rounded overflow-hidden" style={{ background: '#fff', height: '80px' }}>
                         <iframe
@@ -971,7 +1345,7 @@ Return ONLY the raw HTML.`.trim()
                                 <style>
                                   * { margin: 0; padding: 0; box-sizing: border-box; }
                                   body { 
-                                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                                     font-size: 10px;
                                     padding: 8px;
                                     transform: scale(0.8);
@@ -993,10 +1367,9 @@ Return ONLY the raw HTML.`.trim()
                       </div>
                     </div>
                     
-                    {/* Preview Hint */}
                     <div className="p-2 text-center border-t" style={{ borderColor: BORDER }}>
                       <span className="text-xs" style={{ color: '#a78bfa' }}>
-                         Click to preview full version
+                        Click to preview full version
                       </span>
                     </div>
                   </div>
@@ -1006,13 +1379,12 @@ Return ONLY the raw HTML.`.trim()
           </div>
         )}
 
-        {/* AI Refinement Sidebar */}
+        {/* AI Redesign Sidebar */}
         {isChatOpen && !showVersionHistory && (
           <div
             className="flex flex-col shrink-0 border-l"
-            style={{ width: 380, background: '#0f172a', borderColor: BORDER }}>
+            style={{ width: 400, background: '#0f172a', borderColor: BORDER }}>
 
-            {/* Header */}
             <div
               className="flex items-center justify-between p-4 border-b"
               style={{ borderColor: BORDER }}>
@@ -1021,11 +1393,11 @@ Return ONLY the raw HTML.`.trim()
                   <SparkleIcon size={14} />
                 </div>
                 <div>
-                  <h3 className="text-white font-semibold text-sm">AI Refinement</h3>
+                  <h3 className="text-white font-semibold text-sm">AI Redesign Studio</h3>
                   <p className="text-xs" style={{ color: TEXT_MUTED }}>
                     {selectedComponent
-                      ? `Editing: ${selectedComponent.get('type') || 'component'}`
-                      : 'Select a component to start'}
+                      ? `Redesigning: ${selectedComponent.get('tagName')?.toLowerCase() || 'component'}`
+                      : 'Select a component to redesign'}
                   </p>
                 </div>
               </div>
@@ -1038,25 +1410,41 @@ Return ONLY the raw HTML.`.trim()
               </button>
             </div>
 
-            {/* Quick Actions */}
+            {/* Component Info Panel */}
+            {selectedComponent && editingComponentInfo && (
+              <div className="m-3 p-3 rounded-lg" style={{ background: 'rgba(139,92,246,0.1)', border: `1px solid rgba(139,92,246,0.2)` }}>
+                <p className="text-xs" style={{ color: '#a78bfa' }}>
+                  🎯 Currently Editing: <strong>&lt;{editingComponentInfo.tagName}&gt;</strong>
+                  {editingComponentInfo.classes.length > 0 && (
+                    <span className="ml-1 opacity-70">
+                      ({editingComponentInfo.classes.join(', ')})
+                    </span>
+                  )}
+                </p>
+                <p className="text-xs mt-2" style={{ color: TEXT_MUTED }}>
+                  💡 Tip: Click on any navbar, header, or section to redesign the entire component
+                </p>
+              </div>
+            )}
+
             {selectedComponent && messages.length === 0 && (
               <div className="p-3 border-b" style={{ borderColor: BORDER }}>
-                <p className="text-xs mb-2" style={{ color: TEXT_MUTED }}>Quick actions:</p>
+                <p className="text-xs mb-2" style={{ color: TEXT_MUTED }}>🚀 Quick Redesign Styles:</p>
                 <div className="flex flex-wrap gap-2">
                   {quickActions.map((action, i) => (
                     <button
                       key={i}
                       onClick={() => sendMessage(action.prompt)}
                       disabled={isRefining}
-                      className="flex items-center gap-1 px-2 py-1 rounded-md text-xs transition-all"
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all"
                       style={{
-                        background: 'rgba(139,92,246,0.1)',
-                        color: '#a78bfa',
-                        border: '1px solid rgba(139,92,246,0.2)',
+                        background: 'rgba(139,92,246,0.15)',
+                        color: '#c4b5fd',
+                        border: '1px solid rgba(139,92,246,0.3)',
                         opacity: isRefining ? 0.5 : 1
                       }}
-                      onMouseEnter={e => { if (!isRefining) e.currentTarget.style.background = 'rgba(139,92,246,0.2)' }}
-                      onMouseLeave={e => { if (!isRefining) e.currentTarget.style.background = 'rgba(139,92,246,0.1)' }}>
+                      onMouseEnter={e => { if (!isRefining) e.currentTarget.style.background = 'rgba(139,92,246,0.25)' }}
+                      onMouseLeave={e => { if (!isRefining) e.currentTarget.style.background = 'rgba(139,92,246,0.15)' }}>
                       <span>{action.icon}</span>
                       <span>{action.label}</span>
                     </button>
@@ -1065,18 +1453,17 @@ Return ONLY the raw HTML.`.trim()
               </div>
             )}
 
-            {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {messages.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center">
-                  <div className="w-12 h-12 rounded-full mb-3 flex items-center justify-center" style={{ background: 'rgba(139,92,246,0.1)' }}>
-                    <SparkleIcon size={24} />
+                  <div className="w-16 h-16 rounded-full mb-4 flex items-center justify-center" style={{ background: 'rgba(139,92,246,0.15)' }}>
+                    <SparkleIcon size={32} />
                   </div>
-                  <p className="text-sm font-medium text-white mb-1">AI Design Assistant</p>
+                  <p className="text-white font-semibold mb-2">AI Component Redesign</p>
                   <p className="text-xs" style={{ color: TEXT_MUTED }}>
                     {selectedComponent
-                      ? 'Ask me to refine this component!'
-                      : 'Select any component on the canvas to start refining'}
+                      ? 'Choose a style above or type your custom request!\nTry: "Make it elegant with gold accents"'
+                      : 'Click on any navbar, header, or section to start redesigning'}
                   </p>
                 </div>
               ) : (
@@ -1108,14 +1495,13 @@ Return ONLY the raw HTML.`.trim()
               <div ref={chatEndRef} />
             </div>
 
-            {/* Input */}
             <div className="p-4 border-t" style={{ borderColor: BORDER }}>
               <div className="flex gap-2">
                 <textarea
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyDown={handleKeyPress}
-                  placeholder={selectedComponent ? 'Describe how to refine this section...' : 'Select a component first...'}
+                  placeholder={selectedComponent ? 'Describe your redesign vision...' : 'Select a component first...'}
                   disabled={!selectedComponent || isRefining}
                   rows={2}
                   className="flex-1 rounded-lg p-2 text-sm resize-none"
@@ -1124,6 +1510,7 @@ Return ONLY the raw HTML.`.trim()
                     border: `1px solid ${BORDER}`,
                     color: 'white',
                     outline: 'none',
+                    fontFamily: 'inherit'
                   }}
                 />
                 <button
@@ -1154,6 +1541,30 @@ Return ONLY the raw HTML.`.trim()
           15% { opacity: 1; transform: translateY(0); }
           85% { opacity: 1; transform: translateY(0); }
           100% { opacity: 0; transform: translateY(-20px); }
+        }
+        
+        @keyframes bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-4px); }
+        }
+        
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .animate-bounce {
+          animation: bounce 0.8s infinite;
+        }
+        
+        .animate-fadeInUp {
+          animation: fadeInUp 0.6s ease-out;
         }
       `}</style>
     </div>

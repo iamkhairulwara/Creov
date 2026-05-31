@@ -3,75 +3,127 @@ import { supabase } from '@/lib/supabase/client'
 
 export async function POST(req) {
   try {
-    const { websiteId, refinement, currentHtml, userId } = await req.json()
+    const {
+      websiteId,
+      refinement,
+      sectionHtml,
+      userId
+    } = await req.json()
+
+    console.log('=== REFINE REQUEST ===')
+    console.log('websiteId:', websiteId)
+    console.log('userId:', userId)
+    console.log('sectionHtml length:', sectionHtml?.length)
+    console.log('Gemini key exists:', !!process.env.GEMINI_API_KEY)
 
     const prompt = `
-You are editing an existing website.
-Here is the current HTML:
+You are a professional UI designer.
 
-${currentHtml}
+Current HTML section:
 
-The user wants this change: "${refinement}"
+${sectionHtml}
+
+User request:
+
+${refinement}
 
 STRICT RULES:
-- Return ONLY the complete updated HTML
-- Keep everything the user did NOT ask to change
-- NO markdown, NO backticks, NO explanations
-- Return the full HTML document
-    `.trim()
+- Return ONLY valid HTML
+- Return ONLY the updated section
+- Do NOT return a full HTML page
+- No markdown
+- No backticks
+- No explanations
+- Preserve layout unless the request requires changing it
+- Keep responsive design
+- Use clean semantic HTML
+
+Return ONLY raw HTML.
+`.trim()
 
     const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }]
+          contents: [
+            {
+              parts: [
+                {
+                  text: prompt
+                }
+              ]
+            }
+          ]
         })
       }
     )
 
     const geminiData = await geminiResponse.json()
-    const rawHtml = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text
 
-    if (!rawHtml) {
+    console.log('=== GEMINI RESPONSE ===')
+    console.log('Status:', geminiResponse.status)
+    console.log(JSON.stringify(geminiData, null, 2))
+
+    // Gemini API returned an error
+    if (geminiData.error) {
       return Response.json(
-        { error: 'Gemini returned empty response' },
+        {
+          error: `Gemini Error: ${geminiData.error.message}`
+        },
         { status: 500 }
       )
     }
 
-    const { valid, html, error } = validateOutput(rawHtml)
-    if (!valid) {
-      return Response.json({ error }, { status: 400 })
+    const rawHtml =
+      geminiData?.candidates?.[0]?.content?.parts?.[0]?.text
+
+    if (!rawHtml) {
+      return Response.json(
+        {
+          error: `Gemini returned no HTML. Response: ${JSON.stringify(
+            geminiData
+          )}`
+        },
+        { status: 500 }
+      )
     }
 
-    // Update website in Supabase
-    await supabase
-      .from('websites')
-      .update({ html })
-      .eq('id', websiteId)
+    console.log('=== RAW HTML ===')
+    console.log(rawHtml.substring(0, 500))
 
-    // Append refinement to prompts table
-    const { data: existingPrompt } = await supabase
-      .from('prompts')
-      .select('refined_prompts')
-      .eq('website_id', websiteId)
-      .single()
+    let html = rawHtml
 
-    if (existingPrompt) {
-      const updated = [...(existingPrompt.refined_prompts || []), refinement]
-      await supabase
-        .from('prompts')
-        .update({ refined_prompts: updated })
-        .eq('website_id', websiteId)
+    try {
+      const validation = validateOutput(rawHtml)
+
+      if (validation?.valid) {
+        html = validation.html
+      } else {
+        console.warn('Validation failed:', validation?.error)
+      }
+    } catch (validationError) {
+      console.error(
+        'Validation Error:',
+        validationError
+      )
     }
 
-    return Response.json({ html })
-
+    return Response.json({
+      html
+    })
   } catch (err) {
+    console.error('=== REFINE ERROR ===')
+    console.error(err)
+
     return Response.json(
-      { error: 'Something went wrong: ' + err.message },
+      {
+        error:
+          err?.message || 'Unknown server error'
+      },
       { status: 500 }
     )
   }
