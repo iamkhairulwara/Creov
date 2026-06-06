@@ -151,10 +151,10 @@ function EditorNewPageInner() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4" />
-          <p className="text-gray-600">Loading template...</p>
+      <div className="min-h-screen flex items-center justify-center bg-[#030712] text-white">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 rounded-full border-2 border-cyan-500/20 border-t-cyan-400 animate-spin" />
+          <p className="text-sm text-slate-500 font-mono">Loading template canvas...</p>
         </div>
       </div>
     )
@@ -162,13 +162,16 @@ function EditorNewPageInner() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-500 text-xl mb-4">?? Error</div>
-          <p className="text-gray-600 mb-4">{error}</p>
+      <div className="min-h-screen flex items-center justify-center bg-[#030712] text-white selection:bg-cyan-500/30">
+        <div className="bg-[#080c1e]/60 backdrop-blur-2xl p-8 rounded-3xl border border-red-500/20 max-w-md w-full text-center shadow-2xl">
+          <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/20">
+            <span className="text-2xl">⚠️</span>
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-2">Error Loading Template</h2>
+          <p className="text-slate-400 text-sm mb-6 leading-relaxed font-light">{error}</p>
           <button
             onClick={() => window.location.href = '/templates'}
-            className="px-4 py-2 bg-black text-white rounded-lg"
+            className="w-full py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:scale-[1.02] shadow-[0_0_20px_rgba(6,182,212,0.25)] transition-all duration-300 btn-3d-cyan"
           >
             Back to Templates
           </button>
@@ -179,12 +182,15 @@ function EditorNewPageInner() {
 
   if (!html) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">No template selected</p>
+      <div className="min-h-screen flex items-center justify-center bg-[#030712] text-white selection:bg-cyan-500/30">
+        <div className="bg-[#080c1e]/60 backdrop-blur-2xl p-8 rounded-3xl border border-white/5 max-w-md w-full text-center shadow-2xl">
+          <div className="w-16 h-16 bg-cyan-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-cyan-500/20">
+            <span className="text-2xl">🎨</span>
+          </div>
+          <p className="text-slate-400 text-sm mb-6 leading-relaxed font-light">No template selected. Please browse our layout catalog.</p>
           <button
             onClick={() => window.location.href = '/templates'}
-            className="px-4 py-2 bg-black text-white rounded-lg"
+            className="w-full py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:scale-[1.02] shadow-[0_0_20px_rgba(6,182,212,0.25)] transition-all duration-300 btn-3d-cyan"
           >
             Browse Templates
           </button>
@@ -207,10 +213,10 @@ function EditorNewPageInner() {
 export default function Page() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4" />
-          <p className="text-gray-600">Loading editor...</p>
+      <div className="min-h-screen flex items-center justify-center bg-[#030712] text-white">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 rounded-full border-2 border-cyan-500/20 border-t-cyan-400 animate-spin" />
+          <p className="text-sm text-slate-500 font-mono">Loading editor canvas...</p>
         </div>
       </div>
     }>

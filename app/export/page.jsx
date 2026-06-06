@@ -1,33 +1,45 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-
-const CYAN = '#06b6d4'
-const CARD_BG = 'rgba(255,255,255,0.02)'
-const CARD_BORDER = 'rgba(255,255,255,0.06)'
-const TEXT_SECONDARY = '#94a3b8'
-const TEXT_MUTED = '#64748b'
+import Navbar from '@/components/ui/NAVBAR'
+import Footer from '@/components/ui/FOOTER'
+import { supabase } from '@/lib/supabase/client'
+import Link from 'next/link'
 
 export default function ExportPage() {
   const [selected, setSelected] = useState(null)
   const [exporting, setExporting] = useState(false)
+  const [user, setUser] = useState(null)
+  const [checkingAuth, setCheckingAuth] = useState(true)
+  const [websiteData, setWebsiteData] = useState(null)
+  const [hasNoData, setHasNoData] = useState(false)
   const router = useRouter()
 
-  // Get website data passed via localStorage
-  function getWebsiteData() {
-    const stored = localStorage.getItem('export_website')
-    if (!stored) return null
-    return JSON.parse(stored)
-  }
+  // Verify session and load context
+  useEffect(() => {
+    async function checkAuthAndLoad() {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        router.replace('/auth/login')
+        return
+      }
+      setUser(session.user)
+      setCheckingAuth(false)
+
+      const stored = localStorage.getItem('export_website')
+      if (!stored) {
+        setHasNoData(true)
+      } else {
+        setWebsiteData(JSON.parse(stored))
+      }
+    }
+    
+    checkAuthAndLoad()
+  }, [router])
 
   async function handleExport() {
-    const website = getWebsiteData()
-    if (!website) {
-      alert('No website data found. Please go back to the editor.')
-      return
-    }
-
+    if (!websiteData) return
     setExporting(true)
 
     try {
@@ -38,15 +50,15 @@ export default function ExportPage() {
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>${website.title || 'My Website'}</title>
+  <title>${websiteData.title || 'My Website'}</title>
   <style>
-${website.css || ''}
+${websiteData.css || ''}
   </style>
 </head>
 <body>
-${website.html || ''}
+${websiteData.html || ''}
 <script>
-${website.js || ''}
+${websiteData.js || ''}
 </script>
 </body>
 </html>`
@@ -55,7 +67,7 @@ ${website.js || ''}
         const url = URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
-        a.download = `${website.title || 'my-website'}.html`
+        a.download = `${websiteData.title || 'my-website'}.html`
         a.click()
         URL.revokeObjectURL(url)
 
@@ -63,10 +75,10 @@ ${website.js || ''}
         // Export as ZIP with separate files
         const { exportAsZip } = await import('@/lib/utils/exportZip')
         await exportAsZip({
-          html: website.html,
-          css: website.css,
-          js: website.js,
-          filename: website.title || 'my-website'
+          html: websiteData.html,
+          css: websiteData.css,
+          js: websiteData.js,
+          filename: websiteData.title || 'my-website'
         })
       }
 
@@ -86,7 +98,7 @@ ${website.js || ''}
     {
       id: 'single',
       icon: (
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
           <polyline points="14 2 14 8 20 8"/>
           <line x1="16" y1="13" x2="8" y2="13"/>
@@ -95,190 +107,210 @@ ${website.js || ''}
         </svg>
       ),
       title: 'Single HTML File',
-      description: 'Everything combined into one .html file. CSS and JS are embedded inside. Best for sharing or quick hosting.',
+      description: 'Everything combined into one .html file. CSS and JS are fully embedded. Great for instant sharing or rapid visual deployment.',
       tag: 'Simplest',
       files: ['index.html'],
     },
     {
       id: 'multiple',
       icon: (
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
         </svg>
       ),
       title: 'Multiple Files (ZIP)',
-      description: 'Separate HTML, CSS and JS files packed into a ZIP. Best for developers who want clean organized code.',
+      description: 'Clean separate files packed in an indexed ZIP. Perfect for developers looking to modify structures in local editors.',
       tag: 'Recommended',
       files: ['index.html', 'style.css', 'script.js'],
     },
   ]
 
-  return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12">
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#030712]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 rounded-full border-2 border-cyan-500/20 border-t-cyan-400 animate-spin" />
+          <p className="text-sm text-slate-500 font-mono">Verifying authorization handshake...</p>
+        </div>
+      </div>
+    )
+  }
 
-      {/* Background glow */}
+  return (
+    <div className="min-h-screen bg-[#030712] text-white selection:bg-cyan-500/30 selection:text-white flex flex-col justify-between overflow-x-hidden relative">
+      <Navbar />
+
+      {/* Futuristic Glowing Background Elements */}
       <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
-        <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full"
-          style={{ background: 'radial-gradient(circle, rgba(6,182,212,0.06), transparent 70%)' }}
-        />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-cyan-500/5 blur-[120px] animate-pulse-glow" />
+        <div className="absolute bottom-1/4 right-1/4 w-[350px] h-[350px] rounded-full bg-violet-600/5 blur-[80px] animate-pulse-glow" style={{ animationDelay: '3s' }} />
       </div>
 
-      <div className="w-full max-w-2xl">
+      {/* Cyber Grid Pattern */}
+      <div 
+        className="absolute inset-0 -z-10 opacity-[0.05] animate-grid-flow"
+        style={{
+          backgroundImage: 'radial-gradient(rgba(34,211,238,0.4) 1.5px, transparent 1.5px)',
+          backgroundSize: '32px 32px'
+        }} 
+      />
 
-        {/* Header */}
-        <div className="text-center mb-10">
-          <div
-            className="inline-flex items-center gap-2 text-xs font-medium px-4 py-2 rounded-full mb-6 border"
-            style={{
-              background: 'rgba(6,182,212,0.08)',
-              borderColor: 'rgba(6,182,212,0.2)',
-              color: CYAN
-            }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            Export Website
+      <div className="max-w-4xl mx-auto px-6 pt-36 pb-24 flex-1 flex items-center justify-center w-full">
+        {hasNoData ? (
+          <div className="glass-card text-center p-12 rounded-3xl border border-red-500/10 max-w-lg w-full shadow-2xl">
+            <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/20">
+              <span className="text-2xl">⚠️</span>
+            </div>
+            <h2 className="text-2xl font-black text-white mb-3">No Website Data Found</h2>
+            <p className="text-slate-400 text-sm mb-8 leading-relaxed">
+              We couldn't detect any active design data in your local session. Please return to the editor to bundle your assets.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                href="/dashboard"
+                className="px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-300 border border-white/10 bg-white/5 hover:border-white/20 transition-all duration-300 flex-1 text-center"
+              >
+                Go to Dashboard
+              </Link>
+              <Link
+                href="/generate"
+                className="px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:scale-[1.02] shadow-[0_0_20px_rgba(6,182,212,0.2)] transition-all duration-300 flex-1 text-center font-mono"
+              >
+                Synthesize Site
+              </Link>
+            </div>
           </div>
-          <h1 className="text-3xl font-extrabold text-white mb-3 tracking-tight">
-            Choose export format
-          </h1>
-          <p style={{ color: TEXT_MUTED }}>
-            Select how you want to download your website
-          </p>
-        </div>
-
-        {/* Options */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-          {options.map(option => (
-            <button
-              key={option.id}
-              onClick={() => setSelected(option.id)}
-              className="text-left p-6 rounded-2xl border transition-all"
-              style={{
-                background: selected === option.id
-                  ? 'rgba(6,182,212,0.08)'
-                  : CARD_BG,
-                borderColor: selected === option.id
-                  ? 'rgba(6,182,212,0.4)'
-                  : CARD_BORDER,
-                boxShadow: selected === option.id
-                  ? '0 0 24px rgba(6,182,212,0.1)'
-                  : 'none'
-              }}>
-
-              {/* Icon + Tag */}
-              <div className="flex items-start justify-between mb-4">
-                <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style={{
-                    background: selected === option.id
-                      ? 'rgba(6,182,212,0.15)'
-                      : 'rgba(255,255,255,0.04)',
-                    color: selected === option.id ? CYAN : TEXT_MUTED
-                  }}>
-                  {option.icon}
-                </div>
-                <span
-                  className="text-xs font-semibold px-2.5 py-1 rounded-full"
-                  style={{
-                    background: selected === option.id
-                      ? 'rgba(6,182,212,0.15)'
-                      : 'rgba(255,255,255,0.04)',
-                    color: selected === option.id ? CYAN : TEXT_MUTED,
-                    border: `1px solid ${selected === option.id ? 'rgba(6,182,212,0.3)' : 'rgba(255,255,255,0.06)'}`
-                  }}>
-                  {option.tag}
-                </span>
-              </div>
-
-              {/* Title */}
-              <h3
-                className="font-bold text-base mb-2"
-                style={{ color: selected === option.id ? 'white' : TEXT_SECONDARY }}>
-                {option.title}
-              </h3>
-
-              {/* Description */}
-              <p className="text-xs leading-relaxed mb-4" style={{ color: TEXT_MUTED }}>
-                {option.description}
-              </p>
-
-              {/* Files list */}
-              <div className="flex flex-wrap gap-1.5">
-                {option.files.map(f => (
-                  <span
-                    key={f}
-                    className="text-xs px-2 py-0.5 rounded-md font-mono"
-                    style={{
-                      background: 'rgba(255,255,255,0.04)',
-                      border: '1px solid rgba(255,255,255,0.06)',
-                      color: TEXT_MUTED
-                    }}>
-                    {f}
-                  </span>
-                ))}
-              </div>
-
-              {/* Selected indicator */}
-              {selected === option.id && (
-                <div className="flex items-center gap-1.5 mt-4">
-                  <div
-                    className="w-4 h-4 rounded-full flex items-center justify-center"
-                    style={{ background: CYAN }}>
-                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
-                      <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                  </div>
-                  <span className="text-xs font-medium" style={{ color: CYAN }}>Selected</span>
-                </div>
-              )}
-            </button>
-          ))}
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex gap-3">
-          <button
-            onClick={() => router.back()}
-            className="flex-1 py-3 rounded-xl text-sm font-medium transition-all border"
-            style={{ color: TEXT_SECONDARY, borderColor: CARD_BORDER }}
-            onMouseEnter={e => e.currentTarget.style.color = 'white'}
-            onMouseLeave={e => e.currentTarget.style.color = TEXT_SECONDARY}>
-            Back to Editor
-          </button>
-
-          <button
-            onClick={handleExport}
-            disabled={!selected || exporting}
-            className="flex-1 py-3 rounded-xl text-sm font-bold text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            style={{
-              background: selected
-                ? 'linear-gradient(135deg, #06b6d4, #0284c7)'
-                : 'rgba(255,255,255,0.06)',
-              boxShadow: selected ? '0 0 24px rgba(6,182,212,0.25)' : 'none'
-            }}>
-            {exporting ? (
-              <>
-                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Exporting...
-              </>
-            ) : (
-              <>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+        ) : (
+          <div className="w-full">
+            {/* Header */}
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-full mb-6 border border-cyan-500/20 bg-cyan-950/20 text-cyan-300 animate-float">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                   <polyline points="7 10 12 15 17 10"/>
                   <line x1="12" y1="15" x2="12" y2="3"/>
                 </svg>
-                {selected ? `Export as ${selected === 'single' ? '.html' : 'ZIP'}` : 'Select a format first'}
-              </>
-            )}
-          </button>
-        </div>
+                Deploy Engine v2.0
+              </div>
+              <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight">
+                Export <span className="neon-text-cyan-blue">Workspace</span>
+              </h1>
+              <p className="text-slate-400 text-sm mt-2 font-light">
+                Securely download standalone production-ready code packages for: <span className="font-semibold text-slate-300">{websiteData?.title || 'my-website'}</span>
+              </p>
+            </div>
 
+            {/* Options */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+              {options.map(option => (
+                <button
+                  key={option.id}
+                  onClick={() => setSelected(option.id)}
+                  className={`text-left p-6 rounded-3xl border transition-all duration-500 card-3d ${
+                    selected === option.id
+                      ? 'bg-cyan-950/15 border-cyan-500/40 shadow-[0_0_30px_rgba(6,182,212,0.15)] glass-glow-cyan'
+                      : 'bg-white/5 border-white/5 hover:border-cyan-500/20'
+                  }`}
+                >
+                  {/* Icon + Tag */}
+                  <div className="flex items-start justify-between mb-5">
+                    <div
+                      className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors duration-300 ${
+                        selected === option.id
+                          ? 'bg-cyan-500/20 text-cyan-300'
+                          : 'bg-white/5 text-slate-400'
+                      }`}
+                    >
+                      {option.icon}
+                    </div>
+                    <span
+                      className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border transition-all duration-300 ${
+                        selected === option.id
+                          ? 'bg-cyan-500/20 border-cyan-500/30 text-cyan-300'
+                          : 'bg-white/5 border-white/5 text-slate-500'
+                      }`}
+                    >
+                      {option.tag}
+                    </span>
+                  </div>
+
+                  {/* Title */}
+                  <h3
+                    className={`font-black text-lg mb-2 tracking-wide transition-colors ${
+                      selected === option.id ? 'text-white' : 'text-slate-300'
+                    }`}
+                  >
+                    {option.title}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-xs leading-relaxed mb-6 text-slate-400 font-light">
+                    {option.description}
+                  </p>
+
+                  {/* Files list */}
+                  <div className="flex flex-wrap gap-2 pt-4 border-t border-white/5">
+                    {option.files.map(f => (
+                      <span
+                        key={f}
+                        className="text-[10px] px-2.5 py-1 rounded-lg font-mono bg-white/5 border border-white/5 text-slate-500"
+                      >
+                        {f}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Selected indicator */}
+                  {selected === option.id && (
+                    <div className="flex items-center gap-1.5 mt-4 text-cyan-300 text-xs font-semibold font-mono animate-pulse">
+                      <div className="w-4 h-4 rounded-full bg-cyan-400 flex items-center justify-center shadow-[0_0_8px_#22d3ee]">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5">
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                      </div>
+                      <span>ACTIVE TARGET</span>
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={() => router.back()}
+                className="flex-1 py-4 rounded-xl text-xs font-bold uppercase tracking-widest transition-all duration-300 border border-white/5 bg-white/5 text-slate-400 hover:text-white hover:border-white/15"
+              >
+                Back to Workspace
+              </button>
+
+              <button
+                onClick={handleExport}
+                disabled={!selected || exporting}
+                className="flex-1 py-4 rounded-xl text-xs font-bold uppercase tracking-widest text-white transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-3d-cyan"
+              >
+                {exporting ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Processing Bundle...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                      <polyline points="7 10 12 15 17 10"/>
+                      <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    <span>{selected ? `Download ${selected === 'single' ? 'HTML' : 'ZIP'}` : 'Select Export Output'}</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
+
+      <Footer />
     </div>
   )
 }

@@ -110,13 +110,10 @@ function EditorPageInner() {
   }
 
   if (!ready) return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center bg-[#030712] text-white">
       <div className="flex flex-col items-center gap-4">
-        <div
-          className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
-          style={{ borderColor: 'rgba(6,182,212,0.3)', borderTopColor: '#06b6d4' }}
-        />
-        <p style={{ color: '#64748b' }}>Loading editor...</p>
+        <div className="w-10 h-10 rounded-full border-2 border-cyan-500/20 border-t-cyan-400 animate-spin" />
+        <p className="text-sm text-slate-500 font-mono">Securing design canvas...</p>
       </div>
     </div>
   )
@@ -133,13 +130,10 @@ function EditorPageInner() {
 export default function EditorPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-[#030712] text-white">
         <div className="flex flex-col items-center gap-4">
-          <div
-            className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
-            style={{ borderColor: 'rgba(6,182,212,0.3)', borderTopColor: '#06b6d4' }}
-          />
-          <p style={{ color: '#64748b' }}>Loading editor...</p>
+          <div className="w-10 h-10 rounded-full border-2 border-cyan-500/20 border-t-cyan-400 animate-spin" />
+          <p className="text-sm text-slate-500 font-mono">Loading editor canvas...</p>
         </div>
       </div>
     }>

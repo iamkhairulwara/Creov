@@ -123,4 +123,72 @@ body {
   background: linear-gradient(90deg, #06b6d4, #8b5cf6, #ec4899);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+/* ── PREMIUM 3D EFFECTS & INTERACTIONS ── */
+.card-3d {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.4s ease, box-shadow 0.5s ease !important;
+}
+
+.card-3d:hover {
+  transform: translateY(-8px) rotateX(4deg) rotateY(-4deg) !important;
+  border-color: rgba(6, 182, 212, 0.3) !important;
+  box-shadow: 
+    -4px 4px 0px rgba(6, 182, 212, 0.15),
+    -8px 8px 0px rgba(139, 92, 246, 0.05),
+    0 20px 40px rgba(0, 0, 0, 0.7) !important;
+}
+
+.btn-3d-cyan {
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+  box-shadow: 
+    0 4px 0px #0891b2,
+    0 8px 20px rgba(6, 182, 212, 0.3) !important;
+}
+
+.btn-3d-cyan:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 
+    0 5px 0px #0891b2,
+    0 10px 25px rgba(6, 182, 212, 0.4) !important;
+}
+
+.btn-3d-cyan:active {
+  transform: translateY(4px) !important;
+  box-shadow: 
+    0 0px 0px #0891b2,
+    0 2px 4px rgba(6, 182, 212, 0.2) !important;
+}
+
+.btn-3d-purple {
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+  box-shadow: 
+    0 4px 0px #7c3aed,
+    0 8px 20px rgba(124, 58, 237, 0.3) !important;
+}
+
+.btn-3d-purple:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 
+    0 5px 0px #7c3aed,
+    0 10px 25px rgba(124, 58, 237, 0.4) !important;
+}
+
+.btn-3d-purple:active {
+  transform: translateY(4px) !important;
+  box-shadow: 
+    0 0px 0px #7c3aed,
+    0 2px 4px rgba(124, 58, 237, 0.2) !important;
+}
+
+/* Glassmorphism micro-interaction */
+.glass-glow-cyan {
+  box-shadow: 0 0 25px rgba(6, 182, 212, 0.15) !important;
+}
+.glass-glow-purple {
+  box-shadow: 0 0 25px rgba(139, 92, 246, 0.15) !important;
 }

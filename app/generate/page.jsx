@@ -107,7 +107,7 @@ export default function Generate() {
 
         const verify = sessionStorage.getItem('generatedHTML')
         if (verify && verify.length > 0) {
-          window.location.href = '/editor'
+          window.location.href = `/editor/${data.websiteId}`
         } else {
           throw new Error("Failed to cache generated design local context")
         }
