@@ -15,7 +15,7 @@ export default function LoginPage() {
   useEffect(() => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession()
-      if (session) router.replace('/generate')
+      if (session) router.replace('/')
     }
     checkSession()
   }, [router])
@@ -33,7 +33,7 @@ export default function LoginPage() {
       return
     }
 
-    router.replace('/generate')
+    router.replace('/')
   }
 
   const handleGoogleLogin = async () => {

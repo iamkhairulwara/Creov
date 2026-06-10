@@ -6,6 +6,17 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   Legend, ResponsiveContainer
 } from 'recharts'
+import CustomSelect from '@/components/ui/CustomSelect'
+
+const Cal7Icon = () => <span className="mr-1">📅</span>
+const Cal30Icon = () => <span className="mr-1">📅</span>
+const Cal90Icon = () => <span className="mr-1">📅</span>
+
+const timeRangeOptions = [
+  { value: '7d', label: 'Last 7 days', icon: <Cal7Icon /> },
+  { value: '30d', label: 'Last 30 days', icon: <Cal30Icon /> },
+  { value: '90d', label: 'Last 90 days', icon: <Cal90Icon /> }
+]
 
 export default function AnalyticsPage() {
   const [timeRange, setTimeRange] = useState('7d')
@@ -171,21 +182,12 @@ export default function AnalyticsPage() {
           <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight">Analytics</h1>
           <p className="text-slate-400 text-sm mt-1">AI performance, generations rate, & platform insights.</p>
         </div>
-        <div className="relative">
-          <select
+        <div className="relative w-48">
+          <CustomSelect
             value={timeRange}
-            onChange={(e) => setTimeRange(e.target.value)}
-            className="px-4 py-2.5 rounded-xl bg-[#080c1e]/60 backdrop-blur-xl border border-white/10 text-white focus:outline-none focus:border-cyan-500 transition-all font-semibold text-sm cursor-pointer shadow-lg pr-8 appearance-none"
-          >
-            <option value="7d">📅 Last 7 days</option>
-            <option value="30d">📅 Last 30 days</option>
-            <option value="90d">📅 Last 90 days</option>
-          </select>
-          <div className="absolute top-1/2 right-3 -translate-y-1/2 pointer-events-none text-slate-400">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="m6 9 6 6 6-6"/>
-            </svg>
-          </div>
+            onChange={setTimeRange}
+            options={timeRangeOptions}
+          />
         </div>
       </div>
 

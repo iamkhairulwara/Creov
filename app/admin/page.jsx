@@ -15,35 +15,24 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const fetchStats = async () => {
-      // Get counts
-      const [{ count: users }, { count: websites }, { count: templates }, { count: prompts }] = await Promise.all([
-        supabase.from('profiles').select('*', { count: 'exact', head: true }),
-        supabase.from('websites').select('*', { count: 'exact', head: true }),
-        supabase.from('templates').select('*', { count: 'exact', head: true }),
-        supabase.from('prompts').select('*', { count: 'exact', head: true })
-      ])
-
-      // Get recent websites with user info
-      const { data: recent } = await supabase
-        .from('websites')
-        .select(`
-          id,
-          title,
-          source,
-          created_at,
-          profiles (email, full_name)
-        `)
-        .order('created_at', { ascending: false })
-        .limit(10)
-
-      setStats({
-        totalUsers: users || 0,
-        totalWebsites: websites || 0,
-        totalTemplates: templates || 0,
-        totalPrompts: prompts || 0
-      })
-      setRecentWebsites(recent || [])
-      setLoading(false)
+      try {
+        const res = await fetch('/api/admin/stats')
+        if (!res.ok) throw new Error('Failed to fetch stats')
+        
+        const { stats: newStats, recentWebsites: recent } = await res.json()
+        
+        setStats(newStats || {
+          totalUsers: 0,
+          totalWebsites: 0,
+          totalTemplates: 0,
+          totalPrompts: 0
+        })
+        setRecentWebsites(recent || [])
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
     }
     
     fetchStats()
@@ -180,11 +169,11 @@ export default function AdminDashboard() {
                 <div className="flex flex-col sm:items-end gap-1.5">
                   {item.source === 'generated' ? (
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
-                      ⚡ AI Synthesized
+                      <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> AI Synthesized
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                      🎨 Custom Template
+                      <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg> Custom Template
                     </span>
                   )}
                   <span className="text-slate-500 text-[10px] font-semibold tracking-wider uppercase font-mono">
@@ -200,7 +189,9 @@ export default function AdminDashboard() {
           ))}
           {recentWebsites.length === 0 && (
             <div className="text-center py-10 bg-white/5 rounded-xl border border-white/10">
-              <span className="text-3xl">🌐</span>
+              <span className="text-slate-500 mb-3 block">
+                <svg className="w-8 h-8 mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              </span>
               <p className="text-slate-500 text-sm mt-3">No websites created yet.</p>
             </div>
           )}

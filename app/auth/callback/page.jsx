@@ -31,7 +31,7 @@ export default function AuthCallbackPage() {
                 if (session) {
                     console.log('✅ Session found for:', session.user.email)
                     setStatus(`Welcome ${session.user.email}! Redirecting...`)
-                    setTimeout(() => router.replace('/generate'), 1000)
+                    setTimeout(() => router.replace('/'), 1000)
                     return
                 }
 
@@ -60,7 +60,7 @@ export default function AuthCallbackPage() {
                     if (data.session) {
                         console.log('✅ Session set for:', data.session.user.email)
                         setStatus(`Welcome ${data.session.user.email}! Redirecting...`)
-                        setTimeout(() => router.replace('/generate'), 1000)
+                        setTimeout(() => router.replace('/'), 1000)
                         return
                     }
                 }
@@ -86,7 +86,7 @@ export default function AuthCallbackPage() {
                     if (data.session) {
                         console.log('✅ Session created for:', data.session.user.email)
                         setStatus(`Welcome ${data.session.user.email}! Redirecting...`)
-                        setTimeout(() => router.replace('/generate'), 1000)
+                        setTimeout(() => router.replace('/'), 1000)
                         return
                     }
                 }

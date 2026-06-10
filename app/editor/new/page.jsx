@@ -4,6 +4,10 @@ import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { supabase } from '@/lib/supabase/client'
+import Navbar from '@/components/ui/NAVBAR'
+
+const AlertTriangleIcon = () => <svg className="w-6 h-6 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+const PaletteIcon = () => <svg className="w-6 h-6 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
 
 const GrapesEditor = dynamic(
   () => import('@/components/editor/GRAPESEDITOR'),
@@ -57,7 +61,16 @@ function EditorNewPageInner() {
   useEffect(() => {
     async function loadTemplate() {
       const { data: { session } } = await supabase.auth.getSession()
-      if (!session) {
+      let user = session?.user
+
+      if (!user) {
+        try {
+          const cached = localStorage.getItem('creov_cached_user')
+          if (cached) user = JSON.parse(cached)
+        } catch(e) {}
+      }
+
+      if (!user) {
         router.push('/auth/login')
         return
       }
@@ -165,7 +178,7 @@ function EditorNewPageInner() {
       <div className="min-h-screen flex items-center justify-center bg-[#030712] text-white selection:bg-cyan-500/30">
         <div className="bg-[#080c1e]/60 backdrop-blur-2xl p-8 rounded-3xl border border-red-500/20 max-w-md w-full text-center shadow-2xl">
           <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/20">
-            <span className="text-2xl">⚠️</span>
+            <span className="mb-2"><AlertTriangleIcon /></span>
           </div>
           <h2 className="text-2xl font-bold text-white mb-2">Error Loading Template</h2>
           <p className="text-slate-400 text-sm mb-6 leading-relaxed font-light">{error}</p>
@@ -185,7 +198,7 @@ function EditorNewPageInner() {
       <div className="min-h-screen flex items-center justify-center bg-[#030712] text-white selection:bg-cyan-500/30">
         <div className="bg-[#080c1e]/60 backdrop-blur-2xl p-8 rounded-3xl border border-white/5 max-w-md w-full text-center shadow-2xl">
           <div className="w-16 h-16 bg-cyan-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-cyan-500/20">
-            <span className="text-2xl">🎨</span>
+            <span className="mb-2"><PaletteIcon /></span>
           </div>
           <p className="text-slate-400 text-sm mb-6 leading-relaxed font-light">No template selected. Please browse our layout catalog.</p>
           <button

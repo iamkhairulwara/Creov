@@ -49,7 +49,7 @@ export default function ResetPasswordPage() {
 
         setSuccess(true)
         setLoading(false)
-        setTimeout(() => router.replace('/generate'), 2000)
+        setTimeout(() => router.replace('/'), 2000)
     }
 
     if (success) {

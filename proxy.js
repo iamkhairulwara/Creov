@@ -27,16 +27,25 @@ export async function proxy(req) {
 
   const { data: { session } } = await supabase.auth.getSession()
 
-  const publicRoutes = ['/', '/auth/login', '/auth/signup', '/auth/callback', '/auth/forgot-password', '/auth/reset-password']
+  // Public routes - anyone can access
+  const publicRoutes = ['/', '/auth/login', '/auth/signup', '/auth/callback', '/auth/forgot-password', '/auth/reset-password', '/templates']
   const isPublicRoute = publicRoutes.some(route => req.nextUrl.pathname === route)
   const isApiRoute = req.nextUrl.pathname.startsWith('/api')
+  const isAdminRoute = req.nextUrl.pathname.startsWith('/admin')
 
   if (isApiRoute) return res
 
-  if (!session && !isPublicRoute) {
+  // Admin routes require authentication AND admin role
+  if (isAdminRoute && !session) {
     return NextResponse.redirect(new URL('/auth/login', req.url))
   }
 
+  // For non-public non-admin routes, require authentication
+  if (!session && !isPublicRoute) {
+    return NextResponse.redirect(new URL('/', req.url))
+  }
+
+  // If logged in and trying to access login page, redirect to generate
   if (session && req.nextUrl.pathname === '/auth/login') {
     return NextResponse.redirect(new URL('/generate', req.url))
   }

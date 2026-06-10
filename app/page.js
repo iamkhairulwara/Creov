@@ -2,6 +2,14 @@
 import Link from 'next/link'
 import Navbar from '@/components/ui/NAVBAR'
 import Footer from '@/components/ui/FOOTER'
+import { motion } from 'framer-motion'
+
+// Icons
+const ZapIcon = () => <svg className="w-8 h-8 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+const PaletteIcon = () => <svg className="w-8 h-8 text-violet-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+const FolderIcon = () => <svg className="w-8 h-8 text-pink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
+const SmartphoneIcon = () => <svg className="w-8 h-8 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+const PackageIcon = () => <svg className="w-8 h-8 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
 
 export default function Home() {
   return (
@@ -28,7 +36,12 @@ export default function Home() {
           }} 
         />
 
-        <div className="max-w-7xl mx-auto px-6 pt-32 pb-24 text-center relative z-10">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="max-w-7xl mx-auto px-6 pt-32 pb-24 text-center relative z-10"
+        >
           {/* Micro-badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-cyan-500/30 bg-cyan-950/20 backdrop-blur-md mb-8 animate-float">
             <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
@@ -41,7 +54,7 @@ export default function Home() {
           <h1 className="text-4xl md:text-8xl font-black leading-none tracking-tight mb-8">
             <span className="text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]">Build websites</span>
             <br />
-            <span className="neon-text-tricolor font-extrabold uppercase">
+            <span className="neon-text-tricolor font-extrabold uppercase inline-block hover:scale-105 transition-transform duration-300">
               with AI in seconds
             </span>
           </h1>
@@ -78,7 +91,12 @@ export default function Home() {
           </div>
 
           {/* Platform Mockup Visualization */}
-          <div className="relative max-w-5xl mx-auto rounded-3xl border border-white/10 bg-[#080c1e]/60 backdrop-blur-2xl p-4 shadow-[0_0_50px_rgba(0,0,0,0.8)] glow-cyan transition-all duration-500 hover:border-cyan-500/20">
+          <motion.div 
+            initial={{ opacity: 0, y: 50, rotateX: 10 }}
+            animate={{ opacity: 1, y: 0, rotateX: 0 }}
+            transition={{ duration: 1, delay: 0.2 }}
+            className="relative max-w-5xl mx-auto rounded-3xl border border-white/10 bg-[#080c1e]/60 backdrop-blur-2xl p-4 shadow-[0_0_50px_rgba(0,0,0,0.8)] glow-cyan transition-all duration-500 hover:border-cyan-500/20 perspective-1000"
+          >
             <div className="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-red-500" />
@@ -96,35 +114,37 @@ export default function Home() {
               {/* Sidebar */}
               <div className="col-span-3 border-r border-white/5 pr-4 flex flex-col gap-3">
                 <div className="h-6 bg-white/5 rounded-lg w-2/3" />
-                <div className="h-32 bg-cyan-950/20 border border-cyan-500/20 rounded-xl p-3 flex flex-col justify-between">
+                <div className="h-32 bg-cyan-950/20 border border-cyan-500/20 rounded-xl p-3 flex flex-col justify-between group hover:scale-[1.02] transition-transform duration-300 cursor-pointer">
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
                     <span className="text-[10px] text-cyan-300 font-bold uppercase tracking-wider">AI Copilot</span>
                   </div>
-                  <div className="text-[11px] text-slate-400 font-light">"Creating photography studio layout with glowing buttons."</div>
-                  <div className="h-6 bg-cyan-500 rounded-lg w-full" />
+                  <div className="text-[11px] text-slate-400 font-light group-hover:text-cyan-100 transition-colors">"Creating photography studio layout with glowing buttons."</div>
+                  <div className="h-6 bg-cyan-500 rounded-lg w-full relative overflow-hidden">
+                    <div className="absolute inset-0 bg-white/20 w-1/3 skew-x-12 animate-slide-right" />
+                  </div>
                 </div>
                 <div className="h-6 bg-white/5 rounded-lg w-full" />
                 <div className="h-6 bg-white/5 rounded-lg w-4/5" />
               </div>
 
               {/* Central Canvas */}
-              <div className="col-span-9 bg-[#030612]/80 border border-white/5 rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden">
+              <div className="col-span-9 bg-[#030612]/80 border border-white/5 rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden group">
                 {/* Visual template mock */}
-                <div className="absolute inset-0 bg-gradient-to-br from-violet-600/5 to-cyan-500/5 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-br from-violet-600/5 to-cyan-500/5 pointer-events-none group-hover:scale-105 transition-transform duration-700" />
                 <div className="flex items-center justify-between z-10">
                   <div className="text-sm font-black tracking-wide text-white">S H U T T E R</div>
                   <div className="flex items-center gap-3">
-                    <span className="h-1 bg-white/40 rounded w-8" />
-                    <span className="h-1 bg-white/40 rounded w-8" />
-                    <span className="h-1 bg-cyan-400 rounded w-8 shadow-[0_0_8px_#06b6d4]" />
+                    <span className="h-1 bg-white/40 rounded w-8 hover:bg-white transition-colors" />
+                    <span className="h-1 bg-white/40 rounded w-8 hover:bg-white transition-colors" />
+                    <span className="h-1 bg-cyan-400 rounded w-8 shadow-[0_0_8px_#06b6d4] hover:shadow-[0_0_15px_#06b6d4] transition-shadow" />
                   </div>
                 </div>
 
-                <div className="text-center my-auto z-10">
+                <div className="text-center my-auto z-10 transform group-hover:scale-105 transition-transform duration-500">
                   <h2 className="text-2xl font-black mb-2 text-white">Capture Every Moment</h2>
                   <p className="text-xs text-slate-500 max-w-xs mx-auto mb-4">Professional studio services for artistic minds.</p>
-                  <button className="px-4 py-2 bg-gradient-to-r from-cyan-400 to-blue-500 text-[10px] font-bold uppercase tracking-widest text-white rounded-lg shadow-lg">
+                  <button className="px-4 py-2 bg-gradient-to-r from-cyan-400 to-blue-500 text-[10px] font-bold uppercase tracking-widest text-white rounded-lg shadow-[0_4px_15px_rgba(6,182,212,0.3)] hover:shadow-[0_8px_25px_rgba(6,182,212,0.5)] transition-all hover:-translate-y-1">
                     Book Session
                   </button>
                 </div>
@@ -132,14 +152,14 @@ export default function Home() {
                 <div className="flex justify-between items-center z-10 border-t border-white/5 pt-4">
                   <div className="text-[9px] text-slate-500">© 2026 Shutter Studio</div>
                   <div className="flex gap-2">
-                    <div className="w-4 h-4 bg-white/5 rounded-full" />
-                    <div className="w-4 h-4 bg-white/5 rounded-full" />
+                    <div className="w-4 h-4 bg-white/5 rounded-full hover:bg-white/20 transition-colors" />
+                    <div className="w-4 h-4 bg-white/5 rounded-full hover:bg-white/20 transition-colors" />
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* ── HOW IT WORKS SECTION ── */}
@@ -189,8 +209,12 @@ export default function Home() {
                   </svg>
                 )
               }
-            ].map(item => (
-              <div
+            ].map((item, idx) => (
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.6, delay: idx * 0.2 }}
                 key={item.step}
                 className="group relative p-8 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl transition-all duration-300 hover:-translate-y-2 hover:border-cyan-500/30"
               >
@@ -208,7 +232,7 @@ export default function Home() {
 
                 <h3 className="font-extrabold text-white text-xl mb-3">{item.title}</h3>
                 <p className="text-sm text-slate-400 leading-relaxed font-light">{item.desc}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -232,10 +256,18 @@ export default function Home() {
           {/* Premium Bento Grid */}
           <div className="grid grid-cols-12 gap-6 auto-rows-[220px]">
             {/* Box 1: AI Generator (Large) */}
-            <div className="col-span-12 md:col-span-7 row-span-2 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl p-8 flex flex-col justify-between group overflow-hidden relative hover:border-cyan-500/20 transition-all duration-300">
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent pointer-events-none" />
-              <div>
-                <div className="text-3xl mb-4">⚡</div>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              whileInView={{ opacity: 1, scale: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5 }}
+              className="col-span-12 md:col-span-7 row-span-2 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl p-8 flex flex-col justify-between group overflow-hidden relative hover:border-cyan-500/20 transition-all duration-300 shadow-[0_4px_30px_rgba(0,0,0,0.5)] hover:-translate-y-1 hover:shadow-[0_10px_40px_rgba(6,182,212,0.15)] perspective-1000"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent pointer-events-none group-hover:scale-110 transition-transform duration-700" />
+              <div className="relative z-10 transform group-hover:translate-z-10 transition-transform duration-300">
+                <div className="mb-4 transform group-hover:scale-110 group-hover:rotate-12 transition-all origin-bottom-left inline-block">
+                  <ZapIcon />
+                </div>
                 <h3 className="text-2xl font-black text-white mb-2">Gemini AI Synthesis</h3>
                 <p className="text-sm text-slate-400 max-w-md font-light leading-relaxed">
                   Generate complete web designs instantly with active section logic. Simply enter your prompt and watch artificial intelligence craft layouts, color theory, and bespoke copy.
@@ -243,18 +275,18 @@ export default function Home() {
               </div>
               
               {/* Code visual mock */}
-              <div className="h-28 bg-[#030612] rounded-2xl border border-white/5 p-4 font-mono text-[10px] text-cyan-400 overflow-hidden opacity-80 mt-4">
+              <div className="h-28 bg-[#030612] rounded-2xl border border-white/5 p-4 font-mono text-[10px] text-cyan-400 overflow-hidden opacity-80 mt-4 relative group-hover:border-cyan-500/30 transition-colors shadow-inner">
                 <span className="text-slate-600">// AI Prompt Interpreter</span><br />
                 <span className="text-violet-400">const</span> model = genAI.getGenerativeModel(&quot;gemini-2.0-flash&quot;);<br />
                 <span className="text-violet-400">const</span> layout = <span className="text-white">await</span> callGemini(geminiPrompt);<br />
                 <span className="text-slate-500">console.log(&quot;Layout Synthesized: 100%&quot;);</span>
               </div>
-            </div>
+            </motion.div>
 
             {/* Box 2: Visual Editor */}
             <div className="col-span-12 md:col-span-5 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl p-8 flex flex-col justify-between group hover:border-violet-500/20 transition-all duration-300">
               <div>
-                <div className="text-3xl mb-3">🎨</div>
+                <div className="mb-3"><PaletteIcon /></div>
                 <h3 className="text-xl font-bold text-white mb-1.5">Visual Canvas Editor</h3>
                 <p className="text-xs text-slate-400 font-light leading-relaxed">
                   Full custom visual editing capability powered by GrapesJS. Swap styles, alignments, and images with simple clicks.
@@ -265,7 +297,7 @@ export default function Home() {
             {/* Box 3: Template Library */}
             <div className="col-span-12 md:col-span-5 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl p-8 flex flex-col justify-between group hover:border-pink-500/20 transition-all duration-300">
               <div>
-                <div className="text-3xl mb-3">📁</div>
+                <div className="mb-3"><FolderIcon /></div>
                 <h3 className="text-xl font-bold text-white mb-1.5">Curated Templates</h3>
                 <p className="text-xs text-slate-400 font-light leading-relaxed">
                   Beautiful, pre-built template designs configured across multiple categories for portfolios, startups, and agencies.
@@ -276,7 +308,7 @@ export default function Home() {
             {/* Box 4: Multi-device Responsive (Large) */}
             <div className="col-span-12 md:col-span-5 row-span-1 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl p-8 flex flex-col justify-between group hover:border-cyan-500/20 transition-all duration-300">
               <div>
-                <div className="text-3xl mb-3">📱</div>
+                <div className="mb-3"><SmartphoneIcon /></div>
                 <h3 className="text-xl font-bold text-white mb-1.5">Responsive Previews</h3>
                 <p className="text-xs text-slate-400 font-light leading-relaxed">
                   Test your designs immediately across Desktop, Tablet, and Mobile viewport modes with real-time scaling and smooth animation testing.
@@ -288,7 +320,7 @@ export default function Home() {
             <div className="col-span-12 md:col-span-7 row-span-1 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl p-8 flex flex-col justify-between group hover:border-violet-500/20 transition-all duration-300">
               <div className="flex justify-between items-start gap-4">
                 <div>
-                  <div className="text-3xl mb-3">📦</div>
+                  <div className="mb-3"><PackageIcon /></div>
                   <h3 className="text-xl font-bold text-white mb-1.5">Clean Production Export</h3>
                   <p className="text-xs text-slate-400 font-light leading-relaxed">
                     Download complete standalone ZIP packages instantly. All assets are packed cleanly inside optimized index.html, styles.css, and index.js files. Host anywhere with zero dependencies.

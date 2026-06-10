@@ -1,6 +1,73 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase/client'
+
+// Icons
+const ShieldIcon = () => (
+  <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+)
+const UserIcon = () => (
+  <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+)
+const UsersIcon = () => (
+  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+)
+const ChevronDownIcon = () => (
+  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+)
+
+function RoleDropdown({ user, onUpdate }) {
+  const [isOpen, setIsOpen] = useState(false)
+  const dropdownRef = useRef(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const handleSelect = (newRole) => {
+    onUpdate(user.id, newRole)
+    setIsOpen(false)
+  }
+
+  return (
+    <div className="relative inline-block text-left" ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-2 bg-[#030612]/60 border border-white/10 rounded-xl px-3 py-2 text-xs font-semibold text-white cursor-pointer hover:bg-[#030612]/95 hover:border-cyan-500/20 transition-all duration-300 focus:outline-none focus:border-cyan-500"
+      >
+        {user.role === 'admin' ? 'Admin' : 'Member'}
+        <ChevronDownIcon />
+      </button>
+      
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-32 rounded-xl shadow-lg bg-[#080c1e] border border-white/10 ring-1 ring-black ring-opacity-5 z-50">
+          <div className="py-1" role="menu">
+            <button
+              onClick={() => handleSelect('user')}
+              className="w-full text-left px-4 py-2 text-xs text-white hover:bg-cyan-500/10 hover:text-cyan-400 transition-colors"
+              role="menuitem"
+            >
+              Set as Member
+            </button>
+            <button
+              onClick={() => handleSelect('admin')}
+              className="w-full text-left px-4 py-2 text-xs text-white hover:bg-cyan-500/10 hover:text-cyan-400 transition-colors"
+              role="menuitem"
+            >
+              Set as Admin
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([])
@@ -12,26 +79,33 @@ export default function AdminUsers() {
   }, [])
 
   const fetchUsers = async () => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .order('created_at', { ascending: false })
-    
-    setUsers(data || [])
-    setLoading(false)
+    try {
+      const res = await fetch('/api/admin/users')
+      if (!res.ok) throw new Error('Failed to fetch users')
+      const { data } = await res.json()
+      setUsers(data || [])
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const updateRole = async (userId, newRole) => {
-    const { error } = await supabase
-      .from('profiles')
-      .update({ role: newRole })
-      .eq('id', userId)
-
-    if (error) {
-      alert('Error updating role: ' + error.message)
-    } else {
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, newRole })
+      })
+      if (!res.ok) {
+        const errData = await res.json()
+        throw new Error(errData.error || 'Failed to update role')
+      }
       alert(`Role updated to ${newRole}`)
       fetchUsers()
+    } catch (error) {
+      alert('Error updating role: ' + error.message)
     }
   }
 
@@ -104,11 +178,11 @@ export default function AdminUsers() {
                 <td className="p-4">
                   {user.role === 'admin' ? (
                     <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shadow-[0_0_12px_rgba(6,182,212,0.05)]">
-                      ⚡ Administrator
+                      <ShieldIcon /> Administrator
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-slate-500/10 text-slate-400 border border-slate-500/15">
-                      👤 Member
+                      <UserIcon /> Member
                     </span>
                   )}
                  </td>
@@ -121,14 +195,7 @@ export default function AdminUsers() {
                  </td>
                 <td className="p-4 pr-6 text-right">
                   <div className="inline-block relative">
-                    <select
-                      value={user.role || 'user'}
-                      onChange={(e) => updateRole(user.id, e.target.value)}
-                      className="bg-[#030612]/60 border border-white/10 rounded-xl px-3 py-2 text-xs font-semibold text-white cursor-pointer hover:bg-[#030612]/95 hover:border-cyan-500/20 transition-all duration-300 focus:outline-none focus:border-cyan-500"
-                    >
-                      <option value="user">Set as Member</option>
-                      <option value="admin">Set as Admin</option>
-                    </select>
+                    <RoleDropdown user={user} onUpdate={updateRole} />
                   </div>
                  </td>
                </tr>
@@ -138,8 +205,8 @@ export default function AdminUsers() {
         
         {filteredUsers.length === 0 && (
           <div className="text-center py-16 bg-[#080c1e]/40 rounded-2xl flex flex-col items-center">
-            <div className="w-14 h-14 rounded-2xl bg-slate-500/10 border border-slate-500/20 flex items-center justify-center text-slate-400 text-2xl mb-3">
-              👥
+            <div className="w-14 h-14 rounded-2xl bg-slate-500/10 border border-slate-500/20 flex items-center justify-center text-slate-400 mb-3">
+              <UsersIcon />
             </div>
             <p className="text-slate-400 font-extrabold">No matching users</p>
             <p className="text-slate-500 text-xs mt-1">We couldn't find any member matching "{searchTerm}".</p>

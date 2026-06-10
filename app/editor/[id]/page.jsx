@@ -76,7 +76,16 @@ export default function EditWebsite() {
 
   async function loadWebsite() {
     const { data: { session } } = await supabase.auth.getSession()
-    if (!session) {
+    let user = session?.user
+
+    if (!user) {
+      try {
+        const cached = localStorage.getItem('creov_cached_user')
+        if (cached) user = JSON.parse(cached)
+      } catch(e) {}
+    }
+
+    if (!user) {
       router.push('/auth/login')
       return
     }

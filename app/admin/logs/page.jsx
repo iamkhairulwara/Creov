@@ -2,6 +2,22 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
 
+const ZapIcon = ({className="w-4 h-4 inline-block mr-1"}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+const PaletteIcon = ({className="w-4 h-4 inline-block mr-1"}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+const ClipboardIcon = () => <svg className="w-6 h-6 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+
+import CustomSelect from '@/components/ui/CustomSelect'
+
+const FilterAllIcon = () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+const FilterGenIcon = () => <ZapIcon className="w-4 h-4" />
+const FilterTempIcon = () => <PaletteIcon className="w-4 h-4" />
+
+const logFilterOptions = [
+  { value: 'all', label: 'All Activities', icon: <FilterAllIcon /> },
+  { value: 'generation', label: 'AI Generations', icon: <FilterGenIcon /> },
+  { value: 'template', label: 'Template Uses', icon: <FilterTempIcon /> }
+]
+
 export default function LogsPage() {
   const [logs, setLogs] = useState([])
   const [filter, setFilter] = useState('all')
@@ -69,21 +85,12 @@ export default function LogsPage() {
           <p className="text-slate-400 text-sm mt-1">Audit user interactions, site synthesis operations, and template use events.</p>
         </div>
         
-        <div className="relative">
-          <select
+        <div className="relative w-48">
+          <CustomSelect
             value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="px-4 py-2.5 rounded-xl bg-[#080c1e]/60 backdrop-blur-xl border border-white/10 text-white focus:outline-none focus:border-cyan-500 transition-all font-semibold text-sm cursor-pointer shadow-lg pr-8 appearance-none"
-          >
-            <option value="all">⚡ All Activities</option>
-            <option value="generation">⚡ AI Generations</option>
-            <option value="template">🎨 Template Uses</option>
-          </select>
-          <div className="absolute top-1/2 right-3 -translate-y-1/2 pointer-events-none text-slate-400">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="m6 9 6 6 6-6"/>
-            </svg>
-          </div>
+            onChange={setFilter}
+            options={logFilterOptions}
+          />
         </div>
       </div>
 
@@ -124,7 +131,7 @@ export default function LogsPage() {
         {filteredLogs.length === 0 && (
           <div className="text-center py-16 bg-[#080c1e]/40 rounded-2xl flex flex-col items-center">
             <div className="w-14 h-14 rounded-2xl bg-slate-500/10 border border-slate-500/20 flex items-center justify-center text-slate-400 text-2xl mb-3">
-              📋
+              <ClipboardIcon />
             </div>
             <p className="text-slate-400 font-extrabold">No operations found</p>
             <p className="text-slate-500 text-xs mt-1">We couldn't find any activities registered matching the filters.</p>

@@ -4,12 +4,23 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import Navbar from '@/components/ui/NAVBAR'
 import Footer from '@/components/ui/FOOTER'
+import { motion, AnimatePresence } from 'framer-motion'
+
+const AlertTriangleIcon = () => <svg className="w-5 h-5 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
 
 const suggestions = [
   "A dark portfolio website for a visual artist with high-contrast cards",
   "A restaurant website featuring menu sections and table bookings",
   "A tech agency landing page with floating cards and cyber theme",
   "A minimalist creative agency hub with high-end glassmorphic borders",
+  "A luxurious hotel booking site with gold accents and serif typography",
+  "An energetic fitness center page with bold typography and neon greens",
+  "A sleek e-commerce storefront for minimalist watches",
+  "A modern medical clinic with trustworthy blues and clean whitespace",
+  "A vibrant event landing page with countdown timers and 3D shapes",
+  "A professional law firm website with classic styling and deep navies",
+  "An educational platform dashboard with colorful progress indicators",
+  "A real estate listing page with large imagery and clean layout"
 ]
 
 const pipelineSteps = [
@@ -28,6 +39,17 @@ export default function Generate() {
   const [error, setError] = useState(null)
   const [user, setUser] = useState(null)
   const [checkingAuth, setCheckingAuth] = useState(true)
+  const [suggestionIndex, setSuggestionIndex] = useState(0)
+
+  // Rotate suggestions every 3s
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSuggestionIndex(prev => (prev + 4) % suggestions.length)
+    }, 3000)
+    return () => clearInterval(timer)
+  }, [])
+
+  const currentSuggestions = Array.from({length: 4}).map((_, i) => suggestions[(suggestionIndex + i) % suggestions.length])
 
   // Auth checks
   useEffect(() => {
@@ -35,20 +57,27 @@ export default function Generate() {
       const { data: { session }, error: sessionError } = await supabase.auth.getSession()
       if (sessionError) console.error('Session error:', sessionError)
 
-      if (!session) {
+      let user = session?.user
+
+      if (!user) {
+        try {
+          const cached = localStorage.getItem('creov_cached_user')
+          if (cached) user = JSON.parse(cached)
+        } catch(e) {}
+      }
+
+      if (!user) {
         router.replace('/auth/login')
         return
       }
-      setUser(session.user)
+      setUser(user)
       setCheckingAuth(false)
     }
     
     checkAuth()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT') {
-        router.replace('/auth/login')
-      } else if (event === 'SIGNED_IN' && session) {
+      if (event === 'SIGNED_IN' && session) {
         setUser(session.user)
         setCheckingAuth(false)
       }
@@ -169,17 +198,23 @@ export default function Generate() {
               <span className="w-1.5 h-1.5 rounded-full bg-violet-400" />
               Try Prompt Examples
             </h2>
-            <div className="flex flex-col gap-3">
-              {suggestions.map((s, i) => (
-                <button
-                  key={i}
-                  onClick={() => setPrompt(s)}
-                  disabled={loading}
-                  className="w-full text-left p-4 rounded-xl border border-white/5 bg-[#080d20]/30 text-xs text-slate-400 leading-relaxed font-light hover:border-cyan-500/30 hover:bg-[#06b6d4]/5 hover:text-white transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  {s}
-                </button>
-              ))}
+            <div className="flex flex-col gap-3 h-[300px] overflow-hidden relative">
+              <AnimatePresence mode="popLayout">
+                {currentSuggestions.map((s, i) => (
+                  <motion.button
+                    key={`${suggestionIndex}-${i}`}
+                    initial={{ opacity: 0, x: -20, filter: 'blur(4px)' }}
+                    animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
+                    exit={{ opacity: 0, x: 20, filter: 'blur(4px)' }}
+                    transition={{ duration: 0.5, delay: i * 0.1 }}
+                    onClick={() => setPrompt(s)}
+                    disabled={loading}
+                    className="w-full text-left p-4 rounded-xl border border-white/5 bg-[#080d20]/30 text-xs text-slate-400 leading-relaxed font-light hover:border-cyan-500/30 hover:bg-[#06b6d4]/5 hover:text-white transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+                  >
+                    {s}
+                  </motion.button>
+                ))}
+              </AnimatePresence>
             </div>
           </div>
         </div>
@@ -241,7 +276,7 @@ export default function Generate() {
           {/* Generative Error Banner */}
           {error && (
             <div className="rounded-2xl border border-red-500/20 bg-red-950/10 p-5 text-sm text-red-400 flex items-start gap-3 shadow-lg">
-              <span className="text-lg">⚠️</span>
+              <AlertTriangleIcon />
               <div className="flex flex-col gap-1">
                 <span className="font-bold">Synthesis Blocked</span>
                 <span className="font-light">{error}</span>

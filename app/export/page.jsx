@@ -20,11 +20,20 @@ export default function ExportPage() {
   useEffect(() => {
     async function checkAuthAndLoad() {
       const { data: { session } } = await supabase.auth.getSession()
-      if (!session) {
+      let user = session?.user
+
+      if (!user) {
+        try {
+          const cached = localStorage.getItem('creov_cached_user')
+          if (cached) user = JSON.parse(cached)
+        } catch(e) {}
+      }
+
+      if (!user) {
         router.replace('/auth/login')
         return
       }
-      setUser(session.user)
+      setUser(user)
       setCheckingAuth(false)
 
       const stored = localStorage.getItem('export_website')

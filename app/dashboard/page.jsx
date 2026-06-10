@@ -6,6 +6,8 @@ import Navbar from '@/components/ui/NAVBAR'
 import Footer from '@/components/ui/FOOTER'
 import { supabase } from '@/lib/supabase/client'
 
+const GlobeIcon = () => <svg className="w-16 h-16 mx-auto mb-6 text-slate-400 animate-float" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+
 export default function Dashboard() {
   const [websites, setWebsites] = useState([])
   const [loading, setLoading] = useState(true)
@@ -19,12 +21,21 @@ export default function Dashboard() {
 
   async function checkAuthAndLoad() {
     const { data: { session } } = await supabase.auth.getSession()
-    if (!session) {
+    let user = session?.user
+    
+    if (!user) {
+      try {
+        const cached = localStorage.getItem('creov_cached_user')
+        if (cached) user = JSON.parse(cached)
+      } catch(e) {}
+    }
+
+    if (!user) {
       router.push('/auth/login')
       return
     }
-    setUser(session.user)
-    loadWebsites(session.user.id)
+    setUser(user)
+    loadWebsites(user.id)
   }
 
   async function loadWebsites(userId) {
@@ -157,7 +168,7 @@ ${website.html || ''}
             <div
               className="text-center py-24 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl max-w-3xl mx-auto shadow-2xl"
             >
-              <div className="text-6xl mb-6 animate-float">🌐</div>
+              <GlobeIcon />
               <h2 className="text-2xl font-black text-white mb-2">
                 No designs synthesized yet
               </h2>

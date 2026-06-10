@@ -1,6 +1,17 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase/client'
+import CustomSelect from '@/components/ui/CustomSelect'
+
+const AiFastIcon = () => <span className="mr-2 inline-flex items-center justify-center w-5 h-5 rounded bg-cyan-500/20 text-cyan-400">⚡</span>
+const AiQualityIcon = () => <span className="mr-2 inline-flex items-center justify-center w-5 h-5 rounded bg-purple-500/20 text-purple-400">✨</span>
+const AiGroqIcon = () => <span className="mr-2 inline-flex items-center justify-center w-5 h-5 rounded bg-green-500/20 text-green-400">🚀</span>
+
+const aiModelOptions = [
+  { value: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash (Fast)', icon: <AiFastIcon /> },
+  { value: 'gemini-2.0-pro', label: 'Gemini 2.0 Pro (Quality)', icon: <AiQualityIcon /> },
+  { value: 'groq-mixtral', label: 'Groq Mixtral (Fallback)', icon: <AiGroqIcon /> }
+]
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState({
@@ -173,21 +184,12 @@ export default function SettingsPage() {
             <div className="space-y-6">
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Primary AI Model</label>
-                <div className="relative">
-                  <select
+                <div className="relative w-full md:w-96 z-50">
+                  <CustomSelect
                     value={settings.aiModel}
-                    onChange={(e) => setSettings({ ...settings, aiModel: e.target.value })}
-                    className="w-full md:w-96 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-cyan-500 transition duration-300 appearance-none cursor-pointer text-sm font-semibold"
-                  >
-                    <option value="gemini-2.0-flash">Gemini 2.0 Flash (Fast)</option>
-                    <option value="gemini-2.0-pro">Gemini 2.0 Pro (Quality)</option>
-                    <option value="groq-mixtral">Groq Mixtral (Fallback)</option>
-                  </select>
-                  <div className="absolute top-1/2 left-full -translate-x-12 -translate-y-1/2 pointer-events-none text-slate-400">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <path d="m6 9 6 6 6-6"/>
-                    </svg>
-                  </div>
+                    onChange={(val) => setSettings({ ...settings, aiModel: val })}
+                    options={aiModelOptions}
+                  />
                 </div>
               </div>
 

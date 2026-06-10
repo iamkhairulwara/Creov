@@ -2,6 +2,38 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import './grapes-theme.css'
+import CreovLogo from '@/components/ui/CREOVLOGO'
+import Link from 'next/link'
+import { motion, AnimatePresence } from 'framer-motion'
+
+// Icons
+const ZapIcon = ({className="w-4 h-4"}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+const GlobeIcon = ({className="w-4 h-4"}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+const PaletteIcon = ({className="w-4 h-4"}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+const RocketIcon = ({className="w-4 h-4"}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
+const DiamondIcon = ({className="w-4 h-4"}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13"/><path d="M13 3l3 6-4 13"/></svg>
+const TargetIcon = ({className="w-4 h-4"}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+const BoxIcon = ({className="w-4 h-4"}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+const LeafIcon = ({className="w-4 h-4"}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+const CheckCircleIcon = ({className="w-4 h-4"}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+const XCircleIcon = ({className="w-4 h-4"}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+const SaveDiskIcon = ({className="w-4 h-4"}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+const RestoreArrIcon = ({className="w-4 h-4"}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+const TrashIcon = ({className="w-4 h-4"}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+const SparklesIcon = ({className="w-4 h-4"}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+
+// Editor Interface Icons
+const s = { width: 14, height: 14, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }
+const UndoIcon = () => <svg {...s}><path d="M3 7v6h6"/><path d="M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13"/></svg>
+const RedoIcon = () => <svg {...s}><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 019-9 9 9 0 016 2.3l3 2.7"/></svg>
+const DesktopIcon = () => <svg {...s}><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+const TabletIcon = () => <svg {...s}><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+const MobileIcon = () => <svg {...s}><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+const FullscreenIcon = () => <svg {...s}><path d="M8 3H5a2 2 0 00-2 2v3M21 8V5a2 2 0 00-2-2h-3M16 21h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+const ExitFullscreenIcon = () => <svg {...s}><path d="M8 3v3a2 2 0 01-2 2H3M21 8h-3a2 2 0 01-2-2V3M3 16h3a2 2 0 012 2v3M16 21v-3a2 2 0 012-2h3"/></svg>
+const EyeIcon = () => <svg {...s}><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+const SaveIcon = () => <svg {...s}><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+const ExportIcon = () => <svg {...s}><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
 
 const CYAN = '#06b6d4'
 const CYAN_DIM = 'rgba(6,182,212,0.15)'
@@ -60,6 +92,29 @@ export default function GrapesEditor({
   const [isRefining, setIsRefining] = useState(false)
   const [previewHtml, setPreviewHtml] = useState(null)
   const [showPreview, setShowPreview] = useState(false)
+  const [suggestionIndex, setSuggestionIndex] = useState(0)
+
+  const allQuickActions = [
+    { icon: <ZapIcon className="w-3 h-3" />, label: 'Modern Hero', prompt: 'Completely redesign this as a stunning modern hero section with gradient background, large bold heading, descriptive subheading, two CTA buttons, and floating decorative elements. Use modern colors and smooth animations.' },
+    { icon: <GlobeIcon className="w-3 h-3" />, label: 'Glassmorphism', prompt: 'Apply glassmorphism style: semi-transparent background with backdrop blur (10px), subtle white border, rounded corners (20px), and modern shadow effects. Make it look like frosted glass.' },
+    { icon: <PaletteIcon className="w-3 h-3" />, label: 'Premium Luxury', prompt: 'Redesign with luxury aesthetics: gold/dark color scheme, serif fonts for headings, elegant spacing, subtle patterns or gradients, and sophisticated animations.' },
+    { icon: <RocketIcon className="w-3 h-3" />, label: 'Startup Modern', prompt: 'Modern startup style: clean gradients, large sans-serif fonts (800 weight), rounded corners, floating cards, and micro-interactions. Make it bold and energetic.' },
+    { icon: <DiamondIcon className="w-3 h-3" />, label: 'Neumorphism', prompt: 'Apply neumorphism design: soft shadows, matching background colors, subtle inset/outset effects, and clean minimalist typography.' },
+    { icon: <TargetIcon className="w-3 h-3" />, label: 'Bold & Vibrant', prompt: 'Create a bold, vibrant design with eye-catching gradient colors, large typography, dramatic shadows, and energetic hover animations. Make it stand out.' },
+    { icon: <BoxIcon className="w-3 h-3" />, label: 'Cyberpunk', prompt: 'Apply a neon cyberpunk aesthetic with dark backgrounds, glowing pink/cyan borders, glowing text, and futuristic styling.' },
+    { icon: <LeafIcon className="w-3 h-3" />, label: 'Eco Minimal', prompt: 'Redesign with a clean eco-friendly minimalist style. Use soft greens, lots of whitespace, rounded organic shapes, and a very calm vibe.' }
+  ]
+
+  useEffect(() => {
+    if (isChatOpen && selectedComponent && messages.length === 0) {
+      const timer = setInterval(() => {
+        setSuggestionIndex(prev => (prev + 4) % allQuickActions.length)
+      }, 3000)
+      return () => clearInterval(timer)
+    }
+  }, [isChatOpen, selectedComponent, messages.length])
+
+  const currentQuickActions = Array.from({length: 4}).map((_, i) => allQuickActions[(suggestionIndex + i) % allQuickActions.length])
 
   // Version History State
   const [versions, setVersions] = useState([])
@@ -701,7 +756,7 @@ export default function GrapesEditor({
     setShowSaveVersionModal(false)
     
     const flash = document.createElement('div')
-    flash.textContent = `💾 "${newVersion.name}" saved (${Math.round(html.length / 1024)} KB)`
+    flash.innerHTML = `<svg style="display:inline-block;width:16px;height:16px;margin-right:6px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> "${newVersion.name}" saved (${Math.round(html.length / 1024)} KB)`
     flash.style.cssText = `
       position: fixed; bottom: 20px; right: 20px;
       background: #10b981; color: white; padding: 8px 16px;
@@ -745,7 +800,7 @@ export default function GrapesEditor({
       setShowVersionHistory(false)
       
       const flash = document.createElement('div')
-      flash.textContent = `↩️ Restored "${version.name}"`
+      flash.innerHTML = `<svg style="display:inline-block;width:16px;height:16px;margin-right:6px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Restored "${version.name}"`
       flash.style.cssText = `
         position: fixed; bottom: 20px; right: 20px;
         background: #8b5cf6; color: white; padding: 8px 16px;
@@ -762,7 +817,7 @@ export default function GrapesEditor({
       setVersions(prev => prev.filter(v => v.id !== versionId))
       
       const flash = document.createElement('div')
-      flash.textContent = `🗑️ Deleted "${versionName}"`
+      flash.innerHTML = `<svg style="display:inline-block;width:16px;height:16px;margin-right:6px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2-2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Deleted "${versionName}"`
       flash.style.cssText = `
         position: fixed; bottom: 20px; right: 20px;
         background: #ef4444; color: white; padding: 8px 16px;
@@ -813,7 +868,7 @@ export default function GrapesEditor({
         
         // Show success feedback
         const flash = document.createElement('div')
-        flash.textContent = '✅ Redesign applied successfully!'
+        flash.innerHTML = `<svg style="display:inline-block;width:16px;height:16px;margin-right:6px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Redesign applied successfully!`
         flash.style.cssText = `
           position: fixed; bottom: 20px; right: 20px;
           background: #10b981; color: white; padding: 8px 16px;
@@ -825,7 +880,7 @@ export default function GrapesEditor({
       } else {
         console.error('Failed to apply redesign')
         const flash = document.createElement('div')
-        flash.textContent = '❌ Failed to apply redesign. Check console for errors.'
+        flash.innerHTML = `<svg style="display:inline-block;width:16px;height:16px;margin-right:6px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Failed to apply redesign. Check console for errors.`
         flash.style.cssText = `
           position: fixed; bottom: 20px; right: 20px;
           background: #ef4444; color: white; padding: 8px 16px;
@@ -935,11 +990,11 @@ Return ONLY the redesigned HTML now:`.trim()
         
         setMessages(prev => [...prev, {
           role: 'assistant',
-          content: `✨ I've **completely redesigned** your ${componentTag} with modern styles, gradients, and hover effects! Click "Apply" to see the transformation.`
+          content: `I've completely redesigned your ${componentTag} with modern styles, gradients, and hover effects! Click "Apply" to see the transformation.`
         }])
 
         const flash = document.createElement('div')
-        flash.textContent = '✨ Complete redesign ready! Preview it before applying.'
+        flash.innerHTML = `<svg style="display:inline-block;width:16px;height:16px;margin-right:6px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg> Complete redesign ready! Preview it before applying.`
         flash.style.cssText = `
           position: fixed; bottom: 20px; right: 20px;
           background: #8b5cf6; color: white; padding: 8px 16px;
@@ -952,19 +1007,19 @@ Return ONLY the redesigned HTML now:`.trim()
       } else if (data.error) {
         setMessages(prev => [...prev, {
           role: 'assistant',
-          content: `❌ Error: ${data.error}`
+          content: `Error: ${data.error}`
         }])
       } else {
         setMessages(prev => [...prev, {
           role: 'assistant',
-          content: `❌ Invalid response. Please try again with a clearer request.`
+          content: `Invalid response. Please try again with a clearer request.`
         }])
       }
     } catch (err) {
       console.error(err)
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: `❌ Failed: ${err.message}`
+        content: `Failed: ${err.message}`
       }])
     } finally {
       isRequestingRef.current = false
@@ -979,14 +1034,6 @@ Return ONLY the redesigned HTML now:`.trim()
     }
   }
 
-  const quickActions = [
-    { icon: '🌈', label: 'Modern Hero', prompt: 'Completely redesign this as a stunning modern hero section with gradient background, large bold heading, descriptive subheading, two CTA buttons, and floating decorative elements. Use modern colors and smooth animations.' },
-    { icon: '✨', label: 'Glassmorphism', prompt: 'Apply glassmorphism style: semi-transparent background with backdrop blur (10px), subtle white border, rounded corners (20px), and modern shadow effects. Make it look like frosted glass.' },
-    { icon: '🎨', label: 'Premium Luxury', prompt: 'Redesign with luxury aesthetics: gold/dark color scheme, serif fonts for headings, elegant spacing, subtle patterns or gradients, and sophisticated animations.' },
-    { icon: '🚀', label: 'Startup Modern', prompt: 'Modern startup style: clean gradients, large sans-serif fonts (800 weight), rounded corners, floating cards, and micro-interactions. Make it bold and energetic.' },
-    { icon: '💎', label: 'Neumorphism', prompt: 'Apply neumorphism design: soft shadows, matching background colors, subtle inset/outset effects, and clean minimalist typography.' },
-    { icon: '🎯', label: 'Bold & Vibrant', prompt: 'Create a bold, vibrant design with eye-catching gradient colors, large typography, dramatic shadows, and energetic hover animations. Make it stand out.' },
-  ]
 
   const devices = ['Desktop', 'Tablet', 'Mobile']
   const panels = [
@@ -1138,20 +1185,13 @@ Return ONLY the redesigned HTML now:`.trim()
 
       {/* Top Toolbar */}
       <div
-        className="flex items-center justify-between px-4 shrink-0 border-b"
-        style={{ height: 52, background: TOOLBAR_BG, borderColor: BORDER }}>
+        className="flex items-center justify-between px-6 shrink-0 border-b backdrop-blur-xl relative z-10"
+        style={{ height: 64, background: 'rgba(8, 14, 32, 0.85)', borderColor: 'rgba(255,255,255,0.08)', boxShadow: '0 4px 30px rgba(0, 0, 0, 0.2)' }}>
 
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <div
-              className="w-6 h-6 rounded-md flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #06b6d4, #0284c7)' }}>
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-              </svg>
-            </div>
-            <span className="text-white font-bold text-sm tracking-tight">Creov</span>
-          </div>
+        <div className="flex items-center gap-4">
+          <Link href="/">
+            <CreovLogo className="w-6 h-6" suffix="EDITOR" />
+          </Link>
           <div className="w-px h-4" style={{ background: BORDER }} />
           <div className="flex items-center gap-0.5">
             <IconBtn onClick={undo} title="Undo"><UndoIcon /></IconBtn>
@@ -1195,13 +1235,14 @@ Return ONLY the redesigned HTML now:`.trim()
             onClick={() => setIsChatOpen(!isChatOpen)}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all"
             style={{
-              background: isChatOpen ? 'rgba(139,92,246,0.2)' : 'transparent',
-              color: isChatOpen ? '#a78bfa' : TEXT_SECONDARY,
-              border: `1px solid ${isChatOpen ? '#8b5cf6' : BORDER}`
+              background: isChatOpen ? 'rgba(6,182,212,0.15)' : 'transparent',
+              color: isChatOpen ? '#22d3ee' : TEXT_SECONDARY,
+              border: `1px solid ${isChatOpen ? '#06b6d4' : BORDER}`
             }}>
-            <SparkleIcon /> AI Redesign
+            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 5 4 4"/><path d="M13 7 8.7 2.7a2.41 2.41 0 0 0-3.4 0L2.7 5.3a2.41 2.41 0 0 0 0 3.4L7 13"/><path d="m8 6 2-2"/><path d="m18 16 2-2"/><path d="m17 11 4.3 4.3c.94.94.94 2.46 0 3.4l-2.6 2.6c-.94.94-2.46.94-3.4 0L11 17"/><path d="m21.1 15.6-1.4 1.4"/><path d="m21.1 8.6-1.4 1.4"/><path d="m8.6 21.1 1.4-1.4"/><path d="m15.6 21.1 1.4-1.4"/></svg>
+            Refine Design
             {selectedComponent && !isChatOpen && (
-              <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
             )}
           </button>
 
@@ -1268,8 +1309,8 @@ Return ONLY the redesigned HTML now:`.trim()
         {/* Version History Sidebar */}
         {showVersionHistory && !isChatOpen && (
           <div
-            className="flex flex-col shrink-0 border-l"
-            style={{ width: 380, background: '#0f172a', borderColor: BORDER }}>
+            className="flex flex-col shrink-0 border-l relative z-10"
+            style={{ width: 380, background: SIDEBAR_BG, borderColor: BORDER, boxShadow: '-10px 0 30px rgba(0,0,0,0.3)' }}>
             
             <div
               className="flex items-center justify-between p-4 border-b"
@@ -1382,28 +1423,28 @@ Return ONLY the redesigned HTML now:`.trim()
         {/* AI Redesign Sidebar */}
         {isChatOpen && !showVersionHistory && (
           <div
-            className="flex flex-col shrink-0 border-l"
-            style={{ width: 400, background: '#0f172a', borderColor: BORDER }}>
+            className="flex flex-col shrink-0 border-l relative z-10"
+            style={{ width: 400, background: SIDEBAR_BG, borderColor: BORDER, boxShadow: '-10px 0 30px rgba(0,0,0,0.3)' }}>
 
             <div
               className="flex items-center justify-between p-4 border-b"
               style={{ borderColor: BORDER }}>
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #8b5cf6, #6366f1)' }}>
-                  <SparkleIcon size={14} />
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.15)]" style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(59,130,246,0.2))' }}>
+                  <svg className="w-4 h-4 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                 </div>
                 <div>
-                  <h3 className="text-white font-semibold text-sm">AI Redesign Studio</h3>
-                  <p className="text-xs" style={{ color: TEXT_MUTED }}>
+                  <h3 className="text-white font-bold tracking-wide text-sm">Design Refiner</h3>
+                  <p className="text-xs font-mono tracking-wider uppercase mt-0.5" style={{ color: TEXT_MUTED }}>
                     {selectedComponent
-                      ? `Redesigning: ${selectedComponent.get('tagName')?.toLowerCase() || 'component'}`
-                      : 'Select a component to redesign'}
+                      ? `Target: ${selectedComponent.get('tagName')?.toLowerCase() || 'element'}`
+                      : 'No target selected'}
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setIsChatOpen(false)}
-                className="p-1 rounded-lg transition-all"
+                className="p-1.5 rounded-lg transition-all"
                 style={{ color: TEXT_MUTED }}
                 onMouseEnter={e => e.currentTarget.style.color = 'white'}>
                 <CloseIcon />
@@ -1412,82 +1453,91 @@ Return ONLY the redesigned HTML now:`.trim()
 
             {/* Component Info Panel */}
             {selectedComponent && editingComponentInfo && (
-              <div className="m-3 p-3 rounded-lg" style={{ background: 'rgba(139,92,246,0.1)', border: `1px solid rgba(139,92,246,0.2)` }}>
-                <p className="text-xs" style={{ color: '#a78bfa' }}>
-                  🎯 Currently Editing: <strong>&lt;{editingComponentInfo.tagName}&gt;</strong>
+              <div className="m-4 p-3.5 rounded-xl border" style={{ background: 'rgba(6,182,212,0.05)', borderColor: `rgba(6,182,212,0.15)` }}>
+                <p className="text-xs font-medium" style={{ color: '#22d3ee' }}>
+                  <span className="inline-flex items-center gap-1.5"><TargetIcon className="w-3.5 h-3.5" /> Active Element: <strong>&lt;{editingComponentInfo.tagName}&gt;</strong></span>
                   {editingComponentInfo.classes.length > 0 && (
-                    <span className="ml-1 opacity-70">
+                    <span className="ml-1 opacity-70 font-mono text-[10px]">
                       ({editingComponentInfo.classes.join(', ')})
                     </span>
                   )}
                 </p>
-                <p className="text-xs mt-2" style={{ color: TEXT_MUTED }}>
-                  💡 Tip: Click on any navbar, header, or section to redesign the entire component
+                <p className="text-xs mt-2.5 font-light" style={{ color: TEXT_MUTED }}>
+                  <span className="inline-flex items-start gap-1.5"><ZapIcon className="w-3.5 h-3.5 shrink-0 mt-0.5" /> Tip: Select a parent wrapper (like a section or navbar) to refine the entire block at once.</span>
                 </p>
               </div>
             )}
 
             {selectedComponent && messages.length === 0 && (
-              <div className="p-3 border-b" style={{ borderColor: BORDER }}>
-                <p className="text-xs mb-2" style={{ color: TEXT_MUTED }}>🚀 Quick Redesign Styles:</p>
-                <div className="flex flex-wrap gap-2">
-                  {quickActions.map((action, i) => (
-                    <button
-                      key={i}
-                      onClick={() => sendMessage(action.prompt)}
-                      disabled={isRefining}
-                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all"
-                      style={{
-                        background: 'rgba(139,92,246,0.15)',
-                        color: '#c4b5fd',
-                        border: '1px solid rgba(139,92,246,0.3)',
-                        opacity: isRefining ? 0.5 : 1
-                      }}
-                      onMouseEnter={e => { if (!isRefining) e.currentTarget.style.background = 'rgba(139,92,246,0.25)' }}
-                      onMouseLeave={e => { if (!isRefining) e.currentTarget.style.background = 'rgba(139,92,246,0.15)' }}>
-                      <span>{action.icon}</span>
-                      <span>{action.label}</span>
-                    </button>
-                  ))}
+              <div className="p-4 border-b" style={{ borderColor: BORDER }}>
+                <p className="text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-1.5" style={{ color: TEXT_MUTED }}>
+                  <svg className="w-3.5 h-3.5 text-cyan-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 5 4 4"/><path d="M13 7 8.7 2.7a2.41 2.41 0 0 0-3.4 0L2.7 5.3a2.41 2.41 0 0 0 0 3.4L7 13"/><path d="m8 6 2-2"/><path d="m18 16 2-2"/><path d="m17 11 4.3 4.3c.94.94.94 2.46 0 3.4l-2.6 2.6c-.94.94-2.46.94-3.4 0L11 17"/><path d="m21.1 15.6-1.4 1.4"/><path d="m21.1 8.6-1.4 1.4"/><path d="m8.6 21.1 1.4-1.4"/><path d="m15.6 21.1 1.4-1.4"/></svg>
+                  Quick Refinements
+                </p>
+                <div className="flex flex-wrap gap-2.5 min-h-[70px] relative">
+                  <AnimatePresence mode="popLayout">
+                    {currentQuickActions.map((action, i) => (
+                      <motion.button
+                        key={`${suggestionIndex}-${i}`}
+                        initial={{ opacity: 0, scale: 0.95, y: 5 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: -5 }}
+                        transition={{ duration: 0.3, delay: i * 0.05 }}
+                        onClick={() => sendMessage(action.prompt)}
+                        disabled={isRefining}
+                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all shadow-sm border"
+                        style={{
+                          background: 'rgba(6,182,212,0.08)',
+                          color: '#67e8f9',
+                          borderColor: 'rgba(6,182,212,0.2)',
+                          opacity: isRefining ? 0.5 : 1
+                        }}
+                        onMouseEnter={e => { if (!isRefining) { e.currentTarget.style.background = 'rgba(6,182,212,0.15)'; e.currentTarget.style.borderColor = 'rgba(6,182,212,0.4)' } }}
+                        onMouseLeave={e => { if (!isRefining) { e.currentTarget.style.background = 'rgba(6,182,212,0.08)'; e.currentTarget.style.borderColor = 'rgba(6,182,212,0.2)' } }}>
+                        {action.icon && <span className="mr-1">{action.icon}</span>}
+                        <span>{action.label}</span>
+                      </motion.button>
+                    ))}
+                  </AnimatePresence>
                 </div>
               </div>
             )}
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {messages.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-center">
-                  <div className="w-16 h-16 rounded-full mb-4 flex items-center justify-center" style={{ background: 'rgba(139,92,246,0.15)' }}>
-                    <SparkleIcon size={32} />
+                <div className="flex flex-col items-center justify-center h-full text-center px-4">
+                  <div className="w-16 h-16 rounded-2xl mb-5 flex items-center justify-center border shadow-[0_0_30px_rgba(6,182,212,0.15)] animate-pulse" style={{ background: 'rgba(6,182,212,0.05)', borderColor: 'rgba(6,182,212,0.2)' }}>
+                    <svg className="w-8 h-8 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                   </div>
-                  <p className="text-white font-semibold mb-2">AI Component Redesign</p>
-                  <p className="text-xs" style={{ color: TEXT_MUTED }}>
+                  <h3 className="text-white font-black text-lg mb-2 tracking-tight">Refine Element</h3>
+                  <p className="text-xs font-light max-w-[250px] mx-auto leading-relaxed" style={{ color: TEXT_MUTED }}>
                     {selectedComponent
-                      ? 'Choose a style above or type your custom request!\nTry: "Make it elegant with gold accents"'
-                      : 'Click on any navbar, header, or section to start redesigning'}
+                      ? 'Apply quick visual styles above, or describe your specific requirements below to customize this element.'
+                      : 'Select any element on the canvas to inspect it and apply contextual design refinements.'}
                   </p>
                 </div>
               ) : (
                 messages.map((msg, idx) => (
                   <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                     <div
-                      className="max-w-[85%] rounded-lg p-3"
+                      className="max-w-[85%] rounded-xl p-3.5 shadow-sm"
                       style={
                         msg.role === 'user'
-                          ? { background: 'linear-gradient(135deg, #8b5cf6, #6366f1)', color: 'white' }
-                          : { background: 'rgba(255,255,255,0.05)', color: TEXT_SECONDARY }
+                          ? { background: 'linear-gradient(135deg, #06b6d4, #3b82f6)', color: 'white', borderBottomRightRadius: '4px' }
+                          : { background: 'rgba(255,255,255,0.05)', color: TEXT_SECONDARY, borderBottomLeftRadius: '4px', border: `1px solid ${BORDER}` }
                       }>
-                      <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                      <p className="text-[13px] whitespace-pre-wrap leading-relaxed">{msg.content}</p>
                     </div>
                   </div>
                 ))
               )}
               {isRefining && (
                 <div className="flex justify-start">
-                  <div className="rounded-lg p-3" style={{ background: 'rgba(255,255,255,0.05)' }}>
-                    <div className="flex gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <div className="rounded-xl p-3.5 border" style={{ background: 'rgba(255,255,255,0.05)', borderColor: BORDER, borderBottomLeftRadius: '4px' }}>
+                    <div className="flex gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-cyan-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-2 h-2 rounded-full bg-cyan-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-2 h-2 rounded-full bg-cyan-500 animate-bounce" style={{ animationDelay: '300ms' }} />
                     </div>
                   </div>
                 </div>
@@ -1495,18 +1545,18 @@ Return ONLY the redesigned HTML now:`.trim()
               <div ref={chatEndRef} />
             </div>
 
-            <div className="p-4 border-t" style={{ borderColor: BORDER }}>
+            <div className="p-4 border-t" style={{ borderColor: BORDER, background: '#030712' }}>
               <div className="flex gap-2">
                 <textarea
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyDown={handleKeyPress}
-                  placeholder={selectedComponent ? 'Describe your redesign vision...' : 'Select a component first...'}
+                  placeholder={selectedComponent ? 'Specify styling instructions (e.g. "make it darker")...' : 'Select a component first...'}
                   disabled={!selectedComponent || isRefining}
                   rows={2}
-                  className="flex-1 rounded-lg p-2 text-sm resize-none"
+                  className="flex-1 rounded-xl p-3 text-xs resize-none transition-all focus:ring-1 focus:ring-cyan-500/50"
                   style={{
-                    background: '#111827',
+                    background: 'rgba(255,255,255,0.03)',
                     border: `1px solid ${BORDER}`,
                     color: 'white',
                     outline: 'none',
@@ -1516,18 +1566,19 @@ Return ONLY the redesigned HTML now:`.trim()
                 <button
                   onClick={() => sendMessage()}
                   disabled={!inputMessage.trim() || !selectedComponent || isRefining}
-                  className="px-4 rounded-lg transition-all flex items-center justify-center"
+                  className="w-12 rounded-xl transition-all flex items-center justify-center shrink-0"
                   style={{
                     background: inputMessage.trim() && selectedComponent && !isRefining
-                      ? 'linear-gradient(135deg, #8b5cf6, #6366f1)'
-                      : '#374151',
+                      ? 'linear-gradient(135deg, #06b6d4, #3b82f6)'
+                      : 'rgba(255,255,255,0.05)',
                     opacity: inputMessage.trim() && selectedComponent && !isRefining ? 1 : 0.5,
-                    cursor: inputMessage.trim() && selectedComponent && !isRefining ? 'pointer' : 'not-allowed'
+                    cursor: inputMessage.trim() && selectedComponent && !isRefining ? 'pointer' : 'not-allowed',
+                    border: `1px solid ${inputMessage.trim() && selectedComponent && !isRefining ? 'transparent' : BORDER}`
                   }}>
                   <SendIcon />
                 </button>
               </div>
-              <p className="text-xs mt-2 text-center" style={{ color: TEXT_MUTED }}>
+              <p className="text-[10px] mt-2.5 text-center font-bold tracking-wider uppercase" style={{ color: TEXT_MUTED }}>
                 Press Enter to send · Shift+Enter for new line
               </p>
             </div>
@@ -1569,7 +1620,7 @@ Return ONLY the redesigned HTML now:`.trim()
       `}</style>
     </div>
   )
-}
+
 
 function IconBtn({ onClick, title, children }) {
   return (
@@ -1585,17 +1636,7 @@ function IconBtn({ onClick, title, children }) {
   )
 }
 
-const s = { width: 14, height: 14, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }
-const UndoIcon = () => <svg {...s}><path d="M3 7v6h6"/><path d="M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13"/></svg>
-const RedoIcon = () => <svg {...s}><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 019-9 9 9 0 016 2.3l3 2.7"/></svg>
-const DesktopIcon = () => <svg {...s}><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-const TabletIcon = () => <svg {...s}><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-const MobileIcon = () => <svg {...s}><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-const FullscreenIcon = () => <svg {...s}><path d="M8 3H5a2 2 0 00-2 2v3M21 8V5a2 2 0 00-2-2h-3M16 21h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
-const ExitFullscreenIcon = () => <svg {...s}><path d="M8 3v3a2 2 0 01-2 2H3M21 8h-3a2 2 0 01-2-2V3M3 16h3a2 2 0 012 2v3M16 21v-3a2 2 0 012-2h3"/></svg>
-const EyeIcon = () => <svg {...s}><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-const SaveIcon = () => <svg {...s}><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-const ExportIcon = () => <svg {...s}><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+
 
 function SparkleIcon({ size = 14 }) {
   return (
@@ -1659,4 +1700,5 @@ function DeleteIcon() {
       <path d="M6 6l12 12"/>
     </svg>
   )
+}
 }
