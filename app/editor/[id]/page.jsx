@@ -167,6 +167,7 @@ export default function EditWebsite() {
       initialHtml={editorHtml}
       initialCss={editorCss}
       onSave={handleSave}
+      websiteId={websiteId}
     />
   )
 }

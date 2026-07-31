@@ -5,11 +5,11 @@ import Footer from '@/components/ui/FOOTER'
 import { motion } from 'framer-motion'
 
 // Icons
-const ZapIcon = () => <svg className="w-8 h-8 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-const PaletteIcon = () => <svg className="w-8 h-8 text-violet-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
-const FolderIcon = () => <svg className="w-8 h-8 text-pink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
-const SmartphoneIcon = () => <svg className="w-8 h-8 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-const PackageIcon = () => <svg className="w-8 h-8 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+const ZapIcon = () => <svg className="w-8 h-8 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
+const PaletteIcon = () => <svg className="w-8 h-8 text-violet-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="13.5" cy="6.5" r=".5" /><circle cx="17.5" cy="10.5" r=".5" /><circle cx="8.5" cy="7.5" r=".5" /><circle cx="6.5" cy="12.5" r=".5" /><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z" /></svg>
+const FolderIcon = () => <svg className="w-8 h-8 text-pink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z" /></svg>
+const SmartphoneIcon = () => <svg className="w-8 h-8 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2" /><line x1="12" y1="18" x2="12.01" y2="18" /></svg>
+const PackageIcon = () => <svg className="w-8 h-8 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21" /><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg>
 
 export default function Home() {
   return (
@@ -18,7 +18,7 @@ export default function Home() {
 
       {/* ── IMMERSIVE HERO SECTION ── */}
       <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
-        
+
         {/* Futuristic Glowing Background Elements */}
         <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
           {/* Main glowing mesh */}
@@ -28,15 +28,15 @@ export default function Home() {
         </div>
 
         {/* Cyber Grid Pattern with flow animation */}
-        <div 
+        <div
           className="absolute inset-0 -z-10 opacity-[0.06] animate-grid-flow"
           style={{
             backgroundImage: 'radial-gradient(rgba(34,211,238,0.4) 1.5px, transparent 1.5px)',
             backgroundSize: '32px 32px'
-          }} 
+          }}
         />
 
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
@@ -73,25 +73,25 @@ export default function Home() {
               <span className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-600 to-violet-600 rounded-2xl shadow-[0_0_35px_rgba(6,182,212,0.4)] transition-all duration-300 group-hover:shadow-[0_0_50px_rgba(139,92,246,0.6)]" />
               <span className="relative z-10 flex items-center gap-2">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
                 </svg>
                 Generate with AI
               </span>
             </Link>
-            
+
             <Link
               href="/templates"
               className="inline-flex items-center justify-center gap-2 font-bold px-8 py-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md text-slate-200 transition-all duration-300 hover:bg-white/10 hover:border-white/20 hover:text-white"
             >
               Browse Templates
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M5 12h14M12 5l7 7-7 7"/>
+                <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
             </Link>
           </div>
 
           {/* Platform Mockup Visualization */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 50, rotateX: 10 }}
             animate={{ opacity: 1, y: 0, rotateX: 0 }}
             transition={{ duration: 1, delay: 0.2 }}
@@ -185,7 +185,7 @@ export default function Home() {
                 desc: 'Type your requirements in natural language. Our AI parses user intent, layouts, colors, and content structure dynamically.',
                 icon: (
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                    <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
                   </svg>
                 )
               },
@@ -195,7 +195,7 @@ export default function Home() {
                 desc: 'Refine designs instantly with our GrapesJS-powered canvas. Swap images, alter typography, and adjust structures visually.',
                 icon: (
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
+                    <rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18M9 21V9" />
                   </svg>
                 )
               },
@@ -205,7 +205,7 @@ export default function Home() {
                 desc: 'Download high-performance, single-page packages as ZIP files containing clean, standalone HTML, CSS, and JS.',
                 icon: (
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
                   </svg>
                 )
               }
@@ -220,7 +220,7 @@ export default function Home() {
               >
                 {/* Glowing step card hover */}
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/0 via-violet-600/0 to-pink-500/0 opacity-0 group-hover:opacity-[0.03] transition-all duration-500 rounded-3xl" />
-                
+
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center transition-all duration-300 group-hover:bg-cyan-500/25 group-hover:scale-105">
                     {item.icon}
@@ -256,7 +256,7 @@ export default function Home() {
           {/* Premium Bento Grid */}
           <div className="grid grid-cols-12 gap-6 auto-rows-[220px]">
             {/* Box 1: AI Generator (Large) */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               whileInView={{ opacity: 1, scale: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
@@ -273,7 +273,7 @@ export default function Home() {
                   Generate complete web designs instantly with active section logic. Simply enter your prompt and watch artificial intelligence craft layouts, color theory, and bespoke copy.
                 </p>
               </div>
-              
+
               {/* Code visual mock */}
               <div className="h-28 bg-[#030612] rounded-2xl border border-white/5 p-4 font-mono text-[10px] text-cyan-400 overflow-hidden opacity-80 mt-4 relative group-hover:border-cyan-500/30 transition-colors shadow-inner">
                 <span className="text-slate-600">// AI Prompt Interpreter</span><br />

@@ -141,6 +141,10 @@ function EditorNewPageInner() {
           .eq('id', savedId)
         if (error) throw error
       } else {
+        const safeTitle = (template?.title || 'website').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        const randomString = Math.random().toString(36).substring(2, 6);
+        const generatedSlug = `${safeTitle}-${randomString}`;
+
         const { data, error } = await supabase
           .from('websites')
           .insert({
@@ -149,6 +153,7 @@ function EditorNewPageInner() {
             html, css, js,
             source: 'template',
             template_id: template?.id || null,
+            slug: generatedSlug
           })
           .select()
           .single()
@@ -218,6 +223,7 @@ function EditorNewPageInner() {
         initialHtml={html}
         initialCss={css}
         onSave={handleSave}
+        websiteId={savedId}
       />
     </div>
   )

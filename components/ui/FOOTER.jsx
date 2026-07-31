@@ -10,7 +10,7 @@ export default function Footer() {
 
       <div className="max-w-7xl mx-auto px-6 py-16 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 mb-12">
-          
+
           {/* Brand info column */}
           <div className="md:col-span-4 flex flex-col gap-4">
             <Link href="/" className="w-fit">

@@ -56,8 +56,13 @@ export async function POST(request) {
       generatedHTML = null;
     }
     
-    // Validate output
-    const finalHTML = validateOutput(generatedHTML);
+    // Validate output or use local fallback
+    let finalHTML;
+    if (generatedHTML) {
+      finalHTML = validateOutput(generatedHTML);
+    } else {
+      finalHTML = validateOutput(null); // original emergency fallback
+    }
     console.log("Final HTML length:", finalHTML.length);
     
     // Save to Supabase using service role key
@@ -69,6 +74,11 @@ export async function POST(request) {
       if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
         console.warn("⚠️ SUPABASE_SERVICE_ROLE_KEY not set - skipping DB save")
       } else {
+        // Generate a URL-friendly slug
+        const safeIndustry = intent.industry.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        const randomString = Math.random().toString(36).substring(2, 6);
+        const generatedSlug = `${safeIndustry}-${randomString}`;
+
         const { data, error } = await supabaseAdmin
           .from('websites')
           .insert({
@@ -76,9 +86,10 @@ export async function POST(request) {
             title: `Generated - ${intent.industry}`,
             html: finalHTML,
             source: 'generated',
-            template_id: templateId || null
+            template_id: templateId || null,
+            slug: generatedSlug
           })
-          .select('id')
+          .select('id, slug')
           .single()
 
         if (error) {

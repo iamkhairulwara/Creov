@@ -49,9 +49,8 @@ export default function CustomSelect({ value, onChange, options, className = "" 
                 onChange(option.value)
                 setIsOpen(false)
               }}
-              className={`w-full flex items-center gap-3 px-5 py-3 text-left text-sm font-medium transition-colors ${
-                value === option.value ? 'bg-cyan-500/10 text-cyan-400' : 'hover:bg-white/5 text-slate-300 hover:text-white'
-              }`}
+              className={`w-full flex items-center gap-3 px-5 py-3 text-left text-sm font-medium transition-colors ${value === option.value ? 'bg-cyan-500/10 text-cyan-400' : 'hover:bg-white/5 text-slate-300 hover:text-white'
+                }`}
             >
               {option.icon ? (
                 <span className={`flex-shrink-0 ${value === option.value ? 'text-cyan-400' : 'text-slate-400'}`}>

@@ -4,7 +4,7 @@ export default function CreovLogo({ className = "w-9 h-9", iconOnly = false, suf
   return (
     <div className="flex items-center gap-2.5 group cursor-pointer select-none">
       {/* Premium SVG Icon Container */}
-      <div 
+      <div
         className={`${className} relative flex items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500/10 via-blue-600/10 to-violet-600/10 border border-white/10 transition-all duration-500 group-hover:border-cyan-400/30 group-hover:scale-105 group-hover:rotate-6`}
         style={{
           boxShadow: '0 4px 20px rgba(0,0,0,0.3), inset 0 0 12px rgba(255,255,255,0.05)'
@@ -12,13 +12,13 @@ export default function CreovLogo({ className = "w-9 h-9", iconOnly = false, suf
       >
         {/* Ambient neon backing glow */}
         <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-400 via-blue-500 to-violet-600 opacity-0 group-hover:opacity-20 blur-md transition-opacity duration-500" />
-        
+
         {/* Layered Custom SVG Drawing */}
-        <svg 
-          width="100%" 
-          height="100%" 
-          viewBox="0 0 32 32" 
-          fill="none" 
+        <svg
+          width="100%"
+          height="100%"
+          viewBox="0 0 32 32"
+          fill="none"
           xmlns="http://www.w3.org/2000/svg"
           className="p-1.5 relative z-10"
         >
@@ -29,34 +29,34 @@ export default function CreovLogo({ className = "w-9 h-9", iconOnly = false, suf
               <stop offset="100%" stopColor="#8b5cf6" />
             </linearGradient>
           </defs>
-          
+
           {/* Outer Geometric 'C' Shape */}
-          <path 
-            d="M24 8.5C21.8 6.3 18.8 5 15.5 5C9.15 5 4 10.15 4 16.5C4 22.85 9.15 28 15.5 28C18.8 28 21.8 26.7 24 24.5" 
-            stroke="url(#creovGrad)" 
-            strokeWidth="3" 
-            strokeLinecap="round" 
+          <path
+            d="M24 8.5C21.8 6.3 18.8 5 15.5 5C9.15 5 4 10.15 4 16.5C4 22.85 9.15 28 15.5 28C18.8 28 21.8 26.7 24 24.5"
+            stroke="url(#creovGrad)"
+            strokeWidth="3"
+            strokeLinecap="round"
             strokeLinejoin="round"
             className="transition-all duration-500 group-hover:stroke-cyan-300"
           />
 
           {/* AI Core Sparks inside the 'C' */}
-          <path 
-            d="M17 16.5L20 12L23 16.5H20L17 21" 
-            stroke="#ffffff" 
-            strokeWidth="2.5" 
-            strokeLinecap="round" 
+          <path
+            d="M17 16.5L20 12L23 16.5H20L17 21"
+            stroke="#ffffff"
+            strokeWidth="2.5"
+            strokeLinecap="round"
             strokeLinejoin="round"
             className="transition-transform duration-500 group-hover:scale-110 group-hover:translate-x-0.5"
           />
-          
+
           {/* Spark dots represent code synthesis */}
-          <circle 
-            cx="25" 
-            cy="16.5" 
-            r="1.5" 
-            fill="#a855f7" 
-            className="animate-pulse" 
+          <circle
+            cx="25"
+            cy="16.5"
+            r="1.5"
+            fill="#a855f7"
+            className="animate-pulse"
           />
         </svg>
       </div>

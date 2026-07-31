@@ -1267,6 +1267,19 @@ Return ONLY the redesigned HTML now:`.trim()
           </IconBtn>
 
           <button
+            onClick={() => {
+              if (!websiteId) {
+                alert('Please Save your website first before publishing!');
+              } else {
+                window.open('/p/' + websiteId, '_blank');
+              }
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all hover:bg-cyan-500/10 hover:text-cyan-400"
+            style={{ color: TEXT_SECONDARY, border: `1px solid ${BORDER}` }}>
+            <GlobeIcon /> Publish
+          </button>
+
+          <button
             onClick={handleExport}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all"
             style={{ color: TEXT_SECONDARY, border: `1px solid ${BORDER}` }}>
