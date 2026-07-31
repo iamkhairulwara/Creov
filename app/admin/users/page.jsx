@@ -78,6 +78,22 @@ export default function AdminUsers() {
     fetchUsers()
   }, [])
 
+  function showToast(message, isError = false) {
+    const toast = document.createElement('div')
+    toast.innerText = message
+    toast.style.cssText = `
+      position: fixed; bottom: 24px; right: 24px;
+      background: ${isError ? '#ef4444' : '#06b6d4'};
+      color: white; padding: 12px 20px;
+      border-radius: 10px; font-size: 13px;
+      z-index: 9999; font-family: Inter, sans-serif;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      font-weight: 500;
+    `
+    document.body.appendChild(toast)
+    setTimeout(() => toast.remove(), 3000)
+  }
+
   const fetchUsers = async () => {
     try {
       const res = await fetch('/api/admin/users')
@@ -102,10 +118,10 @@ export default function AdminUsers() {
         const errData = await res.json()
         throw new Error(errData.error || 'Failed to update role')
       }
-      alert(`Role updated to ${newRole}`)
+      showToast(`Role updated to ${newRole}`)
       fetchUsers()
     } catch (error) {
-      alert('Error updating role: ' + error.message)
+      showToast('Error updating role: ' + error.message, true)
     }
   }
 

@@ -1050,46 +1050,47 @@ Return ONLY the redesigned HTML now:`.trim()
 
       {/* Save Version Modal */}
       {showSaveVersionModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.8)' }}>
-          <div className="rounded-xl w-[400px] overflow-hidden" style={{ background: '#0f172a' }}>
-            <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: BORDER }}>
-              <h3 className="text-white font-semibold">Save Version</h3>
-              <button onClick={() => setShowSaveVersionModal(false)} className="text-gray-400 hover:text-white">
-                <CloseIcon />
+        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md" style={{ background: 'rgba(3,7,18,0.95)' }}>
+          <div className="rounded-3xl w-[400px] flex flex-col border shadow-[0_0_80px_rgba(0,0,0,0.8)] overflow-hidden" style={{ background: '#080d20', borderColor: 'rgba(255,255,255,0.1)' }}>
+            <div className="flex items-center justify-between px-6 py-4 border-b shrink-0 bg-[#05091a]" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+              <div>
+                <h3 className="text-white font-extrabold text-lg tracking-tight">Save Version</h3>
+                <p className="text-[10px] uppercase font-mono tracking-widest text-slate-500 mt-0.5">Create a recovery snapshot</p>
+              </div>
+              <button onClick={() => setShowSaveVersionModal(false)} className="w-8 h-8 flex items-center justify-center rounded-xl border border-white/5 bg-white/5 text-slate-400 hover:text-white hover:border-white/10 transition-all text-xs">
+                ✕
               </button>
             </div>
-            <div className="p-4">
-              <input
-                type="text"
-                value={versionName}
-                onChange={(e) => setVersionName(e.target.value)}
-                placeholder="Version name (required)"
-                className="w-full rounded-lg p-2 text-sm"
-                style={{
-                  background: '#111827',
-                  border: `1px solid ${BORDER}`,
-                  color: 'white',
-                  outline: 'none'
-                }}
-                autoFocus
-              />
-              <p className="text-xs text-gray-500 mt-2">Give your version a descriptive name</p>
+            <div className="p-6 bg-[#030610] relative">
+              <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(rgba(34,211,238,0.4) 1.5px, transparent 1.5px)', backgroundSize: '24px 24px' }} />
+              <div className="relative z-10">
+                <input
+                  type="text"
+                  value={versionName}
+                  onChange={(e) => setVersionName(e.target.value)}
+                  placeholder="e.g. Before Redesign"
+                  className="w-full rounded-xl p-3.5 text-sm transition-all focus:ring-1 focus:ring-cyan-500/50"
+                  style={{
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    color: 'white',
+                    outline: 'none'
+                  }}
+                  autoFocus
+                />
+                <p className="text-[11px] text-slate-500 mt-3 font-light">Provide a descriptive name to help you identify this state later.</p>
+              </div>
             </div>
-            <div className="flex justify-end gap-2 p-4 border-t" style={{ borderColor: BORDER }}>
+            <div className="flex justify-end gap-3 px-6 py-4 border-t shrink-0 bg-[#05091a]" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
               <button
                 onClick={() => setShowSaveVersionModal(false)}
-                className="px-4 py-2 rounded-lg text-white"
-                style={{ background: '#374151' }}>
+                className="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-400 border border-white/5 hover:text-white hover:border-white/10 transition-all">
                 Cancel
               </button>
               <button
                 onClick={saveCurrentVersion}
                 disabled={!versionName.trim()}
-                className="px-4 py-2 rounded-lg text-white"
-                style={{
-                  background: versionName.trim() ? 'linear-gradient(135deg, #10b981, #059669)' : '#374151',
-                  opacity: versionName.trim() ? 1 : 0.5
-                }}>
+                className="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(6,182,212,0.3)] disabled:opacity-50 disabled:hover:scale-100 disabled:shadow-none">
                 Save Version
               </button>
             </div>
@@ -1099,34 +1100,33 @@ Return ONLY the redesigned HTML now:`.trim()
 
       {/* Version Preview Modal */}
       {selectedVersionForPreview && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.95)' }}>
-          <div className="rounded-xl w-[95vw] max-w-[1400px] h-[90vh] overflow-hidden flex flex-col" style={{ background: '#0f172a' }}>
-            <div className="flex items-center justify-between p-4 border-b shrink-0" style={{ borderColor: BORDER }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md" style={{ background: 'rgba(3,7,18,0.95)' }}>
+          <div className="rounded-3xl w-[95vw] max-w-[1400px] h-[90vh] overflow-hidden flex flex-col border shadow-[0_0_80px_rgba(0,0,0,0.8)]" style={{ background: '#080d20', borderColor: 'rgba(255,255,255,0.1)' }}>
+            <div className="flex items-center justify-between px-6 py-4 border-b shrink-0 bg-[#05091a]" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
               <div>
-                <h3 className="text-white font-semibold text-lg">{selectedVersionForPreview.name}</h3>
-                <p className="text-xs text-gray-400">{formatDate(selectedVersionForPreview.timestamp)}</p>
+                <h3 className="text-white font-extrabold text-lg tracking-tight">{selectedVersionForPreview.name}</h3>
+                <p className="text-[10px] uppercase font-mono tracking-widest text-slate-500 mt-0.5">{formatDate(selectedVersionForPreview.timestamp)}</p>
               </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => restoreVersion(selectedVersionForPreview)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-white transition-all hover:scale-105"
-                  style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-                  <RestoreIcon /> Restore This Version
-                </button>
+              <div className="flex gap-3">
                 <button
                   onClick={closeVersionPreview}
-                  className="px-4 py-2 rounded-lg text-white transition-all hover:bg-gray-600"
-                  style={{ background: '#374151' }}>
+                  className="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-400 border border-white/5 hover:text-white hover:border-white/10 transition-all">
                   Close
+                </button>
+                <button
+                  onClick={() => restoreVersion(selectedVersionForPreview)}
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(6,182,212,0.3)]">
+                  <RestoreIcon /> Restore This Version
                 </button>
               </div>
             </div>
             
-            <div className="flex-1 overflow-auto p-4">
-              <div className="w-full min-h-full rounded-lg overflow-hidden shadow-2xl" style={{ background: '#ffffff' }}>
+            <div className="flex-1 overflow-auto p-6 bg-[#030610] relative">
+              <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(rgba(34,211,238,0.4) 1.5px, transparent 1.5px)', backgroundSize: '24px 24px' }} />
+              <div className="relative z-10 w-full min-h-full rounded-2xl overflow-hidden shadow-2xl bg-white border border-white/10">
                 <iframe
                   title="Version Preview"
-                  className="w-full min-h-[calc(90vh-120px)] border-0"
+                  className="w-full min-h-[calc(90vh-140px)] border-0"
                   sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals"
                   srcDoc={`
                     <!DOCTYPE html>
@@ -1154,31 +1154,40 @@ Return ONLY the redesigned HTML now:`.trim()
 
       {/* Preview Modal for AI Changes */}
       {showPreview && previewHtml && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.8)' }}>
-          <div className="rounded-xl w-[900px] max-w-[90vw] max-h-[80vh] overflow-hidden" style={{ background: '#0f172a' }}>
-            <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: BORDER }}>
-              <h3 className="text-white font-semibold">Preview Redesigned Component</h3>
-              <button onClick={() => setShowPreview(false)} className="text-gray-400 hover:text-white">
-                <CloseIcon />
+        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md" style={{ background: 'rgba(3,7,18,0.95)' }}>
+          <div className="rounded-3xl w-[900px] max-w-[90vw] max-h-[85vh] overflow-hidden flex flex-col border shadow-[0_0_80px_rgba(0,0,0,0.8)]" style={{ background: '#080d20', borderColor: 'rgba(255,255,255,0.1)' }}>
+            
+            <div className="flex items-center justify-between px-6 py-4 border-b shrink-0 bg-[#05091a]" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+              <div>
+                <h3 className="text-white font-extrabold text-lg tracking-tight">Preview Redesign</h3>
+                <p className="text-[10px] uppercase font-mono tracking-widest text-slate-500 mt-0.5">Review generated changes before applying</p>
+              </div>
+              <button onClick={() => setShowPreview(false)} className="w-8 h-8 flex items-center justify-center rounded-xl border border-white/5 bg-white/5 text-slate-400 hover:text-white hover:border-white/10 transition-all text-xs">
+                ✕
               </button>
             </div>
-            <div className="p-4 max-h-[60vh] overflow-auto" style={{ background: '#f5f5f5' }}>
-              <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
+            
+            <div className="flex-1 overflow-auto p-6 bg-[#030610] relative">
+              <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(rgba(34,211,238,0.4) 1.5px, transparent 1.5px)', backgroundSize: '24px 24px' }} />
+              
+              <div className="relative z-10 w-full min-h-[300px] rounded-2xl overflow-hidden shadow-2xl bg-white border border-white/10 p-4">
+                <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
+              </div>
             </div>
-            <div className="flex justify-end gap-2 p-4 border-t" style={{ borderColor: BORDER }}>
+            
+            <div className="flex justify-end gap-3 px-6 py-4 border-t shrink-0 bg-[#05091a]" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
               <button
                 onClick={() => setShowPreview(false)}
-                className="px-4 py-2 rounded-lg text-white"
-                style={{ background: '#374151' }}>
+                className="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-400 border border-white/5 hover:text-white hover:border-white/10 transition-all">
                 Reject
               </button>
               <button
                 onClick={applyPreview}
-                className="px-4 py-2 rounded-lg text-white transition-all hover:scale-105"
-                style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-                Apply Redesign
+                className="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(6,182,212,0.3)]">
+                Apply Redesign →
               </button>
             </div>
+            
           </div>
         </div>
       )}

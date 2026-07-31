@@ -13,6 +13,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState(null)
   const [deleting, setDeleting] = useState(null)
+  const [websiteToDelete, setWebsiteToDelete] = useState(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -48,8 +49,12 @@ export default function Dashboard() {
     setLoading(false)
   }
 
-  async function handleDelete(websiteId) {
-    if (!confirm('Delete this website? This cannot be undone.')) return
+  function handleDelete(websiteId) {
+    const website = websites.find(w => w.id === websiteId)
+    setWebsiteToDelete(website)
+  }
+
+  async function confirmDelete(websiteId) {
     setDeleting(websiteId)
 
     // Delete related prompts first to avoid foreign key conflict
@@ -63,6 +68,7 @@ export default function Dashboard() {
     }
 
     setDeleting(null)
+    setWebsiteToDelete(null)
   }
 
   function handleEdit(website) {
@@ -102,6 +108,42 @@ ${website.html || ''}
       month: 'short', day: 'numeric', year: 'numeric'
     })
   }
+
+  const DeleteConfirmModal = () => {
+    if (!websiteToDelete) return null;
+    return (
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-[60] p-4 animate-fade-in">
+        <div className="bg-[#080c1e]/95 backdrop-blur-2xl rounded-3xl border border-white/10 w-full max-w-sm p-6 shadow-2xl relative">
+          <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-red-400">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            Delete Website?
+          </h3>
+          <p className="text-sm text-slate-400 mb-6 leading-relaxed">
+            Are you sure you want to delete <span className="text-white font-bold">"{websiteToDelete.title || 'Untitled Workspace'}"</span>? This action cannot be undone.
+          </p>
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={() => setWebsiteToDelete(null)}
+              className="px-5 py-2.5 rounded-xl border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 text-sm font-bold transition duration-300"
+              disabled={deleting === websiteToDelete.id}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => confirmDelete(websiteToDelete.id)}
+              className="px-5 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 text-sm font-bold transition duration-300 flex items-center gap-2 disabled:opacity-50"
+              disabled={deleting === websiteToDelete.id}
+            >
+              {deleting === websiteToDelete.id && <span className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />}
+              {deleting === websiteToDelete.id ? 'Deleting...' : 'Delete'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-[#030712] text-white selection:bg-cyan-500/30 selection:text-white flex flex-col justify-between">
@@ -272,6 +314,7 @@ ${website.html || ''}
         </div>
       </div>
       <Footer />
+      <DeleteConfirmModal />
     </div>
   )
 }

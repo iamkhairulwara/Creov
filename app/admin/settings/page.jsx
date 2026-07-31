@@ -5,12 +5,10 @@ import CustomSelect from '@/components/ui/CustomSelect'
 
 const AiFastIcon = () => <span className="mr-2 inline-flex items-center justify-center w-5 h-5 rounded bg-cyan-500/20 text-cyan-400">⚡</span>
 const AiQualityIcon = () => <span className="mr-2 inline-flex items-center justify-center w-5 h-5 rounded bg-purple-500/20 text-purple-400">✨</span>
-const AiGroqIcon = () => <span className="mr-2 inline-flex items-center justify-center w-5 h-5 rounded bg-green-500/20 text-green-400">🚀</span>
 
 const aiModelOptions = [
   { value: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash (Fast)', icon: <AiFastIcon /> },
-  { value: 'gemini-2.0-pro', label: 'Gemini 2.0 Pro (Quality)', icon: <AiQualityIcon /> },
-  { value: 'groq-mixtral', label: 'Groq Mixtral (Fallback)', icon: <AiGroqIcon /> }
+  { value: 'gemini-2.0-pro', label: 'Gemini 2.0 Pro (Quality)', icon: <AiQualityIcon /> }
 ]
 
 export default function SettingsPage() {
@@ -20,8 +18,7 @@ export default function SettingsPage() {
     allowSignup: true,
     maxGenerationsPerDay: 10,
     aiModel: 'gemini-2.0-flash',
-    generationTimeout: 60,
-    enableGroqFallback: true
+    generationTimeout: 60
   })
   const [saving, setSaving] = useState(false)
   const [activeTab, setActiveTab] = useState('general')
@@ -34,13 +31,29 @@ export default function SettingsPage() {
     }
   }, [])
 
+  function showToast(message, isError = false) {
+    const toast = document.createElement('div')
+    toast.innerText = message
+    toast.style.cssText = `
+      position: fixed; bottom: 24px; right: 24px;
+      background: ${isError ? '#ef4444' : '#06b6d4'};
+      color: white; padding: 12px 20px;
+      border-radius: 10px; font-size: 13px;
+      z-index: 9999; font-family: Inter, sans-serif;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      font-weight: 500;
+    `
+    document.body.appendChild(toast)
+    setTimeout(() => toast.remove(), 3000)
+  }
+
   const saveSettings = async () => {
     setSaving(true)
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000))
     localStorage.setItem('admin_settings', JSON.stringify(settings))
     setSaving(false)
-    alert('Settings saved successfully!')
+    showToast('Settings saved successfully!')
   }
 
   const tabs = [
@@ -203,23 +216,6 @@ export default function SettingsPage() {
                 />
                 <p className="text-slate-500 text-xs mt-1.5 font-light">Maximum wait time allowed for AI engine synthesis response.</p>
               </div>
-
-              <div className="flex items-center justify-between py-4 border-b border-white/5">
-                <div>
-                  <p className="text-white font-bold text-sm tracking-wide">Enable Groq Fallback</p>
-                  <p className="text-slate-400 text-xs mt-0.5 font-light">Utilize high-speed Groq inference backups if Gemini services error.</p>
-                </div>
-                <button
-                  onClick={() => setSettings({ ...settings, enableGroqFallback: !settings.enableGroqFallback })}
-                  className={`w-12 h-6.5 rounded-full transition-all duration-300 p-0.5 ${
-                    settings.enableGroqFallback ? 'bg-gradient-to-r from-cyan-500 to-blue-500 shadow-[0_0_12px_rgba(6,182,212,0.3)]' : 'bg-slate-800 border border-white/5'
-                  }`}
-                >
-                  <div className={`w-5.5 h-5.5 rounded-full bg-white transition-all duration-300 transform shadow-md ${
-                    settings.enableGroqFallback ? 'translate-x-5.5' : 'translate-x-0'
-                  }`} />
-                </button>
-              </div>
             </div>
           </div>
 
@@ -298,19 +294,6 @@ export default function SettingsPage() {
             <div className="space-y-5">
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Gemini API Key</label>
-                <div className="flex gap-2 max-w-2xl">
-                  <input
-                    type="password"
-                    value="••••••••••••••••••••••••"
-                    className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-400 focus:outline-none text-sm"
-                    disabled
-                  />
-                  <button className="flex items-center gap-1 px-4 py-2.5 rounded-xl border border-cyan-500/20 bg-cyan-500/10 text-cyan-400 text-xs font-bold hover:bg-cyan-500/20 transition duration-300">Update</button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Groq API Key</label>
                 <div className="flex gap-2 max-w-2xl">
                   <input
                     type="password"
