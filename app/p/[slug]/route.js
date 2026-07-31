@@ -74,6 +74,13 @@ export async function GET(request, { params }) {
   const finalJs = data.js || jsContent;
   const title = data.title || 'Published Website';
 
+  const floatingCopyBtn = `
+    <button id="creov-copy-btn" onclick="navigator.clipboard.writeText(window.location.href); this.innerHTML='<svg style=\\'width:14px;height:14px\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'2\\'><polyline points=\\'20 6 9 17 4 12\\'/></svg> Copied!'; setTimeout(() => this.innerHTML='<svg style=\\'width:14px;height:14px\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'2\\'><rect x=\\'9\\' y=\\'9\\' width=\\'13\\' height=\\'13\\' rx=\\'2\\' ry=\\'2\\'/><path d=\\'M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\\'/></svg> Copy Link', 2000);" style="position: fixed; bottom: 20px; right: 20px; z-index: 999999; background: #000; color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 99px; padding: 10px 16px; font-family: sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); backdrop-filter: blur(10px); background: rgba(0,0,0,0.7); transition: transform 0.2s; hover: { transform: scale(1.05); }">
+      <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+      Copy Link
+    </button>
+  `;
+
   const finalHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -87,6 +94,7 @@ export async function GET(request, { params }) {
 </head>
 <body>
   ${bodyHtml}
+  ${floatingCopyBtn}
   <script>
     ${finalJs}
   </script>

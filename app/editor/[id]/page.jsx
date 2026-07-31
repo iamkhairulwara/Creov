@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { supabase } from '@/lib/supabase/client'
+import { showToast } from '@/lib/toast'
 
 const GrapesEditor = dynamic(
   () => import('@/components/editor/GRAPESEDITOR'),
@@ -114,21 +115,7 @@ export default function EditWebsite() {
     setLoading(false)
   }
 
-  function showToast(message, isError = false) {
-    const toast = document.createElement('div')
-    toast.innerText = message
-    toast.style.cssText = `
-      position: fixed; bottom: 24px; right: 24px;
-      background: ${isError ? '#ef4444' : '#06b6d4'};
-      color: white; padding: 12px 20px;
-      border-radius: 10px; font-size: 13px;
-      z-index: 9999; font-family: Inter, sans-serif;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      font-weight: 500;
-    `
-    document.body.appendChild(toast)
-    setTimeout(() => toast.remove(), 3000)
-  }
+
 
   async function handleSave({ html, css, js }) {
     try {

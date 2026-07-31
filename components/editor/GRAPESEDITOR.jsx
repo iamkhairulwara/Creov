@@ -5,6 +5,7 @@ import './grapes-theme.css'
 import CreovLogo from '@/components/ui/CREOVLOGO'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
+import { showToast } from '@/lib/toast'
 
 // Icons
 const ZapIcon = ({className="w-4 h-4"}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
@@ -755,16 +756,7 @@ export default function GrapesEditor({
     setVersionName('')
     setShowSaveVersionModal(false)
     
-    const flash = document.createElement('div')
-    flash.innerHTML = `<svg style="display:inline-block;width:16px;height:16px;margin-right:6px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> "${newVersion.name}" saved (${Math.round(html.length / 1024)} KB)`
-    flash.style.cssText = `
-      position: fixed; bottom: 20px; right: 20px;
-      background: #10b981; color: white; padding: 8px 16px;
-      border-radius: 8px; z-index: 10001; font-size: 14px;
-      animation: fadeInOut 2s ease;
-    `
-    document.body.appendChild(flash)
-    setTimeout(() => flash.remove(), 2000)
+    showToast(`<svg style="display:inline-block;width:16px;height:16px;margin-right:6px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> "${newVersion.name}" saved (${Math.round(html.length / 1024)} KB)`)
   }
   
   function openVersionPreview(version) {
@@ -1271,7 +1263,10 @@ Return ONLY the redesigned HTML now:`.trim()
               if (!websiteId) {
                 alert('Please Save your website first before publishing!');
               } else {
-                window.open('/p/' + websiteId, '_blank');
+                const url = window.location.origin + '/p/' + websiteId;
+                navigator.clipboard.writeText(url);
+                showToast(`<svg style="display:inline-block;width:16px;height:16px;margin-right:6px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Link copied to clipboard!`);
+                window.open(url, '_blank');
               }
             }}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all hover:bg-cyan-500/10 hover:text-cyan-400"
