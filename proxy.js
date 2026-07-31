@@ -29,7 +29,7 @@ export async function proxy(req) {
 
   // Public routes - anyone can access
   const publicRoutes = ['/', '/auth/login', '/auth/signup', '/auth/callback', '/auth/forgot-password', '/auth/reset-password', '/templates']
-  const isPublicRoute = publicRoutes.some(route => req.nextUrl.pathname === route)
+  const isPublicRoute = publicRoutes.some(route => req.nextUrl.pathname === route) || req.nextUrl.pathname.startsWith('/p/')
   const isApiRoute = req.nextUrl.pathname.startsWith('/api')
   const isAdminRoute = req.nextUrl.pathname.startsWith('/admin')
 
