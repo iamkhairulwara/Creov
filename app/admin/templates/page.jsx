@@ -22,6 +22,56 @@ const templateCategoryOptions = [
   { value: 'e-commerce', label: 'E-Commerce', icon: <ShoppingCartIcon /> }
 ]
 
+const DEFAULT_CONTENT = {
+  name: 'Sarah Johnson',
+  role: 'Creative Developer',
+  bio: 'I create beautiful websites.',
+  email: 'sarah@example.com'
+}
+
+function forceFillContent(html) {
+  if (!html) return ''
+
+  let filled = html
+
+  filled = filled.replace(/\{\{\s*name\s*\}\}/gi, DEFAULT_CONTENT.name)
+  filled = filled.replace(/\{\{\s*role\s*\}\}/gi, DEFAULT_CONTENT.role)
+  filled = filled.replace(/\{\{\s*bio\s*\}\}/gi, DEFAULT_CONTENT.bio)
+  filled = filled.replace(/\{\{\s*email\s*\}\}/gi, DEFAULT_CONTENT.email)
+  filled = filled.replace(/\{\{\s*title\s*\}\}/gi, 'Demo Title')
+
+  return filled
+}
+
+function createPreviewHtml(template) {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        * {
+          margin:0;
+          padding:0;
+          box-sizing:border-box;
+        }
+
+        body{
+          transform: scale(0.35);
+          transform-origin: top left;
+          width:286%;
+          min-height:286%;
+          overflow:hidden;
+        }
+
+        ${template.css || ''}
+      </style>
+    </head>
+    <body>
+      ${forceFillContent(template.html)}
+    </body>
+    </html>
+  `
+}
 export default function AdminTemplates() {
   const [templates, setTemplates] = useState([])
   const [loading, setLoading] = useState(true)
@@ -348,19 +398,14 @@ export default function AdminTemplates() {
             className="glass-card rounded-2xl border border-white/5 overflow-hidden flex flex-col justify-between group hover:border-cyan-500/20 shadow-xl transition-all duration-500"
           >
             <div className="relative h-44 bg-[#030612]/80 border-b border-white/5 overflow-hidden flex items-center justify-center">
-              {template.thumbnail_url ? (
-                <>
-                  <img src={template.thumbnail_url} alt={template.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#080c1e] via-transparent to-transparent opacity-60" />
-                </>
-              ) : (
-                <div className="text-center p-6 flex flex-col items-center">
-                  <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 mb-2">
-                    <PaletteIcon />
-                  </div>
-                  <p className="text-slate-500 text-xs font-bold uppercase tracking-wider">No Preview Available</p>
-                </div>
-              )}
+              <iframe
+  srcDoc={createPreviewHtml(template)}
+  className="absolute inset-0 w-full h-full border-0 pointer-events-none"
+  sandbox="allow-same-origin allow-scripts"
+  title={template.title}
+/>
+
+<div className="absolute inset-0 bg-gradient-to-t from-[#080c1e] via-transparent to-transparent opacity-60" />
             </div>
 
             <div className="p-5 flex-1 flex flex-col justify-between">

@@ -23,6 +23,9 @@ const RestoreArrIcon = ({className="w-4 h-4"}) => <svg className={className} vie
 const TrashIcon = ({className="w-4 h-4"}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
 const SparklesIcon = ({className="w-4 h-4"}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
 
+// Link Icon
+const LinkIcon = ({className="w-4 h-4"}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+
 // Editor Interface Icons
 const s = { width: 14, height: 14, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }
 const UndoIcon = () => <svg {...s}><path d="M3 7v6h6"/><path d="M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13"/></svg>
@@ -94,6 +97,16 @@ export default function GrapesEditor({
   const [previewHtml, setPreviewHtml] = useState(null)
   const [showPreview, setShowPreview] = useState(false)
   const [suggestionIndex, setSuggestionIndex] = useState(0)
+  const [showButtonEditor, setShowButtonEditor] = useState(false)
+  const [selectedButton, setSelectedButton] = useState(null)
+  const [buttonText, setButtonText] = useState('')
+  const [buttonLink, setButtonLink] = useState('https://example.com')
+  const [buttonNewTab, setButtonNewTab] = useState(true)
+  const [selectedMap, setSelectedMap] = useState(null)
+const [mapLocation, setMapLocation] = useState('')
+const [mapHeight, setMapHeight] = useState('400')
+const [showMapEditor, setShowMapEditor] = useState(false) 
+
 
   const allQuickActions = [
     { icon: <ZapIcon className="w-3 h-3" />, label: 'Modern Hero', prompt: 'Completely redesign this as a stunning modern hero section with gradient background, large bold heading, descriptive subheading, two CTA buttons, and floating decorative elements. Use modern colors and smooth animations.' },
@@ -103,7 +116,10 @@ export default function GrapesEditor({
     { icon: <DiamondIcon className="w-3 h-3" />, label: 'Neumorphism', prompt: 'Apply neumorphism design: soft shadows, matching background colors, subtle inset/outset effects, and clean minimalist typography.' },
     { icon: <TargetIcon className="w-3 h-3" />, label: 'Bold & Vibrant', prompt: 'Create a bold, vibrant design with eye-catching gradient colors, large typography, dramatic shadows, and energetic hover animations. Make it stand out.' },
     { icon: <BoxIcon className="w-3 h-3" />, label: 'Cyberpunk', prompt: 'Apply a neon cyberpunk aesthetic with dark backgrounds, glowing pink/cyan borders, glowing text, and futuristic styling.' },
-    { icon: <LeafIcon className="w-3 h-3" />, label: 'Eco Minimal', prompt: 'Redesign with a clean eco-friendly minimalist style. Use soft greens, lots of whitespace, rounded organic shapes, and a very calm vibe.' }
+    { icon: <LeafIcon className="w-3 h-3" />, label: 'Eco Minimal', prompt: 'Redesign with a clean eco-friendly minimalist style. Use soft greens, lots of whitespace, rounded organic shapes, and a very calm vibe.' },
+    // New Link-related quick actions
+    { icon: <LinkIcon className="w-3 h-3" />, label: 'Stylish Links', prompt: 'Redesign all links with modern styling: gradient underline on hover, smooth color transitions, and a subtle scale effect. Make them stand out without being overwhelming.' },
+    { icon: <LinkIcon className="w-3 h-3" />, label: 'Button Links', prompt: 'Convert text links into prominent button-style links with pill shapes, gradient backgrounds, shadow effects, and hover animations. Make them look like clickable CTAs.' },
   ]
 
   useEffect(() => {
@@ -169,6 +185,59 @@ export default function GrapesEditor({
       .replace(/\son\w+\s*=\s*["'][^"']*["']/gi, '')
       .trim()
   }
+
+  // ============================================
+  // BUTTON SETTINGS SAVE HANDLER
+  // ============================================
+  function applyButtonChanges() {
+    if (!selectedButton || !gjsRef.current) return
+
+    const nextText = buttonText.trim() || 'Button'
+    const nextHref = buttonLink.trim() || '#'
+    const nextTarget = buttonNewTab ? '_blank' : '_self'
+
+    const currentTag = selectedButton.get('tagName')?.toLowerCase()
+    if (currentTag === 'button') {
+      selectedButton.set('tagName', 'a')
+      selectedButton.set('type', 'link')
+    }
+
+    selectedButton.components(nextText)
+    selectedButton.addAttributes({
+      href: nextHref,
+      target: nextTarget,
+      role: 'button'
+    })
+
+    selectedButton.set('droppable', false)
+    selectedButton.set('draggable', true)
+    gjsRef.current.refresh()
+  }
+ function applyMapChanges() {
+  if (!selectedMap || !gjsRef.current) return
+
+  const trimmedLocation = mapLocation.trim() || 'Lahore, Pakistan'
+  const trimmedHeight = mapHeight.trim() || '400'
+
+  // Update location attribute - triggers updateMap via trait
+  selectedMap.addAttributes({
+    location: trimmedLocation
+  })
+
+  // Update height
+  selectedMap.setStyle({
+    ...(selectedMap.getStyle?.() || {}),
+    height: `${trimmedHeight}px`
+  })
+
+  gjsRef.current.refresh()
+  if (gjsRef.current.getCanvas && gjsRef.current.getCanvas().render) {
+    gjsRef.current.getCanvas().render()
+  }
+
+  setShowMapEditor(false)
+  showToast(`<svg style="display:inline-block;width:16px;height:16px;margin-right:6px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Map updated to "${trimmedLocation}"`)
+}
 
   // ============================================
   // ENHANCE HTML WITH BETTER STYLES
@@ -289,31 +358,64 @@ export default function GrapesEditor({
     }, 300)
   }, [])
 
-  // ============================================
-  // SAFE COMPONENT REPLACER - FIXED VERSION
-  // ============================================
- function safeReplaceComponent(component, newHtml) {
-  try {
-    if (!component || !newHtml) return false
-    
-    const cleanHtml = sanitizeAiHtml(newHtml)
-    if (!cleanHtml) return false
-    
-    // Replace the component content
-    component.components('')
-    component.components(cleanHtml)
-    
-    // Simple refresh - this is all that's needed
-    setTimeout(() => {
-      if (gjsRef.current?.refresh) gjsRef.current.refresh()
-    }, 50)
-    
-    return true
-  } catch (err) {
-    console.error('Failed to replace component:', err)
-    return false
+ 
+  // SAFE COMPONENT REPLACER 
+  
+  function safeReplaceComponent(component, newHtml) {
+    try {
+      if (!component || !newHtml) return false
+
+      const cleanHtml = sanitizeAiHtml(newHtml)
+      if (!cleanHtml) return false
+
+      const previousStyle = component.getStyle?.() || {}
+      const previousAttributes = component.getAttributes?.() || {}
+      const previousClasses = component.get('classes')?.models?.map(c => c.get('name')) || []
+
+      const replacementResult = component.replaceWith(cleanHtml)
+      const newComponent = replacementResult?.[0] || null
+
+      if (newComponent) {
+        const mergedStyle = {
+          ...(newComponent.getStyle?.() || {}),
+          ...previousStyle,
+        }
+        newComponent.setStyle(mergedStyle)
+
+        if (previousClasses.length) {
+          newComponent.addClass(previousClasses)
+        }
+
+        const safeAttrs = { ...previousAttributes }
+        delete safeAttrs.class
+        delete safeAttrs.style
+        if (Object.keys(safeAttrs).length) {
+          newComponent.addAttributes(safeAttrs)
+        }
+
+        setSelectedComponent(newComponent)
+        setEditingComponentInfo({
+          tagName: newComponent.get('tagName')?.toLowerCase() || 'component',
+          classes: newComponent.get('classes')?.models?.map(c => c.get('name')) || []
+        })
+
+        if (gjsRef.current?.select) {
+          gjsRef.current.select(newComponent)
+        }
+      }
+
+      setTimeout(() => {
+        if (gjsRef.current?.refresh) gjsRef.current.refresh()
+        if (gjsRef.current?.getCanvas?.().render) gjsRef.current.getCanvas().render()
+      }, 50)
+
+      return !!newComponent
+    } catch (err) {
+      console.error('Failed to replace component:', err)
+      return false
+    }
   }
-}
+
   // Editor initialization effect
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -370,7 +472,67 @@ export default function GrapesEditor({
           }
         }
       })
+editor.DomComponents.addType('google-map', {
+  isComponent(el) {
+    if (el.classList && el.classList.contains('map-component')) {
+      return { type: 'google-map' }
+    }
+  },
 
+  model: {
+    defaults: {
+      tagName: 'div',
+
+      attributes: {
+        class: 'map-component',
+        location: 'Lahore, Pakistan'
+      },
+
+      traits: [
+        {
+          type: 'text',
+          name: 'location',
+          label: 'Location'
+        }
+      ],
+
+    components: [
+  {
+    tagName: 'iframe',
+
+    selectable: false,
+    draggable: false,
+    hoverable: false,
+
+    attributes: {
+      src: 'https://www.google.com/maps?q=Lahore,Pakistan&output=embed',
+      width: '100%',
+      height: '400',
+      loading: 'lazy',
+      allowfullscreen: true,
+      style: 'border:0;border-radius:12px;pointer-events:none;'
+    }
+  }
+]},
+   
+    init() {
+      this.on('change:attributes:location', this.updateMap)
+    },
+
+    
+    updateMap() {
+      const location = this.getAttributes().location || 'Lahore, Pakistan'
+
+      const iframe = this.components().at(0)
+
+      if (iframe) {
+        iframe.addAttributes({
+          src: `https://www.google.com/maps?q=${encodeURIComponent(location)}&output=embed`
+        })
+      }
+    }
+  }
+})
       editor.on('load', () => {
         // Add default base styles to ensure visibility
         const defaultStyles = `
@@ -403,6 +565,9 @@ export default function GrapesEditor({
             margin-top: 0;
             margin-bottom: 1rem;
           }
+          a {
+            transition: all 0.3s ease;
+          }
           @keyframes fadeInUp {
             from {
               opacity: 0;
@@ -429,8 +594,8 @@ export default function GrapesEditor({
     <h1 style="font-size: 4rem; margin-bottom: 20px; font-weight: 800; animation: fadeInUp 0.6s ease-out;">Welcome to Aurora Bistro</h1>
     <p style="font-size: 1.3rem; margin-bottom: 30px; opacity: 0.95; line-height: 1.6;">Experience culinary excellence where passion meets plate. Savor exquisite flavors and unforgettable moments.</p>
     <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
-      <button style="padding: 14px 32px; background: white; color: #667eea; border: none; border-radius: 50px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s ease;">View Our Menu</button>
-      <button style="padding: 14px 32px; background: transparent; color: white; border: 2px solid white; border-radius: 50px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s ease;">Reserve a Table</button>
+      <a href="#" style="display: inline-block; padding: 14px 32px; background: white; color: #667eea; border: none; border-radius: 50px; font-weight: 600; font-size: 1rem; text-decoration: none; cursor: pointer; transition: all 0.3s ease;">View Our Menu</a>
+      <a href="#" style="display: inline-block; padding: 14px 32px; background: transparent; color: white; border: 2px solid white; border-radius: 50px; font-weight: 600; font-size: 1rem; text-decoration: none; cursor: pointer; transition: all 0.3s ease;">Reserve a Table</a>
     </div>
   </div>
 </section>`
@@ -461,30 +626,7 @@ export default function GrapesEditor({
         const bm = editor.BlockManager
         bm.getAll().reset()
 
-        bm.add('navbar', {
-          label: 'Navbar', category: 'Layout',
-          content: `<nav style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); box-shadow: 0 2px 20px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000;">
-  <div style="font-size: 1.5rem; font-weight: bold; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Aurora</div>
-  <div style="display: flex; gap: 2rem;">
-    <a href="#" style="text-decoration: none; color: #333; font-weight: 500; transition: color 0.3s;">Home</a>
-    <a href="#" style="text-decoration: none; color: #333; font-weight: 500; transition: color 0.3s;">Menu</a>
-    <a href="#" style="text-decoration: none; color: #333; font-weight: 500; transition: color 0.3s;">About</a>
-    <a href="#" style="text-decoration: none; color: #333; font-weight: 500; transition: color 0.3s;">Contact</a>
-  </div>
-</nav>`,
-          media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>`,
-        })
-        bm.add('hero', {
-          label: 'Hero Section', category: 'Layout',
-          content: `<section style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 120px 40px; color: white; text-align: center;">
-  <div style="max-width: 800px; margin: 0 auto;">
-    <h1 style="font-size: 3.5rem; margin-bottom: 20px; font-weight: 800;">Amazing Hero Title</h1>
-    <p style="font-size: 1.2rem; margin-bottom: 30px;">Compelling description that captures attention</p>
-    <button style="padding: 14px 32px; background: white; color: #667eea; border: none; border-radius: 50px; font-weight: 600; cursor: pointer;">Get Started</button>
-  </div>
-</section>`,
-          media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>`,
-        })
+       
         bm.add('text', {
           label: 'Text', category: 'Basic',
           content: '<div style="padding: 10px; font-family: inherit;">Insert your text here</div>',
@@ -502,14 +644,69 @@ export default function GrapesEditor({
         })
         bm.add('button', {
           label: 'Button', category: 'Basic',
-          content: '<button style="padding: 12px 24px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Button</button>',
-          media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="8" width="16" height="8" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/></svg>`,
+          content: `<a href="https://example.com" target="_blank" style="display:inline-block; padding:12px 24px; background-color:#667eea; color:white; text-decoration:none; border-radius:8px; cursor:pointer; font-weight:600;">Button</a>`,
+          media: `<svg vi
+          ewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="8" width="16" height="8" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/></svg>`,
         })
         bm.add('columns-2', {
           label: '2 Cols', category: 'Layout',
           content: `<section style="padding:60px 20px;"><div style="display:flex; flex-wrap:wrap; gap:30px; max-width:1200px; margin:0 auto;"><div style="flex:1; min-width:250px; padding:30px; background:#f9f9f9; border-radius:16px;">Column 1</div><div style="flex:1; min-width:250px; padding:30px; background:#f9f9f9; border-radius:16px;">Column 2</div></div></section>`,
           media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="9" height="18" rx="1"/><rect x="13" y="3" width="9" height="18" rx="1"/></svg>`,
         })
+
+        // NEW: Link blocks
+        bm.add('link', {
+          label: 'Link', 
+          category: 'Basic',
+          content: `<a href="#" style="color: #667eea; text-decoration: none; font-weight: 500; transition: color 0.3s; cursor: pointer;">Link Text</a>`,
+          media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`,
+        })
+        
+        bm.add('button-link', {
+          label: 'Button Link', 
+          category: 'Basic',
+          content: `<a href="https://example.com" target="_blank" style="display: inline-block; padding: 12px 32px; background-color: #667eea; color: white; text-decoration: none; border-radius: 50px; font-weight: 600; transition: all 0.3s ease; cursor: pointer;">Button Link</a>`,
+          media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="8" width="16" height="8" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`,
+        })
+        bm.add('google-map', {
+  label: 'Map',
+  category: 'Basic',
+
+  content: {
+    type: 'google-map'
+  },
+   media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Map outline -->
+    <path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/>
+    <!-- Vertical lines on map -->
+    <line x1="8" y1="2" x2="8" y2="18"/>
+    <line x1="16" y1="6" x2="16" y2="22"/>
+    <!-- Location pin on map -->
+    <circle cx="12" cy="11" r="2" fill="currentColor"/>
+  </svg>`,
+})
+
+        // Add link traits
+        const linkType = editor.DomComponents.getType('link')
+        if (linkType) {
+          linkType.model.prototype.defaults.traits = [
+            {
+              type: 'text',
+              label: 'URL',
+              name: 'href',
+              placeholder: 'https://example.com',
+            },
+            {
+              type: 'select',
+              label: 'Target',
+              name: 'target',
+              options: [
+                { value: '_self', name: 'Same Window' },
+                { value: '_blank', name: 'New Window' },
+              ],
+            },
+          ]
+        }
 
         const sm = editor.StyleManager
         sm.addSector('colors', {
@@ -526,6 +723,30 @@ export default function GrapesEditor({
             { property: 'font-family', type: 'select', options: [{ value: 'Inter, sans-serif', name: 'Inter' }, { value: 'Arial, sans-serif', name: 'Arial' }, { value: 'Georgia, serif', name: 'Georgia' }] },
             { property: 'font-size', type: 'integer', units: ['px', 'em', 'rem'] },
             { property: 'font-weight', type: 'select', options: [{ value: '300', name: 'Light' }, { value: '400', name: 'Regular' }, { value: '600', name: 'Semi Bold' }, { value: '700', name: 'Bold' }, { value: '800', name: 'Extra Bold' }] },
+          ],
+        })
+        // Add link styles sector
+        sm.addSector('link-styles', {
+          name: 'Link Styles', 
+          open: false,
+          properties: [
+            { 
+              property: 'text-decoration', 
+              type: 'select', 
+              options: [
+                { value: 'none', name: 'None' },
+                { value: 'underline', name: 'Underline' },
+                { value: 'line-through', name: 'Line Through' },
+              ] 
+            },
+            { 
+              property: 'cursor', 
+              type: 'select', 
+              options: [
+                { value: 'pointer', name: 'Pointer' },
+                { value: 'default', name: 'Default' },
+              ] 
+            },
           ],
         })
       })
@@ -557,54 +778,109 @@ export default function GrapesEditor({
       })
 
       // ============================================
-      // UPDATED COMPONENT SELECTION HANDLER
+      // UPDATED COMPONENT SELECTION HANDLER WITH LINK SUPPORT
       // ============================================
-      editor.on('component:selected', (component) => {
-        // Find the best editable component (navbar, section, etc.)
-        const editableComponent = getBestEditableComponent(component)
-        setSelectedComponent(editableComponent)
-        
-        // Store info about what's being edited
-        const tagName = editableComponent?.get('tagName')?.toLowerCase() || 'component'
-        const classes = editableComponent?.get('classes')?.models?.map(c => c.get('name')) || []
-        setEditingComponentInfo({ tagName, classes })
-        
-        console.log(`📝 Editing: <${tagName}>`, classes)
-        
-        // Visual feedback - briefly highlight the component being edited
-        if (editableComponent && editableComponent !== component) {
-          const originalOutline = editableComponent.getStyle()?.outline
-          editableComponent.setStyle({ outline: '2px solid #8b5cf6', outlineOffset: '2px' })
-          setTimeout(() => {
-            if (editableComponent) {
-              if (originalOutline) {
-                editableComponent.setStyle({ outline: originalOutline })
-              } else {
-                const style = editableComponent.getStyle()
-                delete style.outline
-                delete style.outlineOffset
-                editableComponent.setStyle(style)
-              }
-            }
-          }, 1500)
-        }
+     editor.on('component:selected', (component) => {
+  // ============================================
+  // MAP DETECTION - MUST RUN FIRST
+  // ============================================
+  const componentType = component?.get('type')?.toLowerCase() || ''
+  const componentClasses = component?.get('classes')?.models?.map(c => c.get('name')) || []
+  const isMap = componentType === 'google-map' || componentClasses.includes('map-component')
+  console.log("Selected Type:", component.get('type'))
+console.log("Selected Tag:", component.get('tagName'))
+console.log(component)
+  if (isMap) {
+    console.log("🎯 Map Selected!")
+    setSelectedMap(component)
+    setSelectedComponent(component)
+    
+    const attrs = component.getAttributes()
+    const location = attrs.location || 'Lahore, Pakistan'
+    setMapLocation(location)
+    
+    const style = component.getStyle?.() || {}
+    const height = (style.height || '400px').toString().replace('px', '')
+    setMapHeight(height || '400')
+    
+    setShowMapEditor(true)
+    setShowButtonEditor(false)
+    setSelectedButton(null)
+    setEditingComponentInfo({ tagName: 'map', classes: ['map-component'] })
+    return // CRITICAL: Stop further processing
+  }
+  
+  // ============================================
+  // NON-MAP COMPONENTS - NORMAL PROCESSING
+  // ============================================
+  setShowMapEditor(false)
+  setSelectedMap(null)
+  
+  const editableComponent = getBestEditableComponent(component)
+  setSelectedComponent(editableComponent)
 
-        // Image toolbar handling
-        if (component?.get('type') !== 'image') return
-        const toolbar = component.get('toolbar') || []
-        if (!toolbar.find(t => t.command === 'upload-image')) {
-          toolbar.unshift({
-            attributes: { title: 'Change image' },
-            command: 'upload-image',
-            label: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>`,
-          })
-          component.set('toolbar', toolbar)
+  const tagName = editableComponent?.get('tagName')?.toLowerCase() || 'component'
+  const attrs = editableComponent?.getAttributes() || {}
+  const classes = editableComponent?.get('classes')?.models?.map(c => c.get('name')) || []
+  setEditingComponentInfo({ tagName, classes })
+
+  console.log(`📝 Editing: <${tagName}>`, classes)
+
+  // Highlight effect
+  if (editableComponent && editableComponent !== component) {
+    const originalOutline = editableComponent.getStyle()?.outline
+    editableComponent.setStyle({ outline: '2px solid #8b5cf6', outlineOffset: '2px' })
+    setTimeout(() => {
+      if (editableComponent) {
+        if (originalOutline) {
+          editableComponent.setStyle({ outline: originalOutline })
+        } else {
+          const style = editableComponent.getStyle()
+          delete style.outline
+          delete style.outlineOffset
+          editableComponent.setStyle(style)
         }
+      }
+    }, 1500)
+  }
+
+  // Button detection
+  const selectedTag = component?.get('tagName')?.toLowerCase()
+  const isButtonLike = selectedTag === 'button' || selectedTag === 'a' || component?.get('type') === 'link'
+
+  if (isButtonLike) {
+    const attrs = component.getAttributes()
+    setSelectedButton(component)
+    setButtonText(component.get('content')?.trim() || component.view?.el?.textContent?.trim() || 'Button')
+    setButtonLink(attrs.href || 'https://example.com')
+    setButtonNewTab(attrs.target === '_blank')
+    setShowButtonEditor(true)
+  } else {
+    setSelectedButton(null)
+    setShowButtonEditor(false)
+  }
+
+  // Image toolbar
+  if (component?.get('type') === 'image') {
+    const toolbar = component.get('toolbar') || []
+    if (!toolbar.find(t => t.command === 'upload-image')) {
+      toolbar.unshift({
+        attributes: { title: 'Change image' },
+        command: 'upload-image',
+        label: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>`,
       })
+      component.set('toolbar', toolbar)
+    }
+  }
+})
 
       editor.on('component:deselected', () => {
         setSelectedComponent(null)
         setEditingComponentInfo(null)
+        setSelectedButton(null)
+        setShowButtonEditor(false)
+         setSelectedMap(null)     // Clear map selection
+  setShowMapEditor(false)  // Close map editor
       })
 
       gjsRef.current = editor
@@ -1200,23 +1476,7 @@ Return ONLY the redesigned HTML now:`.trim()
           </div>
         </div>
 
-        <div
-          className="flex items-center rounded-xl p-1 gap-0.5"
-          style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${BORDER}` }}>
-          {devices.map(d => (
-            <button
-              key={d}
-              onClick={() => switchDevice(d)}
-              title={d}
-              className="flex items-center justify-center w-8 h-7 rounded-lg transition-all text-sm"
-              style={activeDevice === d
-                ? { background: CYAN_DIM, color: CYAN }
-                : { color: TEXT_MUTED }}>
-              {d === 'Desktop' ? <DesktopIcon /> : d === 'Tablet' ? <TabletIcon /> : <MobileIcon />}
-            </button>
-          ))}
-        </div>
-
+        
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowVersionHistory(true)}
@@ -1254,9 +1514,7 @@ Return ONLY the redesigned HTML now:`.trim()
             <EyeIcon /> Preview
           </button>
 
-          <IconBtn onClick={() => setIsFullscreen(f => !f)} title="Fullscreen">
-            {isFullscreen ? <ExitFullscreenIcon /> : <FullscreenIcon />}
-          </IconBtn>
+         
 
           <button
             onClick={() => {
@@ -1323,6 +1581,101 @@ Return ONLY the redesigned HTML now:`.trim()
         {/* Canvas */}
         <div ref={editorRef} className="flex-1 min-h-0" />
 
+        {/* Button Settings Sidebar */}
+        {showButtonEditor && !showMapEditor && !isChatOpen && !showVersionHistory && (
+
+          <div
+            className="flex flex-col shrink-0 border-l relative z-10"
+            style={{ width: 400, background: SIDEBAR_BG, borderColor: BORDER, boxShadow: '-10px 0 30px rgba(0,0,0,0.3)' }}>
+            <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: BORDER }}>
+              <div>
+                <h3 className="text-white font-semibold text-sm">Button Settings</h3>
+                <p className="text-xs" style={{ color: TEXT_MUTED }}>Edit the selected button link and label</p>
+              </div>
+              <button onClick={() => setShowButtonEditor(false)} className="p-1 rounded-lg transition-all" style={{ color: TEXT_MUTED }}>
+                <CloseIcon />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              <div>
+                <label className="text-xs font-medium" style={{ color: TEXT_SECONDARY }}>Button Text</label>
+                <input
+                  value={buttonText}
+                  onChange={(e) => setButtonText(e.target.value)}
+                  className="w-full mt-2 rounded-xl p-3 text-sm transition-all focus:ring-1 focus:ring-cyan-500/50"
+                  style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${BORDER}`, color: 'white', outline: 'none' }}
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium" style={{ color: TEXT_SECONDARY }}>Button Link</label>
+                <input
+                  value={buttonLink}
+                  onChange={(e) => setButtonLink(e.target.value)}
+                  placeholder="https://example.com"
+                  className="w-full mt-2 rounded-xl p-3 text-sm transition-all focus:ring-1 focus:ring-cyan-500/50"
+                  style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${BORDER}`, color: 'white', outline: 'none' }}
+                />
+              </div>
+              <label className="flex items-center gap-3 rounded-xl px-3 py-2 border text-sm cursor-pointer" style={{ background: 'rgba(255,255,255,0.03)', borderColor: BORDER, color: 'white' }}>
+                <input type="checkbox" checked={buttonNewTab} onChange={(e) => setButtonNewTab(e.target.checked)} className="h-4 w-4" />
+                <span>Open in New Tab</span>
+              </label>
+              <button onClick={applyButtonChanges} className="w-full py-3 rounded-xl text-sm font-bold uppercase tracking-wider text-white transition-all hover:scale-[1.01]" style={{ background: 'linear-gradient(135deg, #06b6d4, #0284c7)', boxShadow: '0 0 18px rgba(6,182,212,0.25)' }}>
+                Apply Changes
+              </button>
+            </div>
+          </div>
+        )}
+{/* Map Settings Sidebar */}
+{showMapEditor && !isChatOpen && !showVersionHistory && (
+  <div
+    className="flex flex-col shrink-0 border-l relative z-10"
+    style={{ width: 400, background: SIDEBAR_BG, borderColor: BORDER, boxShadow: '-10px 0 30px rgba(0,0,0,0.3)' }}>
+    <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: BORDER }}>
+      <div>
+        <h3 className="text-white font-semibold text-sm">Map Settings</h3>
+        <p className="text-xs" style={{ color: TEXT_MUTED }}>Set the location shown on this map</p>
+      </div>
+      <button onClick={() => setShowMapEditor(false)} className="p-1 rounded-lg transition-all" style={{ color: TEXT_MUTED }}>
+        <CloseIcon />
+      </button>
+    </div>
+    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div>
+        <label className="text-xs font-medium" style={{ color: TEXT_SECONDARY }}>Location</label>
+        <input
+          value={mapLocation}
+          onChange={(e) => setMapLocation(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') applyMapChanges() }}
+          placeholder="e.g. Lahore, Pakistan or an address"
+          className="w-full mt-2 rounded-xl p-3 text-sm transition-all focus:ring-1 focus:ring-cyan-500/50"
+          style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${BORDER}`, color: 'white', outline: 'none' }}
+          autoFocus
+        />
+        <p className="text-[11px] mt-2 font-light" style={{ color: TEXT_MUTED }}>
+          Type a city, address, or landmark. It's passed straight to Google Maps search.
+        </p>
+      </div>
+      <div>
+        <label className="text-xs font-medium" style={{ color: TEXT_SECONDARY }}>Map Height (px)</label>
+        <input
+          value={mapHeight}
+          onChange={(e) => setMapHeight(e.target.value.replace(/[^0-9]/g, ''))}
+          placeholder="400"
+          className="w-full mt-2 rounded-xl p-3 text-sm transition-all focus:ring-1 focus:ring-cyan-500/50"
+          style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${BORDER}`, color: 'white', outline: 'none' }}
+        />
+      </div>
+      <button 
+        onClick={applyMapChanges} 
+        disabled={!mapLocation.trim()} 
+        className="w-full py-3 rounded-xl text-sm font-bold uppercase tracking-wider text-white transition-all hover:scale-[1.01] disabled:opacity-50 disabled:hover:scale-100" 
+        style={{ background: 'linear-gradient(135deg, #06b6d4, #0284c7)', boxShadow: '0 0 18px rgba(6,182,212,0.25)' }}>
+        Update Map
+      </button>
+    </div>
+  </div>
+)}
         {/* Version History Sidebar */}
         {showVersionHistory && !isChatOpen && (
           <div
@@ -1653,8 +2006,6 @@ function IconBtn({ onClick, title, children }) {
   )
 }
 
-
-
 function SparkleIcon({ size = 14 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1717,5 +2068,4 @@ function DeleteIcon() {
       <path d="M6 6l12 12"/>
     </svg>
   )
-}
-}
+}}
