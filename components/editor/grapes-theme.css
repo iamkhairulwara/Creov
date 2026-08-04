@@ -16,6 +16,192 @@
   margin: 0 !important;
   padding: 0 !important;
 }
+/* =========================
+   INPUTS
+========================= */
+
+.gjs-sm-sector input,
+.gjs-sm-sector select,
+.gjs-sm-sector textarea{
+    background:#111827 !important;
+    border:1px solid #273449 !important;
+    color:#fff !important;
+
+    height:38px;
+    border-radius:10px;
+
+    padding:0 12px;
+
+    font-size:13px;
+
+    transition:.2s;
+}
+
+.gjs-sm-sector input:hover,
+.gjs-sm-sector select:hover{
+    border-color:#06b6d4 !important;
+}
+
+.gjs-sm-sector input:focus,
+.gjs-sm-sector select:focus{
+    outline:none;
+    border-color:#06b6d4 !important;
+
+    box-shadow:0 0 0 2px rgba(6,182,212,.18);
+}
+.gjs-sm-label{
+
+    color:#9ca3af !important;
+
+    font-size:11px;
+
+    font-weight:600;
+
+    letter-spacing:.08em;
+
+    text-transform:uppercase;
+
+}
+.gjs-sm-sector{
+
+    background:#0f172a !important;
+
+    border:1px solid #1e293b !important;
+
+    border-radius:12px;
+
+    margin-bottom:12px;
+
+    overflow:hidden;
+
+}
+.gjs-sm-sector-title{
+
+    background:#111827 !important;
+
+    color:white !important;
+
+    font-weight:600;
+
+    padding:14px 18px;
+
+    border-bottom:1px solid #1e293b;
+
+}
+.gjs-sm-properties{
+
+    padding:16px !important;
+
+}
+.gjs-field-color{
+
+    border-radius:10px !important;
+
+    overflow:hidden;
+
+}
+.gjs-sm-btn{
+
+    background:#111827 !important;
+
+    border:1px solid #273449 !important;
+
+    color:white !important;
+
+    border-radius:10px;
+
+}
+
+.gjs-sm-btn:hover{
+
+    background:#172033 !important;
+
+}
+.gjs-field-units{
+
+    background:#111827 !important;
+
+}
+
+.gjs-field-unit{
+
+    color:#94a3b8 !important;
+
+}
+
+.gjs-field select{
+
+    appearance:none;
+
+    -webkit-appearance:none;
+
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' fill='white'%3E%3Cpath d='M4 7l5 5 5-5'/%3E%3C/svg%3E");
+
+    background-repeat:no-repeat;
+
+    background-position:right 12px center;
+
+    padding-right:40px;
+
+}
+/* ===========================================
+   PROPERTY ROWS
+=========================================== */
+
+.gjs-sm-property {
+    padding: 12px 16px !important;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    transition: all .2s ease;
+}
+
+.gjs-sm-property:last-child {
+    border-bottom: none;
+}
+
+.gjs-sm-property:hover {
+    background: rgba(255,255,255,0.03);
+}
+/* ===========================================
+   LABEL + INPUT LAYOUT
+=========================================== */
+
+.gjs-sm-property__label {
+    margin-bottom: 8px;
+}
+
+.gjs-sm-label {
+    color: #94a3b8 !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.gjs-sm-property__value {
+    width: 100%;
+}
+.gjs-sm-sector-title {
+    transition: background .2s ease;
+    cursor: pointer;
+}
+
+.gjs-sm-sector-title:hover {
+    background: #172033 !important;
+}
+.gjs-field-color {
+    border-radius: 10px !important;
+    overflow: hidden;
+    height: 38px;
+}
+
+.gjs-field-color input {
+    cursor: pointer;
+}
+.gjs-sm-sector,
+.gjs-sm-property,
+.gjs-field {
+    transition: all .2s ease;
+}
 
 /* Fix device toggle - allow iframe width changes */
 /* Fix text cutting off when changing devices */
@@ -37,6 +223,7 @@
   height: 100% !important;
   transition: all 0.3s ease !important;
 }
+
 
 /* Force content to reflow on device change */
 .gjs-frame body {

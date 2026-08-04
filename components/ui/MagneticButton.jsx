@@ -37,16 +37,24 @@ export default function MagneticButton({
 
   if (as === "link") {
     return (
-      <Link href={href || "#"} passHref legacyBehavior>
-        <motion.a
-          {...commonProps}
-          animate={{ x: position.x, y: position.y }}
-          transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }}
-          onClick={onClick}
-        >
-          {children}
-        </motion.a>
-      </Link>
+      <Link
+  href={href || "#"}
+  {...commonProps}
+  onClick={onClick}
+>
+  <motion.span
+    animate={{ x: position.x, y: position.y }}
+    transition={{
+      type: "spring",
+      stiffness: 150,
+      damping: 15,
+      mass: 0.1,
+    }}
+    className="inline-flex items-center justify-center"
+  >
+    {children}
+  </motion.span>
+</Link>
     );
   }
 

@@ -226,13 +226,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <style jsx>{`
-          @keyframes progress {
-            0% { transform: scaleX(0); opacity: 0; }
-            30% { opacity: 1; }
-            100% { transform: scaleX(1); opacity: 0; }
-          }
-        `}</style>
+        
       </section>
 
       {/* ── HOW IT WORKS (The Process) ── */}

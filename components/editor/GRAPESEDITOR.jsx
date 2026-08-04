@@ -472,6 +472,45 @@ const [showMapEditor, setShowMapEditor] = useState(false)
           }
         }
       })
+
+      editor.StyleManager.addSector('image-style', {
+    name: 'Image Shape',
+    open: true,
+    properties: [
+        {
+            name: 'Shape',
+            property: 'border-radius',
+            type: 'select',
+            defaults: '0px',
+            options: [
+                {
+                    id: '0px',
+                    label: 'Square'
+                },
+                {
+                    id: '20px',
+                    label: 'Rounded'
+                },
+                {
+                    id: '50%',
+                    label: 'Circle'
+                }
+            ]
+        }
+    ]
+});
+
+editor.on('component:selected', component => {
+
+    const type = component.get('type');
+
+    if(type === 'image'){
+
+        editor.StyleManager.select('image-style');
+
+    }
+
+});
 editor.DomComponents.addType('google-map', {
   isComponent(el) {
     if (el.classList && el.classList.contains('map-component')) {
@@ -816,7 +855,7 @@ console.log(component)
   setShowMapEditor(false)
   setSelectedMap(null)
   
-  const editableComponent = getBestEditableComponent(component)
+const editableComponent = component
   setSelectedComponent(editableComponent)
 
   const tagName = editableComponent?.get('tagName')?.toLowerCase() || 'component'
@@ -1573,6 +1612,7 @@ Return ONLY the redesigned HTML now:`.trim()
           <div className="flex-1 overflow-y-auto min-h-0">
             <div id="gjs-blocks" style={{ display: activePanel === 'blocks' ? 'block' : 'none' }} />
             <div id="gjs-styles" style={{ display: activePanel === 'styles' ? 'block' : 'none' }} />
+            
             <div id="gjs-layers" style={{ display: activePanel === 'layers' ? 'block' : 'none', padding: '8px' }} />
             <div id="gjs-traits" style={{ display: activePanel === 'traits' ? 'block' : 'none' }} />
           </div>
