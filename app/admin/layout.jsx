@@ -113,6 +113,10 @@ export default function AdminLayout({ children }) {
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></svg>
               Submissions
             </Link>
+            <Link href="/admin/messages" className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all duration-300 ${isActive('/admin/messages') ? 'bg-cyan-500/10 border-l-2 border-cyan-400 text-cyan-400 font-bold' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9.5C2 7 4 5 6.5 5H18c2.2 0 4 1.8 4 4v8Z"/><polyline points="15,9 18,9 18,11"/><path d="M6.5 5C9 5 11 7 11 9.5V17a2 2 0 0 1-2 2v0"/><line x1="6" y1="10" x2="7" y2="10"/></svg>
+              Messages
+            </Link>
             <Link href="/admin/users" className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all duration-300 ${isActive('/admin/users') ? 'bg-cyan-500/10 border-l-2 border-cyan-400 text-cyan-400 font-bold' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
               Users
@@ -160,7 +164,7 @@ export default function AdminLayout({ children }) {
             </div>
           </div>
 
-          <Link href="/generate" className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-cyan-500/30 text-xs font-semibold text-slate-300 hover:text-white transition-all duration-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.1)]">
+          <Link href="/" className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-cyan-500/30 text-xs font-semibold text-slate-300 hover:text-white transition-all duration-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.1)]">
             <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m12 19-7-7 7-7M5 12h14" /></svg>
             Return to App
           </Link>
