@@ -1,6 +1,15 @@
 import { validateOutput } from '@/lib/gemini/outputValidator'
 import { supabase } from '@/lib/supabase/client'
 import { callGemini } from '@/lib/gemini/geminiclient'
+import { createClient } from '@supabase/supabase-js'
+
+function getSupabaseAdmin() {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) return null;
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+  )
+}
 
 export async function POST(req) {
   try {
@@ -70,6 +79,30 @@ Return ONLY raw HTML.
         'Validation Error:',
         validationError
       )
+    }
+
+    // Save refinement to history
+    if (websiteId) {
+      try {
+        const adminClient = getSupabaseAdmin();
+        if (adminClient) {
+          const { data } = await adminClient
+            .from('prompts')
+            .select('refined_prompts')
+            .eq('website_id', websiteId)
+            .single();
+
+          if (data) {
+            const currentRefined = Array.isArray(data.refined_prompts) ? data.refined_prompts : [];
+            await adminClient
+              .from('prompts')
+              .update({ refined_prompts: [...currentRefined, refinement] })
+              .eq('website_id', websiteId);
+          }
+        }
+      } catch (dbError) {
+        console.error('Failed to save refinement to db:', dbError.message);
+      }
     }
 
     return Response.json({
