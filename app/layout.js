@@ -15,6 +15,9 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata = {
   title: "Creov",
   description: "AI Powered Website Builder",
+  icons: {
+    icon: '/favicon.svg',
+  }
 };
 
 

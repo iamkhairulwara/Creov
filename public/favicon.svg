@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 143 143" width="512" height="512">
+  <defs>
+    <!-- background diagonal gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#070b16"/>
+      <stop offset="45%" stop-color="#0b1524"/>
+      <stop offset="100%" stop-color="#241f3f"/>
+    </linearGradient>
+
+    <!-- soft radial glow behind the mark, teal at top-left, purple bottom-right -->
+    <radialGradient id="glowTeal" cx="30%" cy="28%" r="55%">
+      <stop offset="0%" stop-color="#0f3a44" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#0f3a44" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowPurple" cx="72%" cy="78%" r="55%">
+      <stop offset="0%" stop-color="#3a2a63" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#3a2a63" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- C-shape stroke gradient: cyan top -> blue/purple bottom -->
+    <linearGradient id="cGrad" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%"  stop-color="#33B4F5"/>
+      <stop offset="50%" stop-color="#5E79F6"/>
+      <stop offset="100%" stop-color="#A555F3"/>
+    </linearGradient>
+
+    <!-- subtle border stroke for the rounded square -->
+    <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3a4258" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#4a3f66" stop-opacity="0.55"/>
+    </linearGradient>
+
+    <!-- drop shadow for the white glyph -->
+    <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="0.6" stdDeviation="0.8" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- rounded-square app icon backdrop -->
+  <rect x="1" y="1" width="141" height="141" rx="31" ry="31" fill="url(#bgGrad)"/>
+  <rect x="1" y="1" width="141" height="141" rx="31" ry="31" fill="url(#glowTeal)"/>
+  <rect x="1" y="1" width="141" height="141" rx="31" ry="31" fill="url(#glowPurple)"/>
+  <rect x="1" y="1" width="141" height="141" rx="31" ry="31" fill="none" stroke="url(#borderGrad)" stroke-width="1.2"/>
+
+  <!-- C arc -->
+  <path d="M 87.2 47.3
+           A 31 31 0 1 0 87.2 98.7"
+        fill="none"
+        stroke="url(#cGrad)"
+        stroke-width="12.5"
+        stroke-linecap="round"/>
+
+  <!-- arrow / cursor glyph with small cut-out notch -->
+  <path fill-rule="evenodd"
+        fill="#FFFFFF"
+        filter="url(#softShadow)"
+        d="M 83 57
+           L 78 61
+           L 71 72
+           L 71 74
+           L 76 77
+           L 71 84
+           L 73 88
+           L 77 87
+           L 84 76
+           L 92 76
+           L 91 74
+           L 92 69
+           Z
+           M 80 69
+           L 82 67
+           L 83 67
+           L 84 68
+           L 84 69
+           L 83 70
+           L 81 70
+           Z"/>
+
+  <!-- purple dot -->
+  <circle cx="96" cy="73" r="4.6" fill="#A555F3"/>
+</svg>

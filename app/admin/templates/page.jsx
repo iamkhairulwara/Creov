@@ -183,6 +183,13 @@ export default function AdminTemplates() {
   }
 
   const confirmDelete = async (template) => {
+    // Detach any websites that were created from this template
+    await supabase
+      .from('websites')
+      .update({ template_id: null })
+      .eq('template_id', template.id)
+
+    // Now delete the template
     const { error } = await supabase
       .from('templates')
       .delete()
