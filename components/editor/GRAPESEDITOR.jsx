@@ -117,7 +117,7 @@ const [showMapEditor, setShowMapEditor] = useState(false)
     { icon: <TargetIcon className="w-3 h-3" />, label: 'Bold & Vibrant', prompt: 'Create a bold, vibrant design with eye-catching gradient colors, large typography, dramatic shadows, and energetic hover animations. Make it stand out.' },
     { icon: <BoxIcon className="w-3 h-3" />, label: 'Cyberpunk', prompt: 'Apply a neon cyberpunk aesthetic with dark backgrounds, glowing pink/cyan borders, glowing text, and futuristic styling.' },
     { icon: <LeafIcon className="w-3 h-3" />, label: 'Eco Minimal', prompt: 'Redesign with a clean eco-friendly minimalist style. Use soft greens, lots of whitespace, rounded organic shapes, and a very calm vibe.' },
-    // New Link-related quick actions
+    //  Link-related quick actions
     { icon: <LinkIcon className="w-3 h-3" />, label: 'Stylish Links', prompt: 'Redesign all links with modern styling: gradient underline on hover, smooth color transitions, and a subtle scale effect. Make them stand out without being overwhelming.' },
     { icon: <LinkIcon className="w-3 h-3" />, label: 'Button Links', prompt: 'Convert text links into prominent button-style links with pill shapes, gradient backgrounds, shadow effects, and hover animations. Make them look like clickable CTAs.' },
   ]
@@ -654,7 +654,7 @@ editor.DomComponents.addType('google-map', {
           media: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="9" height="18" rx="1"/><rect x="13" y="3" width="9" height="18" rx="1"/></svg>`,
         })
 
-        // NEW: Link blocks
+        // Link blocks
         bm.add('link', {
           label: 'Link', 
           category: 'Basic',
@@ -2069,3 +2069,4 @@ function DeleteIcon() {
     </svg>
   )
 }}
+
