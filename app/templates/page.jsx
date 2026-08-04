@@ -66,7 +66,11 @@ export default function Templates() {
   async function fetchTemplates() {
     const { data, error } = await supabase
       .from('templates')
-      .select('id, title, category, html, css, js')
+      .select(`
+        id, title, category, html, css, js, is_user_submitted,
+        profiles:submitted_by(full_name, email)
+      `)
+      .eq('status', 'approved')
     if (error) console.error('Error fetching templates:', error.message)
     else setTemplates(data || [])
     setLoading(false)
@@ -141,9 +145,10 @@ export default function Templates() {
           <h1 className="text-4xl md:text-6xl font-bold mb-4 tracking-tight font-[family-name:var(--font-space-grotesk)]">
             Choose your <span className="text-cyan-400">Template</span>
           </h1>
-          <p className="text-slate-400 text-lg font-light max-w-xl mx-auto">
+          <p className="text-slate-400 text-lg font-light max-w-xl mx-auto mb-8">
             Kickstart your single-page design with professionally optimized, customizable layouts.
           </p>
+
         </div>
 
         {/* Immersive Category Filter */}
@@ -164,6 +169,35 @@ export default function Templates() {
               </button>
             )
           })}
+        </div>
+
+        {/* Community CTA */}
+        <div className="mb-12 relative rounded-3xl border border-violet-500/20 bg-gradient-to-br from-[#080c1e] to-violet-950/30 p-8 md:p-12 overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 shadow-[0_0_40px_rgba(139,92,246,0.05)] hover:border-violet-500/40 transition-colors duration-500 group">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-violet-500/10 blur-3xl rounded-full" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-cyan-500/10 blur-3xl rounded-full" />
+          
+          <div className="relative z-10 max-w-2xl text-center md:text-left">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-violet-500/30 bg-violet-500/10 mb-4 text-[10px] font-bold text-violet-300 uppercase tracking-widest">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              Developer Access
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight font-[family-name:var(--font-space-grotesk)]">
+              Are you a <span className="text-violet-400">Developer?</span> Showcase Your Skills.
+            </h2>
+            <p className="text-slate-400 text-sm md:text-base leading-relaxed max-w-xl mx-auto md:mx-0">
+              Join the Creov community marketplace. Build custom HTML/CSS layouts, share them with thousands of creators, and get recognized for your work.
+            </p>
+          </div>
+          
+          <div className="relative z-10 shrink-0">
+            <button
+              onClick={() => router.push('/templates/submit')}
+              className="px-8 py-4 rounded-xl text-xs font-bold uppercase tracking-widest text-white bg-violet-600 hover:bg-violet-500 transition-all duration-300 shadow-[0_4px_20px_rgba(139,92,246,0.3)] hover:scale-[1.05] hover:shadow-[0_4px_30px_rgba(139,92,246,0.5)] flex items-center gap-2"
+            >
+              Start Building
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+          </div>
         </div>
 
         {/* Loading skeleton */}
@@ -206,14 +240,19 @@ export default function Templates() {
                         srcDoc={createCompleteHtml(template, true)}
                         className="absolute inset-0 w-full h-full border-0 pointer-events-none scale-[1.01] transition-transform duration-500 group-hover:scale-105"
                         title={template.title}
-                        sandbox="allow-same-origin allow-scripts"
+                        sandbox={template.is_user_submitted ? "allow-scripts" : "allow-same-origin allow-scripts"}
                       />
 
-                      {/* Category Pill Tag */}
-                      <div className="absolute top-4 left-4 z-10">
-                        <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-lg bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 backdrop-blur-md">
+                      {/* Tags */}
+                      <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
+                        <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-lg bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 backdrop-blur-md w-fit">
                           {template.category}
                         </span>
+                        {template.is_user_submitted && template.profiles && (
+                          <span className="px-3 py-1 text-[9px] font-bold uppercase tracking-wider rounded-lg bg-purple-950/80 border border-purple-500/30 text-purple-300 backdrop-blur-md w-fit">
+                            BY: {template.profiles.full_name || template.profiles.email?.split('@')[0] || 'Community'}
+                          </span>
+                        )}
                       </div>
 
                       {/* Overlay card controls */}
@@ -372,6 +411,7 @@ export default function Templates() {
                   srcDoc={createCompleteHtml(previewTemplate, false)}
                   className="w-full h-full border-0 bg-[#030712] relative z-10"
                   title={previewTemplate.title}
+                  sandbox={previewTemplate.is_user_submitted ? "allow-scripts" : "allow-same-origin allow-scripts"}
                 />
               </div>
             </div>

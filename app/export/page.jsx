@@ -91,15 +91,23 @@ ${websiteData.js || ''}
         })
       }
 
-      // Log to database
+      // Log to database securely using the server API to bypass RLS
       if (websiteData?.id) {
-        const { error: dbError } = await supabase.from('exports').insert({
-          user_id: user.id,
-          website_id: websiteData.id,
-          type: selected
-        })
-        if (dbError) {
-          console.error("Failed to log export to DB:", dbError)
+        try {
+          const res = await fetch('/api/export', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: user.id,
+              websiteId: websiteData.id,
+              exportType: selected
+            })
+          });
+          if (!res.ok) {
+            console.error("Failed to log export to DB:", await res.text());
+          }
+        } catch (dbError) {
+          console.error("Failed to call export API:", dbError);
         }
       }
 

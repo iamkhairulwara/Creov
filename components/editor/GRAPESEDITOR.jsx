@@ -1793,18 +1793,23 @@ Return ONLY the redesigned HTML now:`.trim()
         {/* AI Redesign Sidebar */}
         {isChatOpen && !showVersionHistory && (
           <div
-            className="flex flex-col shrink-0 border-l relative z-10"
-            style={{ width: 400, background: SIDEBAR_BG, borderColor: BORDER, boxShadow: '-10px 0 30px rgba(0,0,0,0.3)' }}>
+            className="flex flex-col shrink-0 border-l relative z-10 overflow-hidden"
+            style={{ width: 400, background: 'rgba(3,7,18,0.95)', backdropFilter: 'blur(20px)', borderColor: BORDER, boxShadow: '-10px 0 30px rgba(0,0,0,0.5)' }}>
+
+            {/* Glowing orb background */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-[80px] pointer-events-none -z-10" />
 
             <div
-              className="flex items-center justify-between p-4 border-b"
+              className="flex items-center justify-between p-4 border-b relative"
               style={{ borderColor: BORDER }}>
+              <div className="absolute bottom-0 left-0 h-[1px] w-full bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.15)]" style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(59,130,246,0.2))' }}>
-                  <svg className="w-4 h-4 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(34,211,238,0.2)] border border-cyan-500/30 bg-cyan-950/40 backdrop-blur-md relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 animate-pulse-glow" />
+                  <svg className="w-4 h-4 text-cyan-300 relative z-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                 </div>
                 <div>
-                  <h3 className="text-white font-bold tracking-wide text-sm">Design Refiner</h3>
+                  <h3 className="text-white font-black tracking-wide text-[15px] bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">Design Refiner</h3>
                   <p className="text-xs font-mono tracking-wider uppercase mt-0.5" style={{ color: TEXT_MUTED }}>
                     {selectedComponent
                       ? `Target: ${selectedComponent.get('tagName')?.toLowerCase() || 'element'}`
@@ -1823,28 +1828,30 @@ Return ONLY the redesigned HTML now:`.trim()
 
             {/* Component Info Panel */}
             {selectedComponent && editingComponentInfo && (
-              <div className="m-4 p-3.5 rounded-xl border" style={{ background: 'rgba(6,182,212,0.05)', borderColor: `rgba(6,182,212,0.15)` }}>
-                <p className="text-xs font-medium" style={{ color: '#22d3ee' }}>
-                  <span className="inline-flex items-center gap-1.5"><TargetIcon className="w-3.5 h-3.5" /> Active Element: <strong>&lt;{editingComponentInfo.tagName}&gt;</strong></span>
+              <div className="m-4 p-4 rounded-2xl border relative overflow-hidden group" style={{ background: 'rgba(34,211,238,0.03)', borderColor: `rgba(34,211,238,0.15)` }}>
+                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <p className="text-xs font-semibold relative z-10" style={{ color: '#22d3ee' }}>
+                  <span className="inline-flex items-center gap-2"><TargetIcon className="w-4 h-4" /> Active Element: <strong className="bg-cyan-500/10 px-2 py-0.5 rounded-md border border-cyan-500/20 text-cyan-300 ml-1">&lt;{editingComponentInfo.tagName}&gt;</strong></span>
                   {editingComponentInfo.classes.length > 0 && (
-                    <span className="ml-1 opacity-70 font-mono text-[10px]">
-                      ({editingComponentInfo.classes.join(', ')})
+                    <span className="block mt-2 opacity-60 font-mono text-[10px] leading-relaxed">
+                      class: {editingComponentInfo.classes.join(', ')}
                     </span>
                   )}
                 </p>
-                <p className="text-xs mt-2.5 font-light" style={{ color: TEXT_MUTED }}>
-                  <span className="inline-flex items-start gap-1.5"><ZapIcon className="w-3.5 h-3.5 shrink-0 mt-0.5" /> Tip: Select a parent wrapper (like a section or navbar) to refine the entire block at once.</span>
+                <p className="text-[11px] mt-3 font-light leading-relaxed flex items-start gap-2 relative z-10" style={{ color: TEXT_MUTED }}>
+                  <ZapIcon className="w-3.5 h-3.5 shrink-0 mt-0.5 text-amber-400" />
+                  <span>Tip: Select a parent wrapper (like a section or navbar) to refine the entire block at once for better context.</span>
                 </p>
               </div>
             )}
 
             {selectedComponent && messages.length === 0 && (
-              <div className="p-4 border-b" style={{ borderColor: BORDER }}>
-                <p className="text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-1.5" style={{ color: TEXT_MUTED }}>
-                  <svg className="w-3.5 h-3.5 text-cyan-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 5 4 4"/><path d="M13 7 8.7 2.7a2.41 2.41 0 0 0-3.4 0L2.7 5.3a2.41 2.41 0 0 0 0 3.4L7 13"/><path d="m8 6 2-2"/><path d="m18 16 2-2"/><path d="m17 11 4.3 4.3c.94.94.94 2.46 0 3.4l-2.6 2.6c-.94.94-2.46.94-3.4 0L11 17"/><path d="m21.1 15.6-1.4 1.4"/><path d="m21.1 8.6-1.4 1.4"/><path d="m8.6 21.1 1.4-1.4"/><path d="m15.6 21.1 1.4-1.4"/></svg>
+              <div className="p-4 border-b relative" style={{ borderColor: BORDER }}>
+                <p className="text-[10px] font-bold uppercase tracking-widest mb-4 flex items-center gap-2" style={{ color: TEXT_MUTED }}>
+                  <svg className="w-3.5 h-3.5 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 5 4 4"/><path d="M13 7 8.7 2.7a2.41 2.41 0 0 0-3.4 0L2.7 5.3a2.41 2.41 0 0 0 0 3.4L7 13"/><path d="m8 6 2-2"/><path d="m18 16 2-2"/><path d="m17 11 4.3 4.3c.94.94.94 2.46 0 3.4l-2.6 2.6c-.94.94-2.46.94-3.4 0L11 17"/><path d="m21.1 15.6-1.4 1.4"/><path d="m21.1 8.6-1.4 1.4"/><path d="m8.6 21.1 1.4-1.4"/><path d="m15.6 21.1 1.4-1.4"/></svg>
                   Quick Refinements
                 </p>
-                <div className="flex flex-wrap gap-2.5 min-h-[70px] relative">
+                <div className="flex flex-wrap gap-3 min-h-[80px] relative">
                   <AnimatePresence mode="popLayout">
                     {currentQuickActions.map((action, i) => (
                       <motion.button
@@ -1855,16 +1862,11 @@ Return ONLY the redesigned HTML now:`.trim()
                         transition={{ duration: 0.3, delay: i * 0.05 }}
                         onClick={() => sendMessage(action.prompt)}
                         disabled={isRefining}
-                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all shadow-sm border"
+                        className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all duration-300 shadow-sm border border-cyan-500/20 bg-cyan-950/20 text-cyan-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.2)] hover:-translate-y-0.5 hover:bg-cyan-900/30 hover:border-cyan-400/40"
                         style={{
-                          background: 'rgba(6,182,212,0.08)',
-                          color: '#67e8f9',
-                          borderColor: 'rgba(6,182,212,0.2)',
                           opacity: isRefining ? 0.5 : 1
-                        }}
-                        onMouseEnter={e => { if (!isRefining) { e.currentTarget.style.background = 'rgba(6,182,212,0.15)'; e.currentTarget.style.borderColor = 'rgba(6,182,212,0.4)' } }}
-                        onMouseLeave={e => { if (!isRefining) { e.currentTarget.style.background = 'rgba(6,182,212,0.08)'; e.currentTarget.style.borderColor = 'rgba(6,182,212,0.2)' } }}>
-                        {action.icon && <span className="mr-1">{action.icon}</span>}
+                        }}>
+                        {action.icon && <span className="mr-1 opacity-80">{action.icon}</span>}
                         <span>{action.label}</span>
                       </motion.button>
                     ))}
@@ -1873,41 +1875,57 @@ Return ONLY the redesigned HTML now:`.trim()
               </div>
             )}
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto p-4 space-y-6">
               {messages.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-center px-4">
-                  <div className="w-16 h-16 rounded-2xl mb-5 flex items-center justify-center border shadow-[0_0_30px_rgba(6,182,212,0.15)] animate-pulse" style={{ background: 'rgba(6,182,212,0.05)', borderColor: 'rgba(6,182,212,0.2)' }}>
-                    <svg className="w-8 h-8 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                <div className="flex flex-col items-center justify-center h-full text-center px-6">
+                  <div className="w-20 h-20 rounded-3xl mb-6 flex items-center justify-center border shadow-[0_0_40px_rgba(34,211,238,0.15)] bg-cyan-950/20 border-cyan-500/20 relative group">
+                    <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-3xl" />
+                    <svg className="w-10 h-10 text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.5)] animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                   </div>
-                  <h3 className="text-white font-black text-lg mb-2 tracking-tight">Refine Element</h3>
-                  <p className="text-xs font-light max-w-[250px] mx-auto leading-relaxed" style={{ color: TEXT_MUTED }}>
+                  <h3 className="text-white font-black text-xl mb-3 tracking-tight">Refine Element</h3>
+                  <p className="text-[13px] font-light leading-relaxed" style={{ color: TEXT_MUTED }}>
                     {selectedComponent
                       ? 'Apply quick visual styles above, or describe your specific requirements below to customize this element.'
-                      : 'Select any element on the canvas to inspect it and apply contextual design refinements.'}
+                      : 'Select any element on the canvas to inspect it and apply contextual design refinements using AI.'}
                   </p>
                 </div>
               ) : (
                 messages.map((msg, idx) => (
-                  <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} w-full`}>
                     <div
-                      className="max-w-[85%] rounded-xl p-3.5 shadow-sm"
-                      style={
+                      className={`max-w-[85%] rounded-2xl p-4 shadow-lg ${
                         msg.role === 'user'
-                          ? { background: 'linear-gradient(135deg, #06b6d4, #3b82f6)', color: 'white', borderBottomRightRadius: '4px' }
-                          : { background: 'rgba(255,255,255,0.05)', color: TEXT_SECONDARY, borderBottomLeftRadius: '4px', border: `1px solid ${BORDER}` }
-                      }>
-                      <p className="text-[13px] whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                          ? 'bg-gradient-to-br from-cyan-500 to-blue-600 text-white border border-cyan-400/30'
+                          : 'bg-white/5 text-slate-300 border border-white/10 backdrop-blur-md'
+                      }`}
+                      style={{
+                        borderBottomRightRadius: msg.role === 'user' ? '4px' : '16px',
+                        borderBottomLeftRadius: msg.role === 'user' ? '16px' : '4px',
+                      }}>
+                      {msg.role === 'user' ? (
+                        <p className="text-[13px] font-medium whitespace-pre-wrap leading-relaxed shadow-sm">{msg.content}</p>
+                      ) : (
+                        <div className="flex items-start gap-3">
+                          <div className="w-6 h-6 rounded-full bg-cyan-500/20 flex items-center justify-center shrink-0 border border-cyan-500/30">
+                            <svg className="w-3.5 h-3.5 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                          </div>
+                          <p className="text-[13px] whitespace-pre-wrap leading-relaxed flex-1 mt-0.5">{msg.content}</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))
               )}
               {isRefining && (
-                <div className="flex justify-start">
-                  <div className="rounded-xl p-3.5 border" style={{ background: 'rgba(255,255,255,0.05)', borderColor: BORDER, borderBottomLeftRadius: '4px' }}>
+                <div className="flex justify-start w-full">
+                  <div className="rounded-2xl p-4 border bg-white/5 border-white/10 backdrop-blur-md shadow-lg flex items-center gap-4" style={{ borderBottomLeftRadius: '4px' }}>
+                    <div className="w-6 h-6 rounded-full bg-cyan-500/20 flex items-center justify-center shrink-0 border border-cyan-500/30 animate-pulse">
+                      <svg className="w-3.5 h-3.5 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg>
+                    </div>
                     <div className="flex gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-cyan-500 animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="w-2 h-2 rounded-full bg-cyan-500 animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <span className="w-2 h-2 rounded-full bg-cyan-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                      <span className="w-2 h-2 rounded-full bg-cyan-400 animate-bounce shadow-[0_0_8px_rgba(34,211,238,0.8)]" style={{ animationDelay: '0ms' }} />
+                      <span className="w-2 h-2 rounded-full bg-cyan-400 animate-bounce shadow-[0_0_8px_rgba(34,211,238,0.8)]" style={{ animationDelay: '150ms' }} />
+                      <span className="w-2 h-2 rounded-full bg-cyan-400 animate-bounce shadow-[0_0_8px_rgba(34,211,238,0.8)]" style={{ animationDelay: '300ms' }} />
                     </div>
                   </div>
                 </div>
@@ -1915,41 +1933,41 @@ Return ONLY the redesigned HTML now:`.trim()
               <div ref={chatEndRef} />
             </div>
 
-            <div className="p-4 border-t" style={{ borderColor: BORDER, background: '#030712' }}>
-              <div className="flex gap-2">
+            <div className="p-5 border-t relative z-10" style={{ borderColor: BORDER, background: 'rgba(3,7,18,0.95)', backdropFilter: 'blur(20px)' }}>
+              <div className="flex gap-3 relative">
                 <textarea
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyDown={handleKeyPress}
-                  placeholder={selectedComponent ? 'Specify styling instructions (e.g. "make it darker")...' : 'Select a component first...'}
+                  placeholder={selectedComponent ? 'Specify instructions (e.g. "make it darker")...' : 'Select an element first...'}
                   disabled={!selectedComponent || isRefining}
-                  rows={2}
-                  className="flex-1 rounded-xl p-3 text-xs resize-none transition-all focus:ring-1 focus:ring-cyan-500/50"
+                  rows={1}
+                  className="flex-1 rounded-2xl py-3.5 px-4 text-[13px] resize-none transition-all duration-300 focus:ring-2 focus:ring-cyan-500/50 bg-white/5 border border-white/10 text-white placeholder-slate-500 shadow-inner"
                   style={{
-                    background: 'rgba(255,255,255,0.03)',
-                    border: `1px solid ${BORDER}`,
-                    color: 'white',
                     outline: 'none',
-                    fontFamily: 'inherit'
+                    fontFamily: 'inherit',
+                    minHeight: '52px',
+                    maxHeight: '120px'
                   }}
                 />
                 <button
                   onClick={() => sendMessage()}
                   disabled={!inputMessage.trim() || !selectedComponent || isRefining}
-                  className="w-12 rounded-xl transition-all flex items-center justify-center shrink-0"
+                  className="w-[52px] h-[52px] rounded-2xl transition-all duration-300 flex items-center justify-center shrink-0 shadow-lg group relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{
                     background: inputMessage.trim() && selectedComponent && !isRefining
                       ? 'linear-gradient(135deg, #06b6d4, #3b82f6)'
                       : 'rgba(255,255,255,0.05)',
-                    opacity: inputMessage.trim() && selectedComponent && !isRefining ? 1 : 0.5,
-                    cursor: inputMessage.trim() && selectedComponent && !isRefining ? 'pointer' : 'not-allowed',
                     border: `1px solid ${inputMessage.trim() && selectedComponent && !isRefining ? 'transparent' : BORDER}`
                   }}>
+                  {inputMessage.trim() && selectedComponent && !isRefining && (
+                    <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  )}
                   <SendIcon />
                 </button>
               </div>
-              <p className="text-[10px] mt-2.5 text-center font-bold tracking-wider uppercase" style={{ color: TEXT_MUTED }}>
-                Press Enter to send · Shift+Enter for new line
+              <p className="text-[10px] mt-4 text-center font-bold tracking-widest uppercase opacity-50" style={{ color: TEXT_MUTED }}>
+                Press Enter to send · Shift+Enter for line
               </p>
             </div>
           </div>

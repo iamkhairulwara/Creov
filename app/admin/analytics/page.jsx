@@ -28,7 +28,8 @@ export default function AnalyticsPage() {
     totalGenerations: 0,
     avgGenerationTime: 0,
     successRate: 0,
-    topUsers: []
+    topUsers: [],
+    topTemplates: []
   })
   const [loading, setLoading] = useState(true)
 
@@ -137,6 +138,13 @@ export default function AnalyticsPage() {
     const successRate = 94.5 // Mock - would calculate from logs
     const avgGenerationTime = 26.4 // Mock
 
+    // 6. Top templates by usage
+    const { data: topTemplatesData } = await supabase
+      .from('templates')
+      .select('id, title, category, is_user_submitted, usage_count, profiles:submitted_by(full_name, email)')
+      .order('usage_count', { ascending: false })
+      .limit(10)
+
     setAnalytics({
       dailyStats,
       categoryBreakdown,
@@ -144,7 +152,8 @@ export default function AnalyticsPage() {
       userActivity: topUsers || [],
       totalGenerations,
       avgGenerationTime,
-      successRate
+      successRate,
+      topTemplates: topTemplatesData || []
     })
     setLoading(false)
   }
@@ -365,6 +374,63 @@ export default function AnalyticsPage() {
               </div>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Top Templates Table */}
+      <div className="bg-[#080c1e]/60 backdrop-blur-2xl rounded-2xl border border-white/5 p-6 shadow-xl glow-cyan">
+        <h2 className="text-lg font-bold text-white tracking-wide mb-5">Most Popular Templates</h2>
+        
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr className="border-b border-white/5 text-left text-slate-400 font-bold uppercase tracking-wider text-[10px]">
+                <th className="pb-3 pr-4">Rank</th>
+                <th className="pb-3 pr-4">Template Title</th>
+                <th className="pb-3 pr-4">Category</th>
+                <th className="pb-3 pr-4">Source</th>
+                <th className="pb-3 text-right">Usage Count</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {analytics.topTemplates.map((template, idx) => (
+                <tr key={template.id} className="hover:bg-white/[0.02] transition-colors group">
+                  <td className="py-4 pr-4">
+                    <span className="text-cyan-400 font-black">#{idx + 1}</span>
+                  </td>
+                  <td className="py-4 pr-4">
+                    <span className="text-white font-bold">{template.title}</span>
+                  </td>
+                  <td className="py-4 pr-4 text-slate-400">
+                    {template.category}
+                  </td>
+                  <td className="py-4 pr-4">
+                    {template.is_user_submitted ? (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-purple-500/10 border border-purple-500/20 text-purple-400">
+                        COMMUNITY
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
+                        OFFICIAL
+                      </span>
+                    )}
+                  </td>
+                  <td className="py-4 text-right">
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black bg-white/5 border border-white/10 text-white">
+                      {template.usage_count || 0} <span className="text-[10px] text-slate-500 font-bold">USES</span>
+                    </span>
+                  </td>
+                </tr>
+              ))}
+              {analytics.topTemplates.length === 0 && (
+                <tr>
+                  <td colSpan="5" className="py-8 text-center text-slate-500">
+                    No template usage data available.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

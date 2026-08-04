@@ -9,9 +9,13 @@ import { supabase } from '@/lib/supabase/client'
 const GlobeIcon = () => <svg className="w-16 h-16 mx-auto mb-6 text-slate-400 animate-float" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
 
 export default function Dashboard() {
+  const [activeTab, setActiveTab] = useState('workspaces') // 'workspaces', 'exports', 'submissions'
   const [websites, setWebsites] = useState([])
+  const [submittedTemplates, setSubmittedTemplates] = useState([])
+  const [exports, setExports] = useState([])
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState(null)
+  
   const [deleting, setDeleting] = useState(null)
   const [websiteToDelete, setWebsiteToDelete] = useState(null)
   const router = useRouter()
@@ -40,12 +44,31 @@ export default function Dashboard() {
   }
 
   async function loadWebsites(userId) {
-    const { data, error } = await supabase
+    // 1. Load Websites (Workspaces)
+    const { data: websitesData } = await supabase
       .from('websites')
       .select('*')
       .eq('user_id', userId)
       .order('updated_at', { ascending: false })
-    if (!error) setWebsites(data || [])
+    if (websitesData) setWebsites(websitesData)
+    
+    // 2. Load Submitted Templates
+    const { data: templatesData } = await supabase
+      .from('templates')
+      .select('id, title, category, status, rejection_reason, created_at, html, css, js')
+      .eq('submitted_by', userId)
+      .eq('is_user_submitted', true)
+      .order('created_at', { ascending: false })
+    if (templatesData) setSubmittedTemplates(templatesData)
+
+    // 3. Load Exports (Join with websites to get title if available)
+    const { data: exportsData } = await supabase
+      .from('exports')
+      .select('id, export_type, format, created_at, websites(id, title)')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+    if (exportsData) setExports(exportsData)
+
     setLoading(false)
   }
 
@@ -59,6 +82,9 @@ export default function Dashboard() {
 
     // Delete related prompts first to avoid foreign key conflict
     await supabase.from('prompts').delete().eq('website_id', websiteId)
+
+    // Delete related exports
+    await supabase.from('exports').delete().eq('website_id', websiteId)
 
     // Now delete the website
     const { error } = await supabase.from('websites').delete().eq('id', websiteId)
@@ -77,18 +103,7 @@ export default function Dashboard() {
   }
 
   function handlePreview(website) {
-    const full = `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<style>${website.css || ''}</style>
-</head>
-<body>
-${website.html || ''}
-<script>${website.js || ''}</script>
-</body>
-</html>`
+    const full = `<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8"/>\n<meta name="viewport" content="width=device-width, initial-scale=1.0"/>\n<style>${website.css || ''}</style>\n</head>\n<body>\n${website.html || ''}\n<script>${website.js || ''}</script>\n</body>\n</html>`
     const blob = new Blob([full], { type: 'text/html' })
     window.open(URL.createObjectURL(blob), '_blank')
   }
@@ -151,162 +166,237 @@ ${website.html || ''}
       <div>
         <Navbar />
 
-        {/* Dynamic mesh glows removed for cleaner SaaS aesthetic */}
-
-        <div className="max-w-7xl mx-auto px-6 pt-36 pb-24">
-
-          {/* Immersive Dashboard Header */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-12 border-b border-white/5 pb-8">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-cyan-500/20 bg-cyan-950/20 mb-3 animate-float text-xs font-semibold text-cyan-300 uppercase tracking-wider">
-                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                Active Hub
-              </div>
-              <h1 className="text-4xl font-bold text-white tracking-tight font-[family-name:var(--font-space-grotesk)]">My Saved Sites</h1>
-              <p className="mt-1.5 text-xs font-mono uppercase tracking-widest text-slate-500">
-                {websites.length} design{websites.length !== 1 ? 's' : ''} stored in cloud
-              </p>
-            </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-32 pb-24">
+          <div className="flex flex-col lg:flex-row gap-10">
             
-            <div className="flex items-center gap-3">
-              <Link
-                href="/templates"
-                className="px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-400 border border-white/5 bg-white/5 hover:border-white/10 hover:text-white transition-all duration-300"
-              >
-                Browse Templates
-              </Link>
-              <Link
-                href="/generate"
-                className="px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-[#030712] bg-cyan-500 hover:bg-cyan-400 hover:scale-[1.02] shadow-[0_4px_20px_rgba(34,211,238,0.2)] hover:shadow-[0_4px_25px_rgba(34,211,238,0.4)] transition-all duration-300"
-              >
-                Generate New Site
-              </Link>
+            {/* Sidebar Navigation */}
+            <div className="lg:w-64 shrink-0 flex flex-col gap-2">
+              <div className="mb-4">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-cyan-500/20 bg-cyan-950/20 mb-3 text-xs font-semibold text-cyan-300 uppercase tracking-wider">
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                  Active Hub
+                </div>
+                <h1 className="text-3xl font-bold text-white tracking-tight font-[family-name:var(--font-space-grotesk)]">Dashboard</h1>
+              </div>
+
+              <nav className="flex lg:flex-col gap-2 overflow-x-auto pb-4 lg:pb-0 hide-scrollbar">
+                <button
+                  onClick={() => setActiveTab('workspaces')}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 shrink-0 ${
+                    activeTab === 'workspaces' 
+                      ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shadow-[0_0_20px_rgba(34,211,238,0.05)]' 
+                      : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
+                  }`}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                  My Workspaces
+                  <span className="ml-auto text-[10px] bg-white/10 px-2 py-0.5 rounded-full">{websites.length}</span>
+                </button>
+                
+                <button
+                  onClick={() => setActiveTab('exports')}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 shrink-0 ${
+                    activeTab === 'exports' 
+                      ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shadow-[0_0_20px_rgba(34,211,238,0.05)]' 
+                      : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
+                  }`}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Exported Projects
+                  <span className="ml-auto text-[10px] bg-white/10 px-2 py-0.5 rounded-full">{exports.length}</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('submissions')}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 shrink-0 ${
+                    activeTab === 'submissions' 
+                      ? 'bg-violet-500/10 text-violet-400 border border-violet-500/20 shadow-[0_0_20px_rgba(139,92,246,0.05)]' 
+                      : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
+                  }`}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                  Submitted Templates
+                  <span className="ml-auto text-[10px] bg-white/10 px-2 py-0.5 rounded-full">{submittedTemplates.length}</span>
+                </button>
+              </nav>
+
+              <div className="mt-8 hidden lg:block border-t border-white/5 pt-8">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Quick Actions</h3>
+                <div className="space-y-2">
+                  <Link href="/generate" className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-[#030712] bg-cyan-500 hover:bg-cyan-400 shadow-[0_4px_20px_rgba(34,211,238,0.2)] transition-all">
+                    + Generate AI Site
+                  </Link>
+                  <Link href="/templates" className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-300 bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
+                    Browse Templates
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Main Content Area */}
+            <div className="flex-1 min-w-0">
+              
+              {/* Skeletons */}
+              {loading && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {[1, 2, 3, 4].map(i => (
+                    <div key={i} className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 animate-pulse">
+                      <div className="h-32 bg-white/5 rounded-2xl mb-4" />
+                      <div className="h-4 bg-white/5 rounded w-2/3 mb-3" />
+                      <div className="h-3 bg-white/5 rounded w-1/3 mb-6" />
+                      <div className="h-10 bg-white/5 rounded-xl" />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* -------------------- TAB: WORKSPACES -------------------- */}
+              {!loading && activeTab === 'workspaces' && (
+                <div className="animate-fade-in">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-bold text-white font-[family-name:var(--font-space-grotesk)]">My Workspaces</h2>
+                  </div>
+                  
+                  {websites.length === 0 ? (
+                    <div className="text-center py-20 rounded-2xl border border-white/5 bg-white/[0.02]">
+                      <GlobeIcon />
+                      <h3 className="text-xl font-bold text-white mb-2">No active workspaces</h3>
+                      <p className="text-slate-400 text-sm mb-6 max-w-sm mx-auto">Start by generating a new site with AI or picking a template.</p>
+                      <Link href="/generate" className="inline-flex px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-[#030712] bg-cyan-500 hover:bg-cyan-400 transition-all">
+                        Create Workspace
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      {websites.map(website => (
+                        <div key={website.id} className="group rounded-2xl border border-white/5 bg-white/[0.02] overflow-hidden transition-all duration-300 hover:border-cyan-500/20 hover:shadow-xl hover:scale-[1.01]">
+                          <div className="relative overflow-hidden cursor-pointer border-b border-white/5" style={{ height: '160px', background: '#0a0f23' }} onClick={() => handlePreview(website)}>
+                            <iframe srcDoc={`<html><head><style>*{margin:0;padding:0;overflow:hidden;}body{transform:scale(0.45);transform-origin:top left;width:222%;height:222%;overflow:hidden;}${website.css || ''}</style></head><body>${website.html || ''}</body></html>`} className="w-full h-full border-0 pointer-events-none transition-transform duration-500 group-hover:scale-105" title={website.title}/>
+                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/80">
+                              <span className="px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-[#030712] bg-cyan-500 rounded-xl">Live View</span>
+                            </div>
+                          </div>
+                          <div className="p-5">
+                            <h3 className="font-bold text-white truncate text-base mb-1">{website.title || 'Untitled'}</h3>
+                            <p className="text-[10px] uppercase font-mono text-slate-500 mb-4">EDITED {formatDate(website.updated_at || website.created_at)}</p>
+                            <div className="grid grid-cols-2 gap-2">
+                              <button onClick={() => handleEdit(website)} className="py-2.5 rounded-xl text-xs font-bold uppercase bg-white/5 hover:bg-white/10 transition-all">Edit</button>
+                              <button onClick={() => handleExport(website)} className="py-2.5 rounded-xl text-xs font-bold uppercase bg-white/5 hover:bg-cyan-500 hover:text-black transition-all">Export</button>
+                              {website.slug ? (
+                                <>
+                                  <button onClick={() => handlePreview(website)} className="py-2.5 rounded-xl text-xs font-bold uppercase border border-white/5 hover:bg-white/5 transition-all">Preview</button>
+                                  <Link href={`/p/${website.slug}`} target="_blank" className="flex items-center justify-center py-2.5 rounded-xl text-xs font-bold uppercase bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 hover:bg-cyan-500/20 transition-all">Live Link</Link>
+                                </>
+                              ) : (
+                                <button onClick={() => handlePreview(website)} className="col-span-2 py-2.5 rounded-xl text-xs font-bold uppercase border border-white/5 hover:bg-white/5 transition-all">Preview Code</button>
+                              )}
+                              <button onClick={() => handleDelete(website.id)} className="col-span-2 py-2.5 rounded-xl text-xs font-bold uppercase text-red-400 bg-red-500/5 hover:bg-red-500/10 transition-all">Delete</button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* -------------------- TAB: EXPORTS -------------------- */}
+              {!loading && activeTab === 'exports' && (
+                <div className="animate-fade-in">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-bold text-white font-[family-name:var(--font-space-grotesk)]">Export History</h2>
+                  </div>
+
+                  {exports.length === 0 ? (
+                    <div className="text-center py-20 rounded-2xl border border-white/5 bg-white/[0.02]">
+                      <svg className="w-12 h-12 mx-auto mb-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                      <h3 className="text-xl font-bold text-white mb-2">No exported projects</h3>
+                      <p className="text-slate-400 text-sm mb-6 max-w-sm mx-auto">When you download your websites as ZIP or HTML, they will appear here as a backup.</p>
+                    </div>
+                  ) : (
+                    <div className="bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden">
+                      <table className="w-full text-left text-sm">
+                        <thead className="bg-white/[0.02] border-b border-white/5 text-xs uppercase tracking-wider text-slate-500">
+                          <tr>
+                            <th className="px-6 py-4 font-bold">Project Name</th>
+                            <th className="px-6 py-4 font-bold">Format</th>
+                            <th className="px-6 py-4 font-bold text-right">Export Date</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5">
+                          {exports.map((exp, idx) => (
+                            <tr key={exp.id || idx} className="hover:bg-white/[0.02] transition-colors group">
+                              <td className="px-6 py-4 font-medium text-white flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400 shrink-0">
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                                </div>
+                                {exp.websites ? exp.websites.title : 'Deleted Workspace'}
+                              </td>
+                              <td className="px-6 py-4">
+                                <span className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-white/5 border border-white/10 text-slate-300">
+                                  {exp.format || 'ZIP'}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 text-slate-400 text-right font-mono text-xs">
+                                {formatDate(exp.created_at)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* -------------------- TAB: SUBMISSIONS -------------------- */}
+              {!loading && activeTab === 'submissions' && (
+                <div className="animate-fade-in">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-bold text-white font-[family-name:var(--font-space-grotesk)]">Submitted Templates</h2>
+                  </div>
+
+                  {submittedTemplates.length === 0 ? (
+                    <div className="text-center py-20 rounded-2xl border border-white/5 bg-white/[0.02]">
+                      <svg className="w-12 h-12 mx-auto mb-4 text-violet-500/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                      <h3 className="text-xl font-bold text-white mb-2">No community submissions</h3>
+                      <p className="text-slate-400 text-sm mb-6 max-w-sm mx-auto">Share your beautiful designs with thousands of other creators.</p>
+                      <Link href="/templates/submit" className="inline-flex px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-violet-600 hover:bg-violet-500 transition-all">
+                        Submit a Template
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      {submittedTemplates.map(template => (
+                        <div key={template.id} className="p-6 rounded-2xl border border-white/5 bg-white/[0.02] hover:border-violet-500/20 transition-colors">
+                          <div className="flex justify-between items-start mb-3">
+                            <h3 className="font-bold text-white truncate mr-2">{template.title}</h3>
+                            {template.status === 'approved' && <span className="px-2 py-1 text-[9px] font-black uppercase rounded bg-green-500/10 text-green-400 border border-green-500/20">Approved</span>}
+                            {template.status === 'pending' && <span className="px-2 py-1 text-[9px] font-black uppercase rounded bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">Pending</span>}
+                            {template.status === 'rejected' && <span className="px-2 py-1 text-[9px] font-black uppercase rounded bg-red-500/10 text-red-400 border border-red-500/20">Rejected</span>}
+                          </div>
+                          <p className="text-[10px] uppercase font-mono tracking-widest text-slate-500 mb-4">{template.category} • {formatDate(template.created_at)}</p>
+                          
+                          {template.status === 'rejected' && template.rejection_reason && (
+                            <div className="mb-4 p-3 rounded-lg bg-red-500/10 text-xs text-red-300 border border-red-500/20">
+                              <strong className="block text-red-400 mb-1">Reason:</strong> {template.rejection_reason}
+                            </div>
+                          )}
+                          
+                          {template.status === 'approved' && (
+                            <Link href="/templates" className="inline-block text-center w-full py-2.5 rounded-xl text-xs font-bold uppercase text-violet-400 bg-violet-500/10 border border-violet-500/20 hover:bg-violet-500/20 transition-all">
+                              View in Marketplace
+                            </Link>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
             </div>
           </div>
-
-          {/* Loading Skeletons */}
-          {loading && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[1, 2, 3].map(i => (
-                <div
-                  key={i}
-                  className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 animate-pulse"
-                >
-                  <div className="h-32 bg-white/5 rounded-2xl mb-4" />
-                  <div className="h-4 bg-white/5 rounded w-2/3 mb-3" />
-                  <div className="h-3 bg-white/5 rounded w-1/3 mb-6" />
-                  <div className="h-10 bg-white/5 rounded-xl" />
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Elegant Empty State */}
-          {!loading && websites.length === 0 && (
-            <div
-              className="text-center py-24 rounded-2xl border border-white/5 bg-white/[0.02] max-w-3xl mx-auto shadow-xl"
-            >
-              <GlobeIcon />
-              <h2 className="text-2xl font-bold text-white mb-2 font-[family-name:var(--font-space-grotesk)]">
-                No designs synthesized yet
-              </h2>
-              <p className="mb-8 text-slate-400 text-sm max-w-md mx-auto font-light leading-relaxed">
-                Start your workspace by choosing a template layout or describing your business in plain English for instant AI generation.
-              </p>
-              <div className="flex justify-center gap-3">
-                <Link
-                  href="/templates"
-                  className="px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-300 border border-white/10 hover:border-white/20 transition-all duration-300"
-                >
-                  Browse Templates
-                </Link>
-                <Link
-                  href="/generate"
-                  className="px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-[#030712] bg-cyan-500 hover:bg-cyan-400 hover:scale-[1.02] shadow-[0_4px_20px_rgba(34,211,238,0.2)] transition-all duration-300"
-                >
-                  Generate with AI
-                </Link>
-              </div>
-            </div>
-          )}
-
-          {/* Websites Grid */}
-          {!loading && websites.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {websites.map(website => (
-                <div
-                  key={website.id}
-                  className="group rounded-2xl border border-white/5 bg-white/[0.02] overflow-hidden transition-all duration-300 hover:border-cyan-500/20 hover:shadow-xl hover:scale-[1.01]"
-                >
-                  {/* Thumbnail Frame */}
-                  <div
-                    className="relative overflow-hidden cursor-pointer border-b border-white/5"
-                    style={{ height: '180px', background: '#0a0f23' }}
-                    onClick={() => handlePreview(website)}
-                  >
-                    <iframe
-                      srcDoc={`<html><head><style>*{margin:0;padding:0;overflow:hidden;}body{transform:scale(0.45);transform-origin:top left;width:222%;height:222%;overflow:hidden;}${website.css || ''}</style></head><body>${website.html || ''}</body></html>`}
-                      className="w-full h-full border-0 pointer-events-none transition-transform duration-500 group-hover:scale-105"
-                      title={website.title}
-                    />
-                    <div
-                      className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
-                      style={{ background: 'rgba(3,7,18,0.85)' }}
-                    >
-                      <span className="px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-[#030712] bg-cyan-500 rounded-xl shadow-[0_4px_20px_rgba(34,211,238,0.2)]">
-                        Launch Live View
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Card Body Info */}
-                  <div className="p-6">
-                    <div className="flex justify-between items-start mb-2 gap-4">
-                      <h3 className="font-bold text-white truncate text-base tracking-tight font-[family-name:var(--font-space-grotesk)] group-hover:text-cyan-400 transition-colors">
-                        {website.title || 'Untitled Workspace'}
-                      </h3>
-                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 backdrop-blur-md">
-                        {website.source === 'generated' ? 'AI Synthesized' : 'Template'}
-                      </span>
-                    </div>
-                    
-                    <p className="text-[10px] uppercase font-mono tracking-widest text-slate-500 mb-6">
-                      LAST EDITED: {formatDate(website.updated_at || website.created_at)}
-                    </p>
-
-                    {/* Highly Styled Interactive Actions */}
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        onClick={() => handleEdit(website)}
-                        className="py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-[#030712] bg-cyan-500 hover:bg-cyan-400 hover:scale-[1.02] shadow-[0_4px_20px_rgba(34,211,238,0.2)] hover:shadow-[0_4px_25px_rgba(34,211,238,0.4)] transition-all duration-300"
-                      >
-                        Edit Workspace
-                      </button>
-                      <button
-                        onClick={() => handleExport(website)}
-                        className="py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-400 border border-white/5 hover:border-white/10 hover:text-white transition-all duration-300"
-                      >
-                        Export ZIP
-                      </button>
-                      <button
-                        onClick={() => handlePreview(website)}
-                        className="py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-400 border border-white/5 hover:border-white/10 hover:text-white transition-all duration-300"
-                      >
-                        Live Sandbox
-                      </button>
-                      <button
-                        onClick={() => handleDelete(website.id)}
-                        disabled={deleting === website.id}
-                        className="py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-red-400 border border-red-500/10 hover:bg-red-500/10 transition-all duration-300 disabled:opacity-40"
-                      >
-                        {deleting === website.id ? 'Deleting...' : 'Delete Cloud'}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       </div>
       <Footer />
