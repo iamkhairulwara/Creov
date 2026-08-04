@@ -146,7 +146,9 @@ export default function Home() {
                    <div className="h-4 w-2/5 bg-white/5 rounded" />
                  </div>
                  <div className="w-1/3 h-40 rounded-xl bg-cyan-500/10 border border-cyan-500/20 p-4 flex flex-col items-center justify-center">
-                   <div className="w-16 h-16 rounded-full bg-cyan-500/20 mb-3 flex items-center justify-center text-cyan-400">✦</div>
+                   <div className="w-16 h-16 rounded-full bg-cyan-500/20 mb-3 flex items-center justify-center text-cyan-400">
+                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                   </div>
                    <div className="h-3 w-20 bg-cyan-500/40 rounded" />
                  </div>
                </div>
@@ -189,7 +191,7 @@ export default function Home() {
             {/* Node 1 */}
             <div className="relative z-10 flex flex-col items-center bg-[#030712] p-4 rounded-xl group hover:scale-105 transition-transform">
               <div className="w-16 h-16 rounded-2xl bg-white/[0.02] border border-white/10 flex items-center justify-center mb-4 shadow-[0_0_30px_rgba(255,255,255,0.02)] group-hover:border-white/20 transition-colors">
-                <span className="text-2xl">💬</span>
+                <svg className="text-slate-400" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
               </div>
               <h3 className="text-white font-bold text-sm font-[family-name:var(--font-space-grotesk)]">Natural Language</h3>
               <p className="text-[11px] text-slate-500 mt-1.5 text-center w-32 leading-relaxed">You describe your vision in plain English.</p>
@@ -347,13 +349,13 @@ export default function Home() {
                   <div className="w-2.5 h-2.5 rounded-full bg-white/20" />
                 </div>
                 <div className="space-y-2 opacity-90">
-                  <p><span className="text-slate-500">// Initialize layout engine</span></p>
+                  <p><span className="text-slate-500">{"// Initialize layout engine"}</span></p>
                   <p><span className="text-pink-400">const</span> engine = <span className="text-cyan-400">new</span> CreovEngine();</p>
-                  <p className="mt-2"><span className="text-slate-500">// Parse prompt to AST</span></p>
+                  <p className="mt-2"><span className="text-slate-500">{"// Parse prompt to AST"}</span></p>
                   <p><span className="text-pink-400">const</span> structure = <span className="text-blue-400">await</span> engine.<span className="text-yellow-200">parse</span>(prompt);</p>
-                  <p className="mt-2"><span className="text-slate-500">// Render live DOM</span></p>
+                  <p className="mt-2"><span className="text-slate-500">{"// Render live DOM"}</span></p>
                   <p><span className="text-pink-400">const</span> dom = <span className="text-blue-400">await</span> engine.<span className="text-yellow-200">renderToCanvas</span>(structure);</p>
-                  <p><span className="text-cyan-400">console</span>.<span className="text-yellow-200">log</span>(<span className="text-green-300">"Layout ready: 100%"</span>);</p>
+                  <p><span className="text-cyan-400">console</span>.<span className="text-yellow-200">log</span>(<span className="text-green-300">&quot;Layout ready: 100%&quot;</span>);</p>
                 </div>
               </div>
             </motion.div>
@@ -404,7 +406,7 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-bold text-white font-[family-name:var(--font-space-grotesk)]">
               Built for every workflow
             </h2>
-            <p className="mt-4 text-slate-400 font-light max-w-2xl mx-auto">Whether you're building alone or scaling an agency, Creov adapts to how you work.</p>
+            <p className="mt-4 text-slate-400 font-light max-w-2xl mx-auto">Whether you&apos;re building alone or scaling an agency, Creov adapts to how you work.</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -412,9 +414,9 @@ export default function Home() {
               <h3 className="text-xl font-bold text-white mb-4 font-[family-name:var(--font-space-grotesk)]">For Founders</h3>
               <p className="text-slate-400 font-light text-sm leading-relaxed mb-6">Stop fighting with CSS when you should be talking to users. Generate your landing page in minutes and start validating your idea immediately.</p>
               <ul className="space-y-3 text-sm text-slate-300">
-                <li className="flex items-center gap-2"><span className="text-cyan-400">✓</span> Launch in hours, not weeks</li>
-                <li className="flex items-center gap-2"><span className="text-cyan-400">✓</span> No coding required</li>
-                <li className="flex items-center gap-2"><span className="text-cyan-400">✓</span> Fully responsive design</li>
+                <li className="flex items-center gap-2"><svg className="text-cyan-400 w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg> Launch in hours, not weeks</li>
+                <li className="flex items-center gap-2"><svg className="text-cyan-400 w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg> No coding required</li>
+                <li className="flex items-center gap-2"><svg className="text-cyan-400 w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg> Fully responsive design</li>
               </ul>
             </div>
             
@@ -423,9 +425,9 @@ export default function Home() {
               <h3 className="text-xl font-bold text-white mb-4 font-[family-name:var(--font-space-grotesk)] relative z-10">For Freelancers</h3>
               <p className="text-slate-400 font-light text-sm leading-relaxed mb-6 relative z-10">Take on more clients without burning out. Use Creov to generate the boilerplate and structure, then spend your time on the creative polish.</p>
               <ul className="space-y-3 text-sm text-slate-300 relative z-10">
-                <li className="flex items-center gap-2"><span className="text-cyan-400">✓</span> 10x your output capacity</li>
-                <li className="flex items-center gap-2"><span className="text-cyan-400">✓</span> Export clean Tailwind CSS</li>
-                <li className="flex items-center gap-2"><span className="text-cyan-400">✓</span> Perfect mobile responsiveness</li>
+                <li className="flex items-center gap-2"><svg className="text-cyan-400 w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg> 10x your output capacity</li>
+                <li className="flex items-center gap-2"><svg className="text-cyan-400 w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg> Export clean Tailwind CSS</li>
+                <li className="flex items-center gap-2"><svg className="text-cyan-400 w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg> Perfect mobile responsiveness</li>
               </ul>
             </div>
 
@@ -433,9 +435,9 @@ export default function Home() {
               <h3 className="text-xl font-bold text-white mb-4 font-[family-name:var(--font-space-grotesk)]">For Agencies</h3>
               <p className="text-slate-400 font-light text-sm leading-relaxed mb-6">Rapidly prototype ideas for client pitches. Export the production-ready code directly to your development team to wire up the backend.</p>
               <ul className="space-y-3 text-sm text-slate-300">
-                <li className="flex items-center gap-2"><span className="text-cyan-400">✓</span> Instant client prototypes</li>
-                <li className="flex items-center gap-2"><span className="text-cyan-400">✓</span> Developer-friendly HTML/JS</li>
-                <li className="flex items-center gap-2"><span className="text-cyan-400">✓</span> Consistent design systems</li>
+                <li className="flex items-center gap-2"><svg className="text-cyan-400 w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg> Instant client prototypes</li>
+                <li className="flex items-center gap-2"><svg className="text-cyan-400 w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg> Developer-friendly HTML/JS</li>
+                <li className="flex items-center gap-2"><svg className="text-cyan-400 w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg> Consistent design systems</li>
               </ul>
             </div>
           </div>
@@ -481,9 +483,11 @@ export default function Home() {
             ].map((t, i) => (
               <div key={i} className="p-8 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col gap-6 hover:bg-white/[0.04] transition-colors duration-300">
                 <div className="flex gap-1 text-cyan-400 text-sm">
-                  ★ ★ ★ ★ ★
+                  <div className="flex items-center gap-1">
+                    {[1,2,3,4,5].map(i => <svg key={i} className="text-cyan-400 w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>)}
+                  </div>
                 </div>
-                <p className="text-slate-300 font-light leading-relaxed flex-1">"{t.content}"</p>
+                <p className="text-slate-300 font-light leading-relaxed flex-1">&quot;{t.content}&quot;</p>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-cyan-900/30 border border-cyan-500/20 flex items-center justify-center font-bold text-cyan-400">
                     {t.name[0]}
