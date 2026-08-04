@@ -77,22 +77,9 @@ export default function SignupPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#060a1a] text-white selection:bg-cyan-500/30 selection:text-white overflow-x-hidden relative">
-        {/* Immersive background glows */}
-        <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-cyan-500/10 blur-[100px] animate-pulse-glow" />
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-[#030712] text-white selection:bg-cyan-500/30 selection:text-white overflow-x-hidden relative">
 
-        {/* Cyber Grid Pattern */}
-        <div 
-          className="absolute inset-0 -z-10 opacity-[0.05] animate-grid-flow"
-          style={{
-            backgroundImage: 'radial-gradient(rgba(34,211,238,0.4) 1.5px, transparent 1.5px)',
-            backgroundSize: '32px 32px'
-          }} 
-        />
-
-        <div className="bg-[#080c1e]/60 backdrop-blur-2xl p-8 rounded-3xl border border-white/5 w-full max-w-md shadow-[0_0_50px_rgba(0,0,0,0.8)] glow-cyan text-center">
+        <div className="bg-white/[0.02] p-8 rounded-2xl border border-white/5 w-full max-w-md shadow-xl text-center">
           <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-green-500/30 shadow-[0_0_20px_rgba(34,197,94,0.2)]">
             <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
@@ -115,31 +102,93 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#060a1a] text-white selection:bg-cyan-500/30 selection:text-white overflow-x-hidden relative">
-      {/* Immersive background glows */}
-      <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-cyan-500/10 blur-[100px] animate-pulse-glow" />
-        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-violet-600/5 blur-[90px] animate-pulse-glow" style={{ animationDelay: '2.5s' }} />
+    <div className="min-h-screen flex flex-col lg:flex-row bg-[#030712] text-white selection:bg-cyan-500/30 selection:text-white overflow-hidden relative">
+      
+      {/* Left Side: Gorgeous SVG Illustration */}
+      <div className="hidden lg:flex lg:w-1/2 relative items-end bg-[#050914] overflow-hidden border-r border-white/5">
+        
+        {/* Logo at Top Left */}
+        <div className="absolute top-8 left-10 z-30">
+          <Link href="/">
+            <CreovLogo className="w-10 h-10" />
+          </Link>
+        </div>
+
+        {/* Glowing Rings and Waves SVG */}
+        <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <linearGradient id="bg-grad-signup" x1="100%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#020617" />
+              <stop offset="100%" stopColor="#0f0518" />
+            </linearGradient>
+            <linearGradient id="ring-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#a855f7" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#ec4899" stopOpacity="0.2" />
+            </linearGradient>
+            <linearGradient id="wave-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#ec4899" stopOpacity="0" />
+              <stop offset="50%" stopColor="#a855f7" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
+            </linearGradient>
+            <filter id="glow-signup">
+              <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          
+          <rect width="100%" height="100%" fill="url(#bg-grad-signup)" />
+          
+          {/* Ambient light */}
+          <circle cx="800" cy="200" r="350" fill="#a855f7" opacity="0.15" style={{ filter: 'blur(100px)' }} />
+          <circle cx="200" cy="800" r="400" fill="#ec4899" opacity="0.1" style={{ filter: 'blur(120px)' }} />
+          
+          {/* Interlocking Glowing Rings */}
+          <g transform="translate(500, 450) rotate(-15)">
+            <ellipse cx="-100" cy="0" rx="300" ry="100" fill="none" stroke="url(#ring-grad)" strokeWidth="4" filter="url(#glow-signup)" opacity="0.8"/>
+            <ellipse cx="-100" cy="0" rx="300" ry="100" fill="none" stroke="#e879f9" strokeWidth="1" opacity="0.9"/>
+            
+            <ellipse cx="100" cy="150" rx="250" ry="80" fill="none" stroke="url(#ring-grad)" strokeWidth="3" filter="url(#glow-signup)" opacity="0.7"/>
+            <ellipse cx="100" cy="150" rx="250" ry="80" fill="none" stroke="#f472b6" strokeWidth="1" opacity="0.8"/>
+
+            <ellipse cx="50" cy="-150" rx="200" ry="60" fill="none" stroke="url(#ring-grad)" strokeWidth="2" filter="url(#glow-signup)" opacity="0.6"/>
+            <ellipse cx="50" cy="-150" rx="200" ry="60" fill="none" stroke="#c084fc" strokeWidth="1" opacity="0.7"/>
+          </g>
+          
+          {/* Flowing energy waves */}
+          <path d="M-100 800 C 200 600, 400 900, 1100 500" fill="none" stroke="url(#wave-grad)" strokeWidth="4" filter="url(#glow-signup)" opacity="0.7" />
+          <path d="M-100 850 C 250 650, 450 950, 1100 550" fill="none" stroke="url(#wave-grad)" strokeWidth="2" filter="url(#glow-signup)" opacity="0.5" />
+          
+          {/* Particles */}
+          <circle cx="300" cy="400" r="4" fill="#f472b6" filter="url(#glow-signup)" />
+          <circle cx="700" cy="600" r="5" fill="#c084fc" filter="url(#glow-signup)" />
+          <circle cx="450" cy="250" r="3" fill="#e879f9" filter="url(#glow-signup)" />
+        </svg>
+
+        <div className="absolute inset-0 bg-gradient-to-t from-[#030712] via-transparent to-transparent z-10 pointer-events-none" />
+        
+        <div className="relative z-20 w-full p-16 max-w-2xl mt-auto">
+          <h2 className="text-4xl lg:text-5xl font-bold font-[family-name:var(--font-space-grotesk)] leading-[1.1] mb-6 text-white drop-shadow-2xl tracking-tight">
+            Synthesize your vision.
+          </h2>
+          <p className="text-lg text-slate-300 font-light drop-shadow-md max-w-md leading-relaxed">
+            Create an account to start building beautiful, production-ready websites in seconds.
+          </p>
+        </div>
       </div>
 
-      {/* Cyber Grid Pattern */}
-      <div 
-        className="absolute inset-0 -z-10 opacity-[0.05] animate-grid-flow"
-        style={{
-          backgroundImage: 'radial-gradient(rgba(34,211,238,0.4) 1.5px, transparent 1.5px)',
-          backgroundSize: '32px 32px'
-        }} 
-      />
-
-      <div className="bg-[#080c1e]/60 backdrop-blur-2xl p-8 rounded-3xl border border-white/5 w-full max-w-md shadow-[0_0_50px_rgba(0,0,0,0.8)] glow-cyan transition-all duration-300 hover:border-cyan-500/10 my-8">
+      {/* Right Side: Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 lg:p-8 h-screen overflow-y-auto">
+        <div className="bg-white/[0.02] p-6 lg:p-8 rounded-3xl border border-white/5 w-full max-w-md shadow-2xl transition-all duration-300 relative z-30 my-auto">
         
-        {/* Unified CreovLogo Brand */}
-        <div className="flex flex-col items-center mb-8">
-          <Link href="/">
-            <CreovLogo className="w-12 h-12 mb-4" />
+        <div className="flex flex-col items-center lg:items-start mb-5 text-center lg:text-left">
+          <Link href="/" className="lg:hidden">
+            <CreovLogo className="w-10 h-10 mb-3" />
           </Link>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight text-center">Create Account</h1>
-          <p className="text-slate-400 text-sm mt-1">Start building with Creov</p>
+          <h1 className="text-2xl lg:text-3xl font-bold text-white tracking-tight text-center font-[family-name:var(--font-space-grotesk)]">Create Account</h1>
+          <p className="text-slate-400 text-xs mt-1">Start building with Creov</p>
         </div>
 
         {error && (
@@ -148,62 +197,61 @@ export default function SignupPage() {
           </div>
         )}
 
-        <form onSubmit={handleSignup} className="space-y-5 mb-5">
+        <form onSubmit={handleSignup} className="space-y-4 mb-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Full Name</label>
+            <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Full Name</label>
             <input
               type="text"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               required
               placeholder="Khair ul Wara"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition duration-300"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition duration-300"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Email Address</label>
+            <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Email Address</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="you@example.com"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition duration-300"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition duration-300"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Password</label>
+            <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="Min. 6 characters"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition duration-300"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition duration-300"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Confirm Password</label>
+            <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Confirm Password</label>
             <input
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
               placeholder="••••••••"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition duration-300"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition duration-300"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="group relative w-full inline-flex items-center justify-center text-white font-bold py-3.5 px-4 rounded-xl transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
+            className="w-full inline-flex items-center justify-center text-[#030712] bg-cyan-500 hover:bg-cyan-400 font-bold py-2.5 px-4 rounded-xl transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_4px_20px_rgba(34,211,238,0.2)] hover:shadow-[0_4px_25px_rgba(34,211,238,0.4)] mt-2"
           >
-            <span className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-600 to-violet-600 rounded-xl shadow-[0_4px_20px_rgba(6,182,212,0.25)] group-hover:shadow-[0_4px_30px_rgba(139,92,246,0.4)]" />
-            <span className="relative z-10 flex items-center gap-2">
+            <span className="flex items-center gap-2 text-sm">
               {loading ? (
                 <>
                   <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -216,16 +264,16 @@ export default function SignupPage() {
           </button>
         </form>
 
-        <div className="flex items-center gap-3 my-6">
+        <div className="flex items-center gap-3 my-4">
           <div className="flex-1 h-px bg-white/5" />
-          <span className="text-slate-500 text-xs font-bold uppercase tracking-widest">or</span>
+          <span className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">or</span>
           <div className="flex-1 h-px bg-white/5" />
         </div>
 
         <button
           onClick={handleGoogleLogin}
           disabled={loading}
-          className="w-full flex items-center justify-center gap-3 bg-white text-gray-800 font-bold py-3 px-4 rounded-xl hover:bg-gray-100 transition duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+          className="w-full flex items-center justify-center gap-3 bg-white text-gray-800 font-bold py-2.5 px-4 rounded-xl hover:bg-gray-100 transition duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg text-sm"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -236,12 +284,13 @@ export default function SignupPage() {
           Continue with Google
         </button>
 
-        <p className="text-center text-slate-400 text-sm mt-8">
+        <p className="text-center text-slate-400 text-xs mt-6">
           Already have an account?{' '}
           <Link href="/auth/login" className="text-cyan-400 font-semibold hover:text-cyan-300 transition duration-300">
             Sign in
           </Link>
         </p>
+      </div>
       </div>
     </div>
   )

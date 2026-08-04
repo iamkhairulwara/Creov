@@ -101,7 +101,7 @@ export default function Navbar() {
     <nav
       className={`fixed top-4 left-4 right-4 z-50 transition-all duration-500 mx-auto max-w-7xl rounded-2xl border ${scrolled
           ? 'bg-[#030712]/80 backdrop-blur-xl border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.6)] py-3'
-          : 'bg-[#030712]/40 backdrop-blur-md border-white/5 py-4'
+          : 'bg-transparent border-transparent py-4'
         }`}
     >
       <div className="px-6 flex items-center justify-between">
@@ -183,10 +183,9 @@ export default function Navbar() {
           ) : (
             <button
               onClick={handleGetStarted}
-              className="relative overflow-hidden px-5 py-2.5 rounded-xl text-white text-xs font-bold uppercase tracking-wider group cursor-pointer"
+              className="px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-[#030712] text-xs font-bold uppercase tracking-wider transition-colors duration-300 shadow-[0_4px_20px_rgba(34,211,238,0.25)] hover:shadow-[0_4px_25px_rgba(34,211,238,0.4)] hover:scale-[1.02]"
             >
-              <span className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-600 to-violet-600 transition-all duration-300 group-hover:opacity-90 shadow-[0_4px_20px_rgba(6,182,212,0.25)]" />
-              <span className="relative z-10">Sign In</span>
+              Sign In
             </button>
           )}
         </div>

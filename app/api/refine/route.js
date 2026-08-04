@@ -1,5 +1,6 @@
 import { validateOutput } from '@/lib/gemini/outputValidator'
 import { supabase } from '@/lib/supabase/client'
+import { callGemini } from '@/lib/gemini/geminiclient'
 
 export async function POST(req) {
   try {
@@ -14,7 +15,6 @@ export async function POST(req) {
     console.log('websiteId:', websiteId)
     console.log('userId:', userId)
     console.log('sectionHtml length:', sectionHtml?.length)
-    console.log('Gemini key exists:', !!process.env.GEMINI_API_KEY)
 
     const prompt = `
 You are a professional UI designer.
@@ -41,52 +41,12 @@ STRICT RULES:
 Return ONLY raw HTML.
 `.trim()
 
-    const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: prompt
-                }
-              ]
-            }
-          ]
-        })
-      }
-    )
-
-    const geminiData = await geminiResponse.json()
-
-    console.log('=== GEMINI RESPONSE ===')
-    console.log('Status:', geminiResponse.status)
-    console.log(JSON.stringify(geminiData, null, 2))
-
-    // Gemini API returned an error
-    if (geminiData.error) {
-      return Response.json(
-        {
-          error: `Gemini Error: ${geminiData.error.message}`
-        },
-        { status: 500 }
-      )
-    }
-
-    const rawHtml =
-      geminiData?.candidates?.[0]?.content?.parts?.[0]?.text
+    const rawHtml = await callGemini(prompt, 'gemini-2.5-flash')
 
     if (!rawHtml) {
       return Response.json(
         {
-          error: `Gemini returned no HTML. Response: ${JSON.stringify(
-            geminiData
-          )}`
+          error: `Gemini returned no HTML.`
         },
         { status: 500 }
       )

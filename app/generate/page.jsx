@@ -167,10 +167,7 @@ export default function Generate() {
     <div className="min-h-screen bg-[#030712] text-white selection:bg-cyan-500/30 selection:text-white">
       <Navbar />
 
-      {/* Cyber Mesh Glow */}
-      <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] rounded-full bg-cyan-500/5 blur-[120px] animate-pulse-glow" />
-      </div>
+      {/* Cyber Mesh Glow Removed */}
 
       <div className="max-w-7xl mx-auto px-6 pt-36 pb-24 grid grid-cols-12 gap-8">
         
@@ -178,11 +175,11 @@ export default function Generate() {
         <div className="col-span-12 lg:col-span-4 flex flex-col gap-6">
           
           {/* User Status Profile widget */}
-          <div className="glass-card rounded-2xl p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 blur-xl rounded-full" />
+          <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 blur-xl rounded-full pointer-events-none" />
             <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">Workspace Portal</h2>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center font-extrabold text-white font-mono uppercase">
+              <div className="w-10 h-10 rounded-xl bg-cyan-500 flex items-center justify-center font-bold text-[#030712] font-mono uppercase">
                 {user.email?.slice(0, 2)}
               </div>
               <div className="flex flex-col overflow-hidden">
@@ -193,9 +190,9 @@ export default function Generate() {
           </div>
 
           {/* Quick Suggestions container */}
-          <div className="glass-card rounded-2xl p-6">
+          <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
             <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-violet-400" />
+              <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
               Try Prompt Examples
             </h2>
             <div className="flex flex-col gap-3 h-[300px] overflow-hidden relative">
@@ -209,7 +206,7 @@ export default function Generate() {
                     transition={{ duration: 0.5, delay: i * 0.1 }}
                     onClick={() => setPrompt(s)}
                     disabled={loading}
-                    className="w-full text-left p-4 rounded-xl border border-white/5 bg-[#080d20]/30 text-xs text-slate-400 leading-relaxed font-light hover:border-cyan-500/30 hover:bg-[#06b6d4]/5 hover:text-white transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+                    className="w-full text-left p-4 rounded-xl border border-white/5 bg-transparent text-xs text-slate-400 leading-relaxed font-light hover:border-cyan-500/30 hover:bg-white/[0.02] hover:text-white transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
                   >
                     {s}
                   </motion.button>
@@ -223,7 +220,7 @@ export default function Generate() {
         <div className="col-span-12 lg:col-span-8 flex flex-col gap-6">
           
           {/* Main Prompt Command Terminal */}
-          <div className="glass-card rounded-3xl p-6 relative overflow-hidden">
+          <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 blur-2xl rounded-full pointer-events-none" />
             
             <div className="flex justify-between items-center pb-4 mb-4 border-b border-white/5">
@@ -234,14 +231,17 @@ export default function Generate() {
               <span className="text-[10px] text-slate-500 font-mono">STATUS: ONLINE</span>
             </div>
 
-            <textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Describe your design in detail, e.g. A gorgeous modern portfolio website for a visual photographer, featuring dark glassmorphic styling, an elegant hero header with glowing cyan buttons, a three-column gallery grid, and a sleek contact details footer."
-              rows={8}
-              disabled={loading}
-              className="w-full text-sm resize-none focus:outline-none bg-transparent placeholder-slate-600 text-white caret-cyan-400 font-light leading-relaxed disabled:opacity-50"
-            />
+            <div className="relative group">
+              <textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="Describe your design in detail, e.g. A gorgeous modern portfolio website for a visual photographer..."
+                rows={8}
+                disabled={loading}
+                className="w-full text-sm resize-none focus:outline-none bg-transparent placeholder-slate-600 text-white caret-cyan-400 font-light leading-relaxed disabled:opacity-50 relative z-10"
+              />
+              <div className="absolute inset-0 border border-cyan-500/0 group-focus-within:border-cyan-500/20 rounded-xl transition-all duration-500 pointer-events-none -m-4 p-4 shadow-[inset_0_0_20px_rgba(34,211,238,0)] group-focus-within:shadow-[inset_0_0_20px_rgba(34,211,238,0.05)]" />
+            </div>
 
             <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mt-6 pt-4 border-t border-white/5">
               <span className="text-xs text-slate-500 font-mono flex items-center">
@@ -251,10 +251,9 @@ export default function Generate() {
               <button
                 onClick={handleGenerate}
                 disabled={loading || !prompt.trim()}
-                className="group relative inline-flex items-center justify-center gap-2 text-white font-bold px-8 py-3.5 rounded-xl text-sm transition-all duration-300 hover:scale-[1.02] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+                className="group relative inline-flex items-center justify-center gap-2 text-[#030712] bg-cyan-500 hover:bg-cyan-400 font-bold px-8 py-3.5 rounded-xl text-sm transition-all duration-300 hover:scale-[1.02] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-[0_4px_20px_rgba(34,211,238,0.2)] hover:shadow-[0_4px_25px_rgba(34,211,238,0.4)]"
               >
-                <span className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-600 to-violet-600 rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all duration-300 group-hover:shadow-[0_0_30px_rgba(139,92,246,0.5)]" />
-                <span className="relative z-10 flex items-center gap-2">
+                <span className="flex items-center gap-2">
                   {loading ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -286,7 +285,7 @@ export default function Generate() {
 
           {/* Fully Interactive Animated Generation Pipeline */}
           {loading && (
-            <div className="glass-card rounded-3xl p-6 shadow-2xl transition-all duration-500">
+            <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-6 shadow-xl transition-all duration-500 mt-6">
               <div className="flex items-center gap-3 mb-6">
                 <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping" />
                 <h3 className="text-xs font-bold uppercase tracking-widest text-cyan-400 font-mono">
