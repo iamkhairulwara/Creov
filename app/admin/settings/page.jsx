@@ -296,10 +296,9 @@ export default function SettingsPage() {
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Gemini API Key</label>
                 <div className="flex gap-2 max-w-2xl">
                   <input
-                    type="password"
-                    value="••••••••••••••••••••••••"
+                    type="text"
+                    defaultValue="AQ.Ab8RN6Lo8QCfIFS1RCLeq7GLAFFdzEGCpfjUJTq0sRs324Q9YA5"
                     className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-400 focus:outline-none text-sm"
-                    disabled
                   />
                   <button className="flex items-center gap-1 px-4 py-2.5 rounded-xl border border-cyan-500/20 bg-cyan-500/10 text-cyan-400 text-xs font-bold hover:bg-cyan-500/20 transition duration-300">Update</button>
                 </div>
@@ -309,10 +308,9 @@ export default function SettingsPage() {
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Supabase Service Role Key</label>
                 <div className="flex gap-2 max-w-2xl">
                   <input
-                    type="password"
-                    value="••••••••••••••••••••••••"
+                    type="text"
+                    defaultValue="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhjcXdxa2d6anJwem5iemhsZ25vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjY4NTQ3OCwiZXhwIjoyMDkyMjYxNDc4fQ.nt39qpowV6SlFSKaDRC80aAFLKHBtmXMJFaLS6rd9g8"
                     className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-400 focus:outline-none text-sm"
-                    disabled
                   />
                   <button className="flex items-center gap-1 px-4 py-2.5 rounded-xl border border-cyan-500/20 bg-cyan-500/10 text-cyan-400 text-xs font-bold hover:bg-cyan-500/20 transition duration-300">Update</button>
                 </div>

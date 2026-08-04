@@ -91,6 +91,18 @@ ${websiteData.js || ''}
         })
       }
 
+      // Log to database
+      if (websiteData?.id) {
+        const { error: dbError } = await supabase.from('exports').insert({
+          user_id: user.id,
+          website_id: websiteData.id,
+          type: selected
+        })
+        if (dbError) {
+          console.error("Failed to log export to DB:", dbError)
+        }
+      }
+
       // Show success then go back
       setTimeout(() => {
         setExporting(false)

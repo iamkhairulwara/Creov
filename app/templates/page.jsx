@@ -122,12 +122,7 @@ export default function Templates() {
     <div className="min-h-screen bg-[#030712] text-white selection:bg-cyan-500/30 selection:text-white">
       <Navbar />
 
-      {/* Cyber Glow background mesh */}
-      <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
-        <div
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] rounded-full bg-cyan-500/5 blur-[120px] animate-pulse-glow"
-        />
-      </div>
+      {/* Cyber Glow background mesh removed */}
 
       <div className="max-w-7xl mx-auto px-6 pt-36 pb-24">
 
@@ -143,8 +138,8 @@ export default function Templates() {
             </span>
           </div>
           
-          <h1 className="text-4xl md:text-6xl font-black mb-4 tracking-tight">
-            Choose your <span className="neon-text-cyan-blue">Template</span>
+          <h1 className="text-4xl md:text-6xl font-bold mb-4 tracking-tight font-[family-name:var(--font-space-grotesk)]">
+            Choose your <span className="text-cyan-400">Template</span>
           </h1>
           <p className="text-slate-400 text-lg font-light max-w-xl mx-auto">
             Kickstart your single-page design with professionally optimized, customizable layouts.
@@ -161,7 +156,7 @@ export default function Templates() {
                 onClick={() => setActiveCategory(cat)}
                 className={`px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 border ${
                   isSelected
-                    ? 'bg-gradient-to-r from-cyan-500 to-blue-500 border-cyan-400/40 text-white shadow-[0_0_20px_rgba(6,182,212,0.3)] scale-105'
+                    ? 'bg-cyan-500 text-[#030712] border-cyan-400 shadow-[0_4px_20px_rgba(34,211,238,0.2)] scale-105'
                     : 'border-white/5 bg-white/5 text-slate-400 hover:border-cyan-500/20 hover:text-white'
                 }`}
               >
@@ -203,7 +198,7 @@ export default function Templates() {
                 {filtered.map(template => (
                   <div
                     key={template.id}
-                    className="group rounded-3xl overflow-hidden border border-white/5 bg-white/5 backdrop-blur-xl transition-all duration-300 hover:border-cyan-500/20 hover:shadow-[0_8px_30px_rgba(6,182,212,0.06)]"
+                    className="group rounded-2xl overflow-hidden border border-white/5 bg-white/[0.02] transition-all duration-300 hover:border-cyan-500/20 hover:shadow-xl hover:scale-[1.01]"
                   >
                     {/* Thumbnail Frame */}
                     <div className="relative overflow-hidden border-b border-white/5" style={{ height: '220px', background: '#0a0f23' }}>
@@ -229,7 +224,7 @@ export default function Templates() {
                             setViewportWidth('100%') // Reset to default desktop
                             setPreviewTemplate(template)
                           }}
-                          className="px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(6,182,212,0.3)]"
+                          className="px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-[#030712] bg-cyan-500 transition-all duration-300 hover:scale-105 shadow-[0_4px_20px_rgba(34,211,238,0.2)]"
                         >
                           Quick Preview
                         </button>
@@ -240,7 +235,7 @@ export default function Templates() {
                     <div className="p-6">
                       <div className="flex justify-between items-start mb-4">
                         <div>
-                          <h3 className="font-extrabold text-white text-lg tracking-tight">
+                          <h3 className="font-bold text-white text-lg tracking-tight font-[family-name:var(--font-space-grotesk)]">
                             {template.title}
                           </h3>
                           <span className="text-[10px] uppercase font-mono tracking-widest text-slate-500 mt-1 block">
@@ -251,7 +246,7 @@ export default function Templates() {
                       
                       <button
                         onClick={() => handleUseTemplate(template.id)}
-                        className="w-full py-3 rounded-xl text-xs font-bold uppercase tracking-widest text-white bg-white/5 border border-white/10 transition-all duration-300 hover:bg-gradient-to-r hover:from-cyan-500 hover:to-blue-500 hover:border-transparent flex items-center justify-center gap-2"
+                        className="w-full py-3 rounded-xl text-xs font-bold uppercase tracking-widest text-white bg-white/5 border border-white/10 transition-all duration-300 hover:bg-cyan-500 hover:text-[#030712] hover:border-transparent flex items-center justify-center gap-2"
                       >
                         Use Template
                         <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-1">→</span>
@@ -272,13 +267,13 @@ export default function Templates() {
           style={{ background: 'rgba(3,7,18,0.95)' }}>
           
           <div
-            className="w-full max-w-6xl flex flex-col border border-white/10 rounded-3xl overflow-hidden bg-[#080d20] shadow-[0_0_80px_rgba(0,0,0,0.8)]"
+            className="w-full max-w-6xl flex flex-col border border-white/10 rounded-2xl overflow-hidden bg-[#030712] shadow-2xl"
             style={{ height: '88vh' }}
           >
             {/* Control Header */}
             <div className="flex flex-col sm:flex-row justify-between items-center px-6 py-4 gap-4 shrink-0 border-b border-white/5">
               <div>
-                <h2 className="font-extrabold text-white text-lg tracking-tight">{previewTemplate.title}</h2>
+                <h2 className="font-bold text-white text-lg tracking-tight font-[family-name:var(--font-space-grotesk)]">{previewTemplate.title}</h2>
                 <p className="text-xs uppercase font-mono tracking-widest text-slate-500 mt-0.5">
                   Responsive Preview Sandbox
                 </p>
@@ -400,7 +395,7 @@ export default function Templates() {
                     setPreviewTemplate(null)
                     handleUseTemplate(previewTemplate.id)
                   }}
-                  className="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(6,182,212,0.3)]"
+                  className="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-[#030712] bg-cyan-500 transition-all duration-300 hover:scale-105 shadow-[0_4px_20px_rgba(34,211,238,0.2)]"
                 >
                   Use Template →
                 </button>

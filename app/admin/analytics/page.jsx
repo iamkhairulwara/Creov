@@ -47,21 +47,27 @@ export default function AnalyticsPage() {
     // 1. Daily website generations
     const { data: websites } = await supabase
       .from('websites')
-      .select('created_at, source')
+      .select('created_at, source, user_id')
       .gte('created_at', startDate.toISOString())
       .order('created_at', { ascending: true })
 
-    // Process daily stats
+    // Initialize dates with 0 to ensure graphs render correctly even without data
     const dailyMap = new Map()
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date()
+      d.setDate(d.getDate() - i)
+      const dateStr = d.toLocaleDateString()
+      dailyMap.set(dateStr, { date: dateStr, count: 0, ai: 0, template: 0 })
+    }
+
     websites?.forEach(w => {
       const date = new Date(w.created_at).toLocaleDateString()
-      if (!dailyMap.has(date)) {
-        dailyMap.set(date, { date, count: 0, ai: 0, template: 0 })
+      if (dailyMap.has(date)) {
+        const entry = dailyMap.get(date)
+        entry.count++
+        if (w.source === 'generated') entry.ai++
+        else entry.template++
       }
-      const entry = dailyMap.get(date)
-      entry.count++
-      if (w.source === 'generated') entry.ai++
-      else entry.template++
     })
     
     const dailyStats = Array.from(dailyMap.values())
@@ -76,6 +82,10 @@ export default function AnalyticsPage() {
       const count = parseInt(t.websites?.[0]?.count || 0)
       categoryMap.set(t.category, (categoryMap.get(t.category) || 0) + count)
     })
+
+    if (categoryMap.size === 0) {
+      categoryMap.set('No Data', 1)
+    }
     
     const categoryBreakdown = Array.from(categoryMap.entries()).map(([name, value]) => ({
       name: name.charAt(0).toUpperCase() + name.slice(1),
@@ -85,38 +95,42 @@ export default function AnalyticsPage() {
     // 3. AI Performance (mock - would need actual logs table)
     const aiPerformance = [
       { model: 'Gemini 2.0', success: 92, avgTime: 28, usage: 1247 },
-      { model: 'Groq', success: 88, avgTime: 12, usage: 342 },
       { model: 'Gemini 1.5', success: 95, avgTime: 35, usage: 456 }
     ]
 
     // 4. User activity (top users by websites)
-    const { data: topUsers } = await supabase
-      .from('websites')
-      .select('user_id, profiles(email, full_name)')
-      .then(async ({ data }) => {
-        const userMap = new Map()
-        data?.forEach(w => {
-          if (w.user_id) {
-            userMap.set(w.user_id, (userMap.get(w.user_id) || 0) + 1)
-          }
-        })
-        const sorted = Array.from(userMap.entries())
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 5)
-          .map(([id, count]) => ({ id, count, email: 'Loading...' }))
-        
-        // Fetch user emails
-        for (const user of sorted) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('email, full_name')
-            .eq('id', user.id)
-            .single()
-          user.email = profile?.email || 'Unknown'
-          user.name = profile?.full_name || user.email
+    let topUsers = []
+    if (websites && websites.length > 0) {
+      const userMap = new Map()
+      websites.forEach(w => {
+        if (w.user_id) {
+          userMap.set(w.user_id, (userMap.get(w.user_id) || 0) + 1)
         }
-        return sorted
       })
+      const sorted = Array.from(userMap.entries())
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([id, count]) => ({ id, count, email: 'Loading...', name: '' }))
+      
+      // Fetch all users to map their emails
+      let allUsers = []
+      try {
+        const res = await fetch('/api/admin/users')
+        if (res.ok) {
+          const { data } = await res.json()
+          allUsers = data || []
+        }
+      } catch (e) {
+        console.error("Failed to fetch users:", e)
+      }
+
+      for (const user of sorted) {
+        const profile = allUsers.find(u => u.id === user.id)
+        user.email = profile?.email || 'Unknown User'
+        user.name = profile?.full_name || user.email
+      }
+      topUsers = sorted
+    }
 
     // 5. Overall stats
     const totalGenerations = websites?.length || 0
@@ -282,13 +296,13 @@ export default function AnalyticsPage() {
                 outerRadius={100}
                 paddingAngle={6}
                 dataKey="value"
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
               >
                 {analytics.categoryBreakdown.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="#ffffff08" strokeWidth={1} />
                 ))}
               </Pie>
               <Tooltip contentStyle={{ background: '#040818', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', color: '#fff' }} />
+              <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px', color: '#94a3b8' }}/>
             </PieChart>
           </ResponsiveContainer>
         </div>
@@ -325,24 +339,31 @@ export default function AnalyticsPage() {
         <div className="bg-[#080c1e]/60 backdrop-blur-2xl rounded-2xl border border-white/5 p-6 shadow-xl glow-purple">
           <h2 className="text-lg font-bold text-white tracking-wide mb-5">Most Active Users</h2>
           <div className="space-y-3.5">
-            {analytics.userActivity.map((user, idx) => (
-              <div key={idx} className="flex justify-between items-center p-3 rounded-xl border border-white/5 bg-[#030612]/30 hover:bg-[#030612]/60 hover:border-cyan-500/15 hover:shadow-[0_4px_20px_rgba(6,182,212,0.03)] transition-all duration-300">
-                <div className="flex items-center gap-3.5">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-white/5 flex items-center justify-center text-cyan-400 text-xs font-black">
-                    #{idx + 1}
+            {analytics.userActivity.length > 0 ? (
+              analytics.userActivity.map((user, idx) => (
+                <div key={idx} className="flex justify-between items-center p-3 rounded-xl border border-white/5 bg-[#030612]/30 hover:bg-[#030612]/60 hover:border-cyan-500/15 hover:shadow-[0_4px_20px_rgba(6,182,212,0.03)] transition-all duration-300">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-white/5 flex items-center justify-center text-cyan-400 text-xs font-black">
+                      #{idx + 1}
+                    </div>
+                    <div>
+                      <p className="text-white text-sm font-bold tracking-wide">{user.name || user.email}</p>
+                      <p className="text-slate-500 text-xs font-light">{user.email}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-white text-sm font-bold tracking-wide">{user.name || user.email}</p>
-                    <p className="text-slate-500 text-xs font-light">{user.email}</p>
+                  <div className="text-right">
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black bg-cyan-500/10 text-cyan-400 border border-cyan-500/15">
+                      {user.count} <span className="text-[10px] font-bold text-slate-400">SITES</span>
+                    </span>
                   </div>
                 </div>
-                <div className="text-right">
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black bg-cyan-500/10 text-cyan-400 border border-cyan-500/15">
-                    {user.count} <span className="text-[10px] font-bold text-slate-400">SITES</span>
-                  </span>
-                </div>
+              ))
+            ) : (
+              <div className="text-center py-8 bg-white/[0.02] rounded-xl border border-white/5">
+                <p className="text-slate-500 text-sm font-semibold">No user activity found</p>
+                <p className="text-slate-600 text-xs mt-1">There are no user generated websites in this period.</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>

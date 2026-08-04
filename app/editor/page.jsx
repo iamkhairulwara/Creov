@@ -31,7 +31,7 @@ const defaultTemplate = `<!DOCTYPE html>
             padding: 80px 40px;
             text-align: center;
             min-height: 100vh;
-            background: #060a1a;
+            background: #030712;
             display: flex;
             flex-direction: column;
             align-items: center;

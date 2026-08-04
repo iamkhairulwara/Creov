@@ -95,6 +95,7 @@ ${website.html || ''}
 
   function handleExport(website) {
     localStorage.setItem('export_website', JSON.stringify({
+      id: website.id,
       html: website.html,
       css: website.css,
       js: website.js,
@@ -113,7 +114,7 @@ ${website.html || ''}
     if (!websiteToDelete) return null;
     return (
       <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-[60] p-4 animate-fade-in">
-        <div className="bg-[#080c1e]/95 backdrop-blur-2xl rounded-3xl border border-white/10 w-full max-w-sm p-6 shadow-2xl relative">
+        <div className="bg-[#030712] rounded-2xl border border-white/10 w-full max-w-sm p-6 shadow-2xl relative">
           <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-red-400">
               <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
@@ -150,12 +151,7 @@ ${website.html || ''}
       <div>
         <Navbar />
 
-        {/* Dynamic mesh glows */}
-        <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
-          <div
-            className="absolute top-0 right-1/4 w-[600px] h-[600px] rounded-full bg-cyan-500/5 blur-[120px] animate-pulse-glow"
-          />
-        </div>
+        {/* Dynamic mesh glows removed for cleaner SaaS aesthetic */}
 
         <div className="max-w-7xl mx-auto px-6 pt-36 pb-24">
 
@@ -166,7 +162,7 @@ ${website.html || ''}
                 <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
                 Active Hub
               </div>
-              <h1 className="text-4xl font-black text-white tracking-tight">My Saved Sites</h1>
+              <h1 className="text-4xl font-bold text-white tracking-tight font-[family-name:var(--font-space-grotesk)]">My Saved Sites</h1>
               <p className="mt-1.5 text-xs font-mono uppercase tracking-widest text-slate-500">
                 {websites.length} design{websites.length !== 1 ? 's' : ''} stored in cloud
               </p>
@@ -181,9 +177,9 @@ ${website.html || ''}
               </Link>
               <Link
                 href="/generate"
-                className="px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:scale-[1.02] shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all duration-300"
+                className="px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-[#030712] bg-cyan-500 hover:bg-cyan-400 hover:scale-[1.02] shadow-[0_4px_20px_rgba(34,211,238,0.2)] hover:shadow-[0_4px_25px_rgba(34,211,238,0.4)] transition-all duration-300"
               >
-                Synthesize New AI
+                Generate New Site
               </Link>
             </div>
           </div>
@@ -194,7 +190,7 @@ ${website.html || ''}
               {[1, 2, 3].map(i => (
                 <div
                   key={i}
-                  className="rounded-3xl border border-white/5 bg-white/5 p-6 animate-pulse"
+                  className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 animate-pulse"
                 >
                   <div className="h-32 bg-white/5 rounded-2xl mb-4" />
                   <div className="h-4 bg-white/5 rounded w-2/3 mb-3" />
@@ -208,10 +204,10 @@ ${website.html || ''}
           {/* Elegant Empty State */}
           {!loading && websites.length === 0 && (
             <div
-              className="text-center py-24 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl max-w-3xl mx-auto shadow-2xl"
+              className="text-center py-24 rounded-2xl border border-white/5 bg-white/[0.02] max-w-3xl mx-auto shadow-xl"
             >
               <GlobeIcon />
-              <h2 className="text-2xl font-black text-white mb-2">
+              <h2 className="text-2xl font-bold text-white mb-2 font-[family-name:var(--font-space-grotesk)]">
                 No designs synthesized yet
               </h2>
               <p className="mb-8 text-slate-400 text-sm max-w-md mx-auto font-light leading-relaxed">
@@ -226,7 +222,7 @@ ${website.html || ''}
                 </Link>
                 <Link
                   href="/generate"
-                  className="px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:scale-[1.02] shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all duration-300"
+                  className="px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-[#030712] bg-cyan-500 hover:bg-cyan-400 hover:scale-[1.02] shadow-[0_4px_20px_rgba(34,211,238,0.2)] transition-all duration-300"
                 >
                   Generate with AI
                 </Link>
@@ -240,7 +236,7 @@ ${website.html || ''}
               {websites.map(website => (
                 <div
                   key={website.id}
-                  className="group rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl overflow-hidden transition-all duration-300 hover:border-cyan-500/20 hover:shadow-[0_8px_30px_rgba(6,182,212,0.06)]"
+                  className="group rounded-2xl border border-white/5 bg-white/[0.02] overflow-hidden transition-all duration-300 hover:border-cyan-500/20 hover:shadow-xl hover:scale-[1.01]"
                 >
                   {/* Thumbnail Frame */}
                   <div
@@ -257,7 +253,7 @@ ${website.html || ''}
                       className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
                       style={{ background: 'rgba(3,7,18,0.85)' }}
                     >
-                      <span className="px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-white bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+                      <span className="px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-[#030712] bg-cyan-500 rounded-xl shadow-[0_4px_20px_rgba(34,211,238,0.2)]">
                         Launch Live View
                       </span>
                     </div>
@@ -266,7 +262,7 @@ ${website.html || ''}
                   {/* Card Body Info */}
                   <div className="p-6">
                     <div className="flex justify-between items-start mb-2 gap-4">
-                      <h3 className="font-extrabold text-white truncate text-base tracking-tight group-hover:text-cyan-300 transition-colors">
+                      <h3 className="font-bold text-white truncate text-base tracking-tight font-[family-name:var(--font-space-grotesk)] group-hover:text-cyan-400 transition-colors">
                         {website.title || 'Untitled Workspace'}
                       </h3>
                       <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 backdrop-blur-md">
@@ -282,7 +278,7 @@ ${website.html || ''}
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         onClick={() => handleEdit(website)}
-                        className="py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:scale-[1.02] shadow-[0_0_15px_rgba(6,182,212,0.25)] transition-all duration-300"
+                        className="py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-[#030712] bg-cyan-500 hover:bg-cyan-400 hover:scale-[1.02] shadow-[0_4px_20px_rgba(34,211,238,0.2)] hover:shadow-[0_4px_25px_rgba(34,211,238,0.4)] transition-all duration-300"
                       >
                         Edit Workspace
                       </button>

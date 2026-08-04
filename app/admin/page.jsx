@@ -39,14 +39,12 @@ export default function AdminDashboard() {
   }, [])
 
   const StatCard = ({ title, value, icon, color, glowClass }) => (
-    <div className={`glass-card rounded-2xl p-6 border border-white/5 relative overflow-hidden group hover:border-${color}-500/30`}>
-      {/* Background ambient glow behind icon */}
-      <div className={`absolute top-0 right-0 w-24 h-24 rounded-full bg-${color}-500/5 blur-2xl group-hover:bg-${color}-500/10 transition-all duration-500`} />
+    <div className={`bg-white/[0.02] rounded-2xl p-6 border border-white/5 relative overflow-hidden group hover:border-${color}-500/30`}>
       
       <div className="flex items-center justify-between relative z-10">
         <div>
           <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">{title}</p>
-          <p className="text-3xl font-black text-white mt-2.5 tracking-tight group-hover:scale-105 origin-left transition-transform duration-300">
+          <p className="text-3xl font-bold font-[family-name:var(--font-space-grotesk)] text-white mt-2.5 tracking-tight group-hover:scale-105 origin-left transition-transform duration-300">
             {value.toLocaleString()}
           </p>
         </div>
@@ -72,7 +70,7 @@ export default function AdminDashboard() {
     <div className="space-y-10">
       {/* Page Header */}
       <div>
-        <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight drop-shadow-[0_0_30px_rgba(255,255,255,0.05)]">
+        <h1 className="text-3xl md:text-4xl font-bold font-[family-name:var(--font-space-grotesk)] text-white tracking-tight drop-shadow-[0_0_30px_rgba(255,255,255,0.05)]">
           Dashboard
         </h1>
         <p className="text-slate-400 text-sm mt-1">Welcome back, Admin! Here is your platform overview.</p>
@@ -132,11 +130,10 @@ export default function AdminDashboard() {
         />
       </div>
       
-      {/* Recent Websites Table-like ledger */}
-      <div className="bg-[#080c1e]/60 backdrop-blur-2xl rounded-2xl border border-white/5 p-6 shadow-[0_0_50px_rgba(0,0,0,0.8)] glow-cyan">
+      <div className="bg-[#030712] rounded-2xl border border-white/10 p-6 shadow-2xl">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-xl font-bold text-white tracking-tight">Recent Websites</h2>
+            <h2 className="text-xl font-bold font-[family-name:var(--font-space-grotesk)] text-white tracking-tight">Recent Websites</h2>
             <p className="text-slate-400 text-xs mt-0.5">The latest digital experiences synthesized on the platform.</p>
           </div>
           <span className="text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
@@ -148,7 +145,7 @@ export default function AdminDashboard() {
           {recentWebsites.map((item) => (
             <div 
               key={item.id} 
-              className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-white/5 bg-[#030612]/30 hover:bg-[#030612]/60 hover:border-cyan-500/15 hover:shadow-[0_4px_20px_rgba(6,182,212,0.03)] transition-all duration-300"
+              className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] hover:border-cyan-500/20 hover:shadow-xl transition-all duration-300"
             >
               <div className="flex items-center gap-3.5">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-white/5 flex items-center justify-center text-sm font-black text-cyan-300">
