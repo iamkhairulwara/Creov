@@ -64,9 +64,9 @@ export default function Dashboard() {
     // 3. Load Exports (Join with websites to get title if available)
     const { data: exportsData } = await supabase
       .from('exports')
-      .select('id, export_type, format, created_at, websites(id, title)')
+      .select('id, export_type, exported_at, websites(id, title)')
       .eq('user_id', userId)
-      .order('created_at', { ascending: false })
+      .order('exported_at', { ascending: false })
     if (exportsData) setExports(exportsData)
 
     setLoading(false)
@@ -207,6 +207,19 @@ export default function Dashboard() {
                 </button>
 
                 <button
+                  onClick={() => setActiveTab('published')}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 shrink-0 ${
+                    activeTab === 'published' 
+                      ? 'bg-green-500/10 text-green-400 border border-green-500/20 shadow-[0_0_20px_rgba(34,197,94,0.05)]' 
+                      : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
+                  }`}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                  Published Sites
+                  <span className="ml-auto text-[10px] bg-white/10 px-2 py-0.5 rounded-full">{websites.filter(w => w.slug).length}</span>
+                </button>
+
+                <button
                   onClick={() => setActiveTab('submissions')}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 shrink-0 ${
                     activeTab === 'submissions' 
@@ -250,53 +263,78 @@ export default function Dashboard() {
                 </div>
               )}
 
-              {/* -------------------- TAB: WORKSPACES -------------------- */}
-              {!loading && activeTab === 'workspaces' && (
+              {/* -------------------- TAB: WORKSPACES & PUBLISHED -------------------- */}
+              {!loading && (activeTab === 'workspaces' || activeTab === 'published') && (
                 <div className="animate-fade-in">
                   <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-bold text-white font-[family-name:var(--font-space-grotesk)]">My Workspaces</h2>
+                    <h2 className="text-xl font-bold text-white font-[family-name:var(--font-space-grotesk)]">
+                      {activeTab === 'workspaces' ? 'My Workspaces' : 'Published Sites'}
+                    </h2>
                   </div>
                   
-                  {websites.length === 0 ? (
-                    <div className="text-center py-20 rounded-2xl border border-white/5 bg-white/[0.02]">
-                      <GlobeIcon />
-                      <h3 className="text-xl font-bold text-white mb-2">No active workspaces</h3>
-                      <p className="text-slate-400 text-sm mb-6 max-w-sm mx-auto">Start by generating a new site with AI or picking a template.</p>
-                      <Link href="/generate" className="inline-flex px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-[#030712] bg-cyan-500 hover:bg-cyan-400 transition-all">
-                        Create Workspace
-                      </Link>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                      {websites.map(website => (
-                        <div key={website.id} className="group rounded-2xl border border-white/5 bg-white/[0.02] overflow-hidden transition-all duration-300 hover:border-cyan-500/20 hover:shadow-xl hover:scale-[1.01]">
-                          <div className="relative overflow-hidden cursor-pointer border-b border-white/5" style={{ height: '160px', background: '#0a0f23' }} onClick={() => handlePreview(website)}>
-                            <iframe srcDoc={`<html><head><style>*{margin:0;padding:0;overflow:hidden;}body{transform:scale(0.45);transform-origin:top left;width:222%;height:222%;overflow:hidden;}${website.css || ''}</style></head><body>${website.html || ''}</body></html>`} className="w-full h-full border-0 pointer-events-none transition-transform duration-500 group-hover:scale-105" title={website.title}/>
-                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/80">
-                              <span className="px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-[#030712] bg-cyan-500 rounded-xl">Live View</span>
-                            </div>
-                          </div>
-                          <div className="p-5">
-                            <h3 className="font-bold text-white truncate text-base mb-1">{website.title || 'Untitled'}</h3>
-                            <p className="text-[10px] uppercase font-mono text-slate-500 mb-4">EDITED {formatDate(website.updated_at || website.created_at)}</p>
-                            <div className="grid grid-cols-2 gap-2">
-                              <button onClick={() => handleEdit(website)} className="py-2.5 rounded-xl text-xs font-bold uppercase bg-white/5 hover:bg-white/10 transition-all">Edit</button>
-                              <button onClick={() => handleExport(website)} className="py-2.5 rounded-xl text-xs font-bold uppercase bg-white/5 hover:bg-cyan-500 hover:text-black transition-all">Export</button>
-                              {website.slug ? (
-                                <>
-                                  <button onClick={() => handlePreview(website)} className="py-2.5 rounded-xl text-xs font-bold uppercase border border-white/5 hover:bg-white/5 transition-all">Preview</button>
-                                  <Link href={`/p/${website.slug}`} target="_blank" className="flex items-center justify-center py-2.5 rounded-xl text-xs font-bold uppercase bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 hover:bg-cyan-500/20 transition-all">Live Link</Link>
-                                </>
-                              ) : (
-                                <button onClick={() => handlePreview(website)} className="col-span-2 py-2.5 rounded-xl text-xs font-bold uppercase border border-white/5 hover:bg-white/5 transition-all">Preview Code</button>
-                              )}
-                              <button onClick={() => handleDelete(website.id)} className="col-span-2 py-2.5 rounded-xl text-xs font-bold uppercase text-red-400 bg-red-500/5 hover:bg-red-500/10 transition-all">Delete</button>
-                            </div>
-                          </div>
+                  {(() => {
+                    const displayWebsites = activeTab === 'workspaces' ? websites : websites.filter(w => w.slug);
+                    if (displayWebsites.length === 0) {
+                      return (
+                        <div className="text-center py-20 rounded-2xl border border-white/5 bg-white/[0.02]">
+                          <GlobeIcon />
+                          <h3 className="text-xl font-bold text-white mb-2">
+                            {activeTab === 'workspaces' ? 'No active workspaces' : 'No published sites yet'}
+                          </h3>
+                          <p className="text-slate-400 text-sm mb-6 max-w-sm mx-auto">
+                            {activeTab === 'workspaces' 
+                              ? 'Start by generating a new site with AI or picking a template.'
+                              : 'AI Generated websites that are assigned a public URL will appear here.'}
+                          </p>
+                          <Link href="/generate" className="inline-flex px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-[#030712] bg-cyan-500 hover:bg-cyan-400 transition-all">
+                            {activeTab === 'workspaces' ? 'Create Workspace' : 'Generate Site'}
+                          </Link>
                         </div>
-                      ))}
-                    </div>
-                  )}
+                      )
+                    }
+
+                    return (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        {displayWebsites.map(website => (
+                          <div key={website.id} className="group rounded-2xl border border-white/5 bg-white/[0.02] overflow-hidden transition-all duration-300 hover:border-cyan-500/20 hover:shadow-xl hover:scale-[1.01]">
+                            <div className="relative overflow-hidden cursor-pointer border-b border-white/5" style={{ height: '160px', background: '#0a0f23' }} onClick={() => handlePreview(website)}>
+                              <iframe srcDoc={`<html><head><style>*{margin:0;padding:0;overflow:hidden;}body{transform:scale(0.45);transform-origin:top left;width:222%;height:222%;overflow:hidden;}${website.css || ''}</style></head><body>${website.html || ''}</body></html>`} className="w-full h-full border-0 pointer-events-none transition-transform duration-500 group-hover:scale-105" title={website.title}/>
+                              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/80">
+                                <span className="px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-[#030712] bg-cyan-500 rounded-xl">Live View</span>
+                              </div>
+                            </div>
+                            <div className="p-5">
+                              <h3 className="font-bold text-white truncate text-base mb-1">{website.title || 'Untitled'}</h3>
+                              <p className="text-[10px] uppercase font-mono text-slate-500 mb-4">EDITED {formatDate(website.updated_at || website.created_at)}</p>
+                              
+                              {activeTab === 'published' && website.slug && (
+                                <div className="mb-4 bg-green-500/10 border border-green-500/20 p-2.5 rounded-lg flex items-center gap-2">
+                                  <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                                  <Link href={`/p/${website.slug}`} target="_blank" className="text-xs font-mono text-green-300 hover:text-green-200 transition-colors truncate">
+                                    creov.app/p/{website.slug}
+                                  </Link>
+                                </div>
+                              )}
+
+                              <div className="grid grid-cols-2 gap-2">
+                                <button onClick={() => handleEdit(website)} className="py-2.5 rounded-xl text-xs font-bold uppercase bg-white/5 hover:bg-white/10 transition-all">Edit</button>
+                                <button onClick={() => handleExport(website)} className="py-2.5 rounded-xl text-xs font-bold uppercase bg-white/5 hover:bg-cyan-500 hover:text-black transition-all">Export</button>
+                                {website.slug ? (
+                                  <>
+                                    <button onClick={() => handlePreview(website)} className="py-2.5 rounded-xl text-xs font-bold uppercase border border-white/5 hover:bg-white/5 transition-all">Preview</button>
+                                    <Link href={`/p/${website.slug}`} target="_blank" className="flex items-center justify-center py-2.5 rounded-xl text-xs font-bold uppercase bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 hover:bg-cyan-500/20 transition-all">Live Link</Link>
+                                  </>
+                                ) : (
+                                  <button onClick={() => handlePreview(website)} className="col-span-2 py-2.5 rounded-xl text-xs font-bold uppercase border border-white/5 hover:bg-white/5 transition-all">Preview Code</button>
+                                )}
+                                <button onClick={() => handleDelete(website.id)} className="col-span-2 py-2.5 rounded-xl text-xs font-bold uppercase text-red-400 bg-red-500/5 hover:bg-red-500/10 transition-all">Delete</button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  })()}
                 </div>
               )}
 
@@ -334,11 +372,11 @@ export default function Dashboard() {
                               </td>
                               <td className="px-6 py-4">
                                 <span className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-white/5 border border-white/10 text-slate-300">
-                                  {exp.format || 'ZIP'}
+                                  {exp.export_type || 'ZIP'}
                                 </span>
                               </td>
                               <td className="px-6 py-4 text-slate-400 text-right font-mono text-xs">
-                                {formatDate(exp.created_at)}
+                                {formatDate(exp.exported_at)}
                               </td>
                             </tr>
                           ))}

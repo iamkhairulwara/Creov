@@ -999,7 +999,7 @@ console.log(component)
     const html = gjsRef.current.getHtml()
     const css = gjsRef.current.getCss()
     const js = gjsRef.current.getJs()
-    localStorage.setItem('export_website', JSON.stringify({ html, css, js, title: 'my-website' }))
+    localStorage.setItem('export_website', JSON.stringify({ html, css, js, title: 'my-website', id: websiteId }))
     window.location.href = '/export'
   }
 
