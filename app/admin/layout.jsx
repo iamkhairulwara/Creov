@@ -12,6 +12,7 @@ export default function AdminLayout({ children }) {
   const [isAdmin, setIsAdmin] = useState(false)
   const [pendingSubmissions, setPendingSubmissions] = useState(0)
   const [unreadMessages, setUnreadMessages] = useState(0)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     let isMounted = true
@@ -91,6 +92,10 @@ export default function AdminLayout({ children }) {
 
   const isActive = (path) => pathname === path
 
+  useEffect(() => {
+    setIsMobileMenuOpen(false)
+  }, [pathname])
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#030712]">
@@ -119,8 +124,29 @@ export default function AdminLayout({ children }) {
         }}
       />
 
+      {/* Mobile Header */}
+      <div className="lg:hidden flex items-center justify-between p-4 border-b border-white/10 bg-[#030712] sticky top-0 z-20">
+        <Link href="/admin">
+          <CreovLogo className="w-8 h-8" suffix="Admin" />
+        </Link>
+        <button 
+          onClick={() => setIsMobileMenuOpen(true)}
+          className="p-2 bg-white/5 border border-white/10 rounded-lg text-white hover:bg-white/10"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Admin Sidebar */}
-      <aside className="fixed left-0 top-0 h-full w-64 bg-[#030712] border-r border-white/10 flex flex-col justify-between z-30 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent hover:scrollbar-thumb-white/20">
+      <aside className={`fixed left-0 top-0 h-full w-64 bg-[#030712] border-r border-white/10 flex flex-col justify-between z-40 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent hover:scrollbar-thumb-white/20 transition-transform duration-300 lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6">
           <div className="mb-10 px-2">
             <Link href="/admin">
@@ -217,7 +243,7 @@ export default function AdminLayout({ children }) {
         </div>
       </aside>
 
-      <div className="ml-64 p-8 relative min-h-screen">
+      <div className="lg:ml-64 p-4 md:p-8 relative min-h-screen">
         <main className="max-w-7xl mx-auto">
           {children}
         </main>

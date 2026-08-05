@@ -111,9 +111,9 @@ export default function Home() {
           </div>
 
           {/* Canvas Interface */}
-          <div className="grid grid-cols-12 gap-4 h-[400px] text-left p-4">
+          <div className="grid grid-cols-12 gap-4 h-auto md:h-[400px] text-left p-4">
             {/* Sidebar */}
-            <div className="col-span-3 border-r border-white/5 pr-4 flex flex-col gap-3">
+            <div className="hidden md:flex col-span-3 border-r border-white/5 pr-4 flex-col gap-3">
               <div className="h-4 bg-white/5 rounded-md w-1/2" />
               <div className="h-4 bg-white/5 rounded-md w-full" />
               <div className="h-4 bg-white/5 rounded-md w-4/5" />
@@ -128,7 +128,7 @@ export default function Home() {
             </div>
 
             {/* Main Canvas - Filled to look like a Bento Grid Portfolio */}
-            <div className="col-span-9 bg-[#030712] rounded-xl border border-white/5 p-6 flex flex-col gap-4 relative overflow-hidden opacity-90">
+            <div className="col-span-12 md:col-span-9 bg-[#030712] rounded-xl border border-white/5 p-4 md:p-6 flex flex-col gap-4 relative overflow-hidden opacity-90">
                {/* Nav Mockup */}
                <div className="flex justify-between items-center mb-2">
                  <div className="h-5 w-24 bg-white/10 rounded" />
@@ -139,13 +139,13 @@ export default function Home() {
                </div>
                
                {/* Hero Section */}
-               <div className="flex gap-4">
-                 <div className="w-2/3 h-40 rounded-xl bg-gradient-to-br from-white/[0.04] to-transparent border border-white/5 p-5 flex flex-col justify-end">
+               <div className="flex flex-col sm:flex-row gap-4">
+                 <div className="w-full sm:w-2/3 h-40 rounded-xl bg-gradient-to-br from-white/[0.04] to-transparent border border-white/5 p-5 flex flex-col justify-end">
                    <div className="h-8 w-3/4 bg-white/10 rounded mb-3" />
                    <div className="h-4 w-1/2 bg-white/5 rounded mb-2" />
                    <div className="h-4 w-2/5 bg-white/5 rounded" />
                  </div>
-                 <div className="w-1/3 h-40 rounded-xl bg-cyan-500/10 border border-cyan-500/20 p-4 flex flex-col items-center justify-center">
+                 <div className="w-full sm:w-1/3 h-40 rounded-xl bg-cyan-500/10 border border-cyan-500/20 p-4 flex flex-col items-center justify-center">
                    <div className="w-16 h-16 rounded-full bg-cyan-500/20 mb-3 flex items-center justify-center text-cyan-400">
                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
                    </div>
@@ -154,16 +154,16 @@ export default function Home() {
                </div>
 
                {/* Bento Bottom Row */}
-               <div className="flex gap-4">
-                 <div className="w-1/3 h-28 rounded-xl bg-white/[0.02] border border-white/5 p-4 flex flex-col justify-between">
+               <div className="flex flex-col sm:flex-row gap-4">
+                 <div className="w-full sm:w-1/3 h-28 rounded-xl bg-white/[0.02] border border-white/5 p-4 flex flex-col justify-between">
                     <div className="h-3 w-1/2 bg-white/10 rounded" />
                     <div className="h-8 w-8 bg-white/5 rounded-lg" />
                  </div>
-                 <div className="w-1/3 h-28 rounded-xl bg-white/[0.02] border border-white/5 p-4 flex flex-col justify-between">
+                 <div className="w-full sm:w-1/3 h-28 rounded-xl bg-white/[0.02] border border-white/5 p-4 flex flex-col justify-between">
                     <div className="h-3 w-2/3 bg-white/10 rounded" />
                     <div className="flex gap-2"><div className="h-6 w-12 bg-white/5 rounded-full" /><div className="h-6 w-12 bg-white/5 rounded-full" /></div>
                  </div>
-                 <div className="w-1/3 h-28 rounded-xl bg-cyan-900/20 border border-cyan-500/10 p-4 flex flex-col items-center justify-center">
+                 <div className="w-full sm:w-1/3 h-28 rounded-xl bg-cyan-900/20 border border-cyan-500/10 p-4 flex flex-col items-center justify-center">
                     <div className="h-8 w-24 bg-cyan-500 rounded-lg opacity-80" />
                  </div>
                </div>
@@ -186,6 +186,11 @@ export default function Home() {
             {/* Connecting Line (Desktop) */}
             <div className="hidden md:block absolute top-1/2 left-12 right-12 h-px bg-white/10 -translate-y-1/2 z-0 overflow-hidden">
                <div className="h-full bg-cyan-400 w-full animate-[progress_3s_ease-in-out_infinite]" style={{ transformOrigin: 'left', animation: 'progress 3s ease-in-out infinite' }} />
+            </div>
+
+            {/* Connecting Line (Mobile) */}
+            <div className="md:hidden absolute left-1/2 top-[5%] bottom-[5%] w-px bg-white/10 -translate-x-1/2 z-0 overflow-hidden">
+               <div className="w-full h-full bg-gradient-to-b from-transparent via-cyan-400/50 to-transparent animate-pulse" />
             </div>
 
             {/* Node 1 */}

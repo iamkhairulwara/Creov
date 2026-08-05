@@ -179,10 +179,10 @@ export default function Dashboard() {
                 <h1 className="text-3xl font-bold text-white tracking-tight font-[family-name:var(--font-space-grotesk)]">Dashboard</h1>
               </div>
 
-              <nav className="flex lg:flex-col gap-2 overflow-x-auto pb-4 lg:pb-0 hide-scrollbar">
+              <nav className="flex lg:flex-col gap-2 overflow-x-auto pb-4 lg:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 <button
                   onClick={() => setActiveTab('workspaces')}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 shrink-0 ${
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 shrink-0 whitespace-nowrap ${
                     activeTab === 'workspaces' 
                       ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shadow-[0_0_20px_rgba(34,211,238,0.05)]' 
                       : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
@@ -195,7 +195,7 @@ export default function Dashboard() {
                 
                 <button
                   onClick={() => setActiveTab('exports')}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 shrink-0 ${
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 shrink-0 whitespace-nowrap ${
                     activeTab === 'exports' 
                       ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shadow-[0_0_20px_rgba(34,211,238,0.05)]' 
                       : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
@@ -208,7 +208,7 @@ export default function Dashboard() {
 
                 <button
                   onClick={() => setActiveTab('published')}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 shrink-0 ${
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 shrink-0 whitespace-nowrap ${
                     activeTab === 'published' 
                       ? 'bg-green-500/10 text-green-400 border border-green-500/20 shadow-[0_0_20px_rgba(34,197,94,0.05)]' 
                       : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
@@ -221,7 +221,7 @@ export default function Dashboard() {
 
                 <button
                   onClick={() => setActiveTab('submissions')}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 shrink-0 ${
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 shrink-0 whitespace-nowrap ${
                     activeTab === 'submissions' 
                       ? 'bg-violet-500/10 text-violet-400 border border-violet-500/20 shadow-[0_0_20px_rgba(139,92,246,0.05)]' 
                       : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'

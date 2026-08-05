@@ -246,7 +246,7 @@ export default function Navbar() {
       </nav>
 
       {/* Mobile Menu Overlay */}
-      <div className={`fixed inset-0 bg-[#030712]/95 backdrop-blur-2xl z-40 transition-all duration-500 md:hidden flex flex-col pt-28 px-6 ${isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+      <div className={`fixed inset-0 bg-[#030712]/95 backdrop-blur-2xl z-40 transition-all duration-500 md:hidden flex flex-col pt-28 px-6 overflow-y-auto pb-12 ${isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
         {user ? (
           <div className="flex flex-col gap-6">
             <div className="flex items-center gap-4 pb-6 border-b border-white/10">
