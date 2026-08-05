@@ -70,7 +70,7 @@ export default function Home() {
 
           {/* Subtext */}
           <p className="text-lg md:text-xl max-w-2xl mx-auto mb-12 text-slate-400 font-light leading-relaxed">
-            Describe your idea in plain English. Creov generates a fully responsive site in seconds — then refine it visually and export clean, ready-to-host code.
+            Describe your idea in plain English. Creov generates a fully responsive site in seconds - then refine it visually and export clean, ready-to-host code.
           </p>
 
           {/* CTAs */}
@@ -325,7 +325,7 @@ export default function Home() {
             }}
             className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 md:h-[550px]"
           >
-            {/* Box 1: AI Engine (Large 2x2) */}
+            {/* Box 1: AI Engine  */}
             <motion.div
               variants={bentoVariants}
               className="md:col-span-2 md:row-span-2 rounded-2xl border border-white/5 bg-white/[0.02] p-8 flex flex-col justify-between relative overflow-hidden"
@@ -456,8 +456,20 @@ export default function Home() {
           {/* Trust Badges */}
           <div className="flex flex-wrap justify-center items-center gap-10 md:gap-20 opacity-40 mb-24 grayscale hover:grayscale-0 transition-all duration-500">
             <div className="flex items-center gap-3 font-bold text-2xl font-mono tracking-tighter"><div className="w-8 h-8 bg-white rounded-full" /> NEXT.JS</div>
-            <div className="flex items-center gap-3 font-bold text-2xl tracking-tight"><div className="w-8 h-8 border-4 border-white transform rotate-45" /> framer</div>
-            <div className="flex items-center gap-3 font-bold text-2xl"><div className="w-8 h-8 border-[4px] border-white rounded-full" /> supabase</div>
+<div className="flex items-center gap-3 font-bold text-2xl tracking-tight">
+  <div className="w-8 h-8 text-cyan-400">
+    <svg
+      viewBox="0 0 54 33"
+      fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-full h-full"
+    >
+      <path d="M27 0C19.8 0 15.3 3.6 13.5 10.8C16.2 7.2 19.35 5.85 22.95 6.75C25.01 7.26 26.48 8.74 28.11 10.37C30.77 13.03 33.84 16.1 40.5 16.1C47.7 16.1 52.2 12.5 54 5.3C51.3 8.9 48.15 10.25 44.55 9.35C42.49 8.84 41.02 7.36 39.39 5.73C36.73 3.07 33.66 0 27 0ZM13.5 16.1C6.3 16.1 1.8 19.7 0 26.9C2.7 23.3 5.85 21.95 9.45 22.85C11.51 23.36 12.98 24.84 14.61 26.47C17.27 29.13 20.34 32.2 27 32.2C34.2 32.2 38.7 28.6 40.5 21.4C37.8 25 34.65 26.35 31.05 25.45C28.99 24.94 27.52 23.46 25.89 21.83C23.23 19.17 20.16 16.1 13.5 16.1Z" />
+    </svg>
+  </div>
+
+  Tailwind CSS
+</div>            <div className="flex items-center gap-3 font-bold text-2xl"><div className="w-8 h-8 border-[4px] border-white rounded-full" /> supabase</div>
             <div className="flex items-center gap-3 font-bold text-2xl text-cyan-400"><svg className="w-8 h-8" viewBox="-11.5 -10.23174 23 20.46348"><circle cx="0" cy="0" r="2.05" fill="#61dafb"/><g stroke="#61dafb" strokeWidth="1" fill="none"><ellipse rx="11" ry="4.2"/><ellipse rx="11" ry="4.2" transform="rotate(60)"/><ellipse rx="11" ry="4.2" transform="rotate(120)"/></g></svg> React</div>
           </div>
 
