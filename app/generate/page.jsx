@@ -6,7 +6,7 @@ import Navbar from '@/components/ui/NAVBAR'
 import Footer from '@/components/ui/FOOTER'
 import { motion, AnimatePresence } from 'framer-motion'
 
-const AlertTriangleIcon = () => <svg className="w-5 h-5 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+const AlertTriangleIcon = () => <svg className="w-5 h-5 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
 
 const suggestions = [
   "A dark portfolio website for a visual artist with high-contrast cards",
@@ -39,6 +39,7 @@ export default function Generate() {
   const [error, setError] = useState(null)
   const [user, setUser] = useState(null)
   const [checkingAuth, setCheckingAuth] = useState(true)
+  const [authToast, setAuthToast] = useState(false)
   const [suggestionIndex, setSuggestionIndex] = useState(0)
 
   // Rotate suggestions every 3s
@@ -49,7 +50,7 @@ export default function Generate() {
     return () => clearInterval(timer)
   }, [])
 
-  const currentSuggestions = Array.from({length: 4}).map((_, i) => suggestions[(suggestionIndex + i) % suggestions.length])
+  const currentSuggestions = Array.from({ length: 4 }).map((_, i) => suggestions[(suggestionIndex + i) % suggestions.length])
 
   // Auth checks
   useEffect(() => {
@@ -63,17 +64,20 @@ export default function Generate() {
         try {
           const cached = localStorage.getItem('creov_cached_user')
           if (cached) user = JSON.parse(cached)
-        } catch(e) {}
+        } catch (e) { }
       }
 
       if (!user) {
-        router.replace('/auth/login')
+        setAuthToast(true)
+        setTimeout(() => {
+          router.replace('/auth/login')
+        }, 1500)
         return
       }
       setUser(user)
       setCheckingAuth(false)
     }
-    
+
     checkAuth()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -129,7 +133,7 @@ export default function Generate() {
       if (data.html && data.html.length > 100) {
         // Complete the pipeline visuals instantly
         setActiveStep(5)
-        
+
         sessionStorage.setItem('generatedHTML', data.html)
         sessionStorage.setItem('generatedPrompt', prompt)
         sessionStorage.setItem('websiteId', data.websiteId || '')
@@ -152,12 +156,44 @@ export default function Generate() {
     }
   }
 
-  if (checkingAuth) {
+  if (checkingAuth && !authToast) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#030712]">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 rounded-full border-2 border-cyan-500/20 border-t-cyan-400 animate-spin" />
           <p className="text-sm text-slate-500 font-mono">Securing gateway handshake...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (authToast) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#030712] relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/10 blur-[100px] rounded-full pointer-events-none" />
+        
+        <div className="flex flex-col items-center gap-6 z-10 animate-in fade-in zoom-in duration-500 ease-out">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shadow-[0_0_30px_rgba(34,211,238,0.2)]">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+          
+          <div className="text-center space-y-2">
+            <h2 className="text-2xl font-bold font-[family-name:var(--font-space-grotesk)] text-white tracking-tight">Sign In Required</h2>
+            <p className="text-slate-400 font-light text-sm max-w-[250px] mx-auto">You need an account to generate AI websites. Redirecting...</p>
+          </div>
+          
+          <div className="w-48 h-1 bg-white/5 rounded-full overflow-hidden mt-2 relative">
+             <div className="absolute inset-y-0 left-0 bg-cyan-400 rounded-full w-full animate-[progress_1.5s_ease-in-out]" />
+             <style jsx>{`
+               @keyframes progress {
+                 0% { transform: translateX(-100%); }
+                 100% { transform: translateX(0); }
+               }
+             `}</style>
+          </div>
         </div>
       </div>
     )
@@ -170,10 +206,10 @@ export default function Generate() {
       {/* Cyber Mesh Glow Removed */}
 
       <div className="max-w-7xl mx-auto px-6 pt-36 pb-24 grid grid-cols-12 gap-8">
-        
+
         {/* Left Side: Prompt Tips & Quick Suggestions (Bento layout sidebar) */}
         <div className="col-span-12 lg:col-span-4 flex flex-col gap-6">
-          
+
           {/* User Status Profile widget */}
           <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 blur-xl rounded-full pointer-events-none" />
@@ -195,7 +231,7 @@ export default function Generate() {
               <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
               Try Prompt Examples
             </h2>
-            <div className="flex flex-col gap-3 h-[300px] overflow-hidden relative">
+            <div className="flex flex-col gap-3 h-[380px] overflow-hidden relative">
               <AnimatePresence mode="popLayout">
                 {currentSuggestions.map((s, i) => (
                   <motion.button
@@ -218,11 +254,11 @@ export default function Generate() {
 
         {/* Right Side: Terminals & Generation Pipeline */}
         <div className="col-span-12 lg:col-span-8 flex flex-col gap-6">
-          
+
           {/* Main Prompt Command Terminal */}
           <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 blur-2xl rounded-full pointer-events-none" />
-            
+
             <div className="flex justify-between items-center pb-4 mb-4 border-b border-white/5">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-cyan-500/20" />
@@ -247,7 +283,7 @@ export default function Generate() {
               <span className="text-xs text-slate-500 font-mono flex items-center">
                 &gt; {prompt.length} CHARS PREPARED
               </span>
-              
+
               <button
                 onClick={handleGenerate}
                 disabled={loading || !prompt.trim()}
@@ -302,9 +338,8 @@ export default function Generate() {
                   return (
                     <div
                       key={step.id}
-                      className={`flex items-center gap-4 transition-all duration-500 ${
-                        isFinished ? "opacity-100" : isActive ? "opacity-100" : "opacity-30"
-                      }`}
+                      className={`flex items-center gap-4 transition-all duration-500 ${isFinished ? "opacity-100" : isActive ? "opacity-100" : "opacity-30"
+                        }`}
                     >
                       {/* Visual Indicator Indicator */}
                       <div className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center font-mono text-[10px] font-bold">
@@ -326,13 +361,12 @@ export default function Generate() {
                       {/* Step Text */}
                       <div className="flex-1 flex flex-col">
                         <span
-                          className={`text-xs font-mono font-medium transition-colors ${
-                            isFinished ? "text-slate-400 font-light" : isActive ? "text-cyan-300 font-bold" : "text-slate-600 font-light"
-                          }`}
+                          className={`text-xs font-mono font-medium transition-colors ${isFinished ? "text-slate-400 font-light" : isActive ? "text-cyan-300 font-bold" : "text-slate-600 font-light"
+                            }`}
                         >
                           {step.text}
                         </span>
-                        
+
                         {/* Progress Bar inside active step */}
                         {isActive && (
                           <div className="h-[2px] bg-cyan-950 rounded-full w-full mt-2 overflow-hidden">

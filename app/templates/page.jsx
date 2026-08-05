@@ -6,7 +6,7 @@ import Navbar from '@/components/ui/NAVBAR'
 import Footer from '@/components/ui/FOOTER'
 import { supabase } from '@/lib/supabase/client'
 
-const PaletteIcon = () => <svg className="w-16 h-16 mx-auto mb-6 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+const PaletteIcon = () => <svg className="w-16 h-16 mx-auto mb-6 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="13.5" cy="6.5" r=".5" /><circle cx="17.5" cy="10.5" r=".5" /><circle cx="8.5" cy="7.5" r=".5" /><circle cx="6.5" cy="12.5" r=".5" /><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z" /></svg>
 
 const categories = ['All', 'Portfolio', 'Business', 'Restaurant', 'Landing Page', 'E-Commerce']
 
@@ -57,11 +57,29 @@ export default function Templates() {
   const [activeCategory, setActiveCategory] = useState('All')
   const [loading, setLoading] = useState(true)
   const [previewTemplate, setPreviewTemplate] = useState(null)
-  
+
   // Responsive iframe viewport width state
   const [viewportWidth, setViewportWidth] = useState('100%')
+  const [user, setUser] = useState(null)
+  const [authToast, setAuthToast] = useState(false)
 
-  useEffect(() => { fetchTemplates() }, [])
+  useEffect(() => {
+    // Auth check
+    async function checkAuth() {
+      const { data: { session } } = await supabase.auth.getSession()
+      let currentUser = session?.user
+      if (!currentUser) {
+        try {
+          const cached = localStorage.getItem('creov_cached_user')
+          if (cached) currentUser = JSON.parse(cached)
+        } catch (e) { }
+      }
+      setUser(currentUser)
+    }
+
+    checkAuth()
+    fetchTemplates()
+  }, [])
 
   async function fetchTemplates() {
     const { data, error } = await supabase
@@ -81,6 +99,19 @@ export default function Templates() {
     : templates.filter(t => t.category?.toLowerCase() === activeCategory.toLowerCase())
 
   const handleUseTemplate = (templateId) => {
+    let currentUser = user
+    if (!currentUser) {
+      try {
+        const cached = localStorage.getItem('creov_cached_user')
+        if (cached) currentUser = JSON.parse(cached)
+      } catch (e) { }
+    }
+    setUser(currentUser)
+    if (!currentUser) {
+      setAuthToast(true)
+      setTimeout(() => router.push('/auth/login'), 1500)
+      return
+    }
     router.push(`/editor/new?templateId=${templateId}`)
   }
 
@@ -134,14 +165,14 @@ export default function Templates() {
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-violet-500/20 bg-violet-950/20 mb-6 animate-float">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2.5">
-              <rect x="3" y="3" width="18" height="18" rx="2"/>
-              <path d="M3 9h18M9 21V9"/>
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <path d="M3 9h18M9 21V9" />
             </svg>
             <span className="text-xs font-semibold uppercase tracking-wider text-violet-300">
               Template Library
             </span>
           </div>
-          
+
           <h1 className="text-4xl md:text-6xl font-bold mb-4 tracking-tight font-[family-name:var(--font-space-grotesk)]">
             Choose your <span className="text-cyan-400">Template</span>
           </h1>
@@ -159,11 +190,10 @@ export default function Templates() {
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 border ${
-                  isSelected
+                className={`px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 border ${isSelected
                     ? 'bg-cyan-500 text-[#030712] border-cyan-400 shadow-[0_4px_20px_rgba(34,211,238,0.2)] scale-105'
                     : 'border-white/5 bg-white/5 text-slate-400 hover:border-cyan-500/20 hover:text-white'
-                }`}
+                  }`}
               >
                 {cat}
               </button>
@@ -175,10 +205,10 @@ export default function Templates() {
         <div className="mb-12 relative rounded-3xl border border-violet-500/20 bg-gradient-to-br from-[#080c1e] to-violet-950/30 p-8 md:p-12 overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 shadow-[0_0_40px_rgba(139,92,246,0.05)] hover:border-violet-500/40 transition-colors duration-500 group">
           <div className="absolute top-0 right-0 w-64 h-64 bg-violet-500/10 blur-3xl rounded-full" />
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-cyan-500/10 blur-3xl rounded-full" />
-          
+
           <div className="relative z-10 max-w-2xl text-center md:text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-violet-500/30 bg-violet-500/10 mb-4 text-[10px] font-bold text-violet-300 uppercase tracking-widest">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>
               Developer Access
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight font-[family-name:var(--font-space-grotesk)]">
@@ -188,14 +218,29 @@ export default function Templates() {
               Join the Creov community marketplace. Build custom HTML/CSS layouts, share them with thousands of creators, and get recognized for your work.
             </p>
           </div>
-          
+
           <div className="relative z-10 shrink-0">
             <button
-              onClick={() => router.push('/templates/submit')}
+              onClick={() => {
+                let currentUser = user
+                if (!currentUser) {
+                  try {
+                    const cached = localStorage.getItem('creov_cached_user')
+                    if (cached) currentUser = JSON.parse(cached)
+                  } catch (e) { }
+                }
+                setUser(currentUser)
+                if (!currentUser) {
+                  setAuthToast(true)
+                  setTimeout(() => router.push('/auth/login'), 1500)
+                  return
+                }
+                router.push('/templates/submit')
+              }}
               className="px-8 py-4 rounded-xl text-xs font-bold uppercase tracking-widest text-white bg-violet-600 hover:bg-violet-500 transition-all duration-300 shadow-[0_4px_20px_rgba(139,92,246,0.3)] hover:scale-[1.05] hover:shadow-[0_4px_30px_rgba(139,92,246,0.5)] flex items-center gap-2"
             >
               Start Building
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </button>
           </div>
         </div>
@@ -260,6 +305,19 @@ export default function Templates() {
                         style={{ background: 'rgba(3,7,18,0.85)' }}>
                         <button
                           onClick={() => {
+                            let currentUser = user
+                            if (!currentUser) {
+                              try {
+                                const cached = localStorage.getItem('creov_cached_user')
+                                if (cached) currentUser = JSON.parse(cached)
+                              } catch (e) { }
+                            }
+                            setUser(currentUser)
+                            if (!currentUser) {
+                              setAuthToast(true)
+                              setTimeout(() => router.push('/auth/login'), 1500)
+                              return
+                            }
                             setViewportWidth('100%') // Reset to default desktop
                             setPreviewTemplate(template)
                           }}
@@ -282,7 +340,7 @@ export default function Templates() {
                           </span>
                         </div>
                       </div>
-                      
+
                       <button
                         onClick={() => handleUseTemplate(template.id)}
                         className="w-full py-3 rounded-xl text-xs font-bold uppercase tracking-widest text-white bg-white/5 border border-white/10 transition-all duration-300 hover:bg-cyan-500 hover:text-[#030712] hover:border-transparent flex items-center justify-center gap-2"
@@ -304,7 +362,7 @@ export default function Templates() {
       {previewTemplate && (
         <div className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-50 p-4 sm:p-6"
           style={{ background: 'rgba(3,7,18,0.95)' }}>
-          
+
           <div
             className="w-full max-w-6xl flex flex-col border border-white/10 rounded-2xl overflow-hidden bg-[#030712] shadow-2xl"
             style={{ height: '88vh' }}
@@ -326,9 +384,9 @@ export default function Templates() {
                     label: 'Desktop',
                     icon: (
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-                        <line x1="8" y1="21" x2="16" y2="21"/>
-                        <line x1="12" y1="17" x2="12" y2="21"/>
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                        <line x1="8" y1="21" x2="16" y2="21" />
+                        <line x1="12" y1="17" x2="12" y2="21" />
                       </svg>
                     )
                   },
@@ -337,8 +395,8 @@ export default function Templates() {
                     label: 'Tablet',
                     icon: (
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="4" y="2" width="16" height="20" rx="2" ry="2" transform="rotate(90 12 12)"/>
-                        <line x1="12" y1="18" x2="12" y2="18"/>
+                        <rect x="4" y="2" width="16" height="20" rx="2" ry="2" transform="rotate(90 12 12)" />
+                        <line x1="12" y1="18" x2="12" y2="18" />
                       </svg>
                     )
                   },
@@ -347,8 +405,8 @@ export default function Templates() {
                     label: 'Mobile',
                     icon: (
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
-                        <line x1="12" y1="18" x2="12" y2="18"/>
+                        <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+                        <line x1="12" y1="18" x2="12" y2="18" />
                       </svg>
                     )
                   }
@@ -358,11 +416,10 @@ export default function Templates() {
                     <button
                       key={mode.id}
                       onClick={() => setViewportWidth(mode.id)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${
-                        isActive
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${isActive
                           ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
                           : 'text-slate-400 hover:text-white'
-                      }`}
+                        }`}
                     >
                       {mode.icon}
                       {mode.label}
@@ -383,14 +440,14 @@ export default function Templates() {
             {/* Sandbox Canvas */}
             <div className="flex-1 min-h-0 bg-[#030610] p-6 flex justify-center items-center overflow-auto relative">
               {/* Radial lighting background grid */}
-              <div 
+              <div
                 className="absolute inset-0 opacity-[0.03]"
                 style={{
                   backgroundImage: 'radial-gradient(rgba(34,211,238,0.4) 1.5px, transparent 1.5px)',
                   backgroundSize: '24px 24px'
-                }} 
+                }}
               />
-              
+
               {/* Responsive Iframe Frame Wrapper */}
               <div
                 className="h-full border border-white/10 rounded-2xl overflow-hidden transition-all duration-500 ease-in-out bg-black relative shadow-2xl"
@@ -406,7 +463,7 @@ export default function Templates() {
                 {viewportWidth === '375px' && (
                   <div className="absolute top-2 left-1/2 -translate-x-1/2 w-16 h-4 bg-[#1e293b] rounded-full z-30" />
                 )}
-                
+
                 <iframe
                   srcDoc={createCompleteHtml(previewTemplate, false)}
                   className="w-full h-full border-0 bg-[#030712] relative z-10"
@@ -444,6 +501,25 @@ export default function Templates() {
           </div>
         </div>
       )}
+
+      {/* Floating Auth Toast Notification */}
+      {authToast && (
+        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
+          <div className="rounded-2xl border border-cyan-500/30 bg-[#0a0f24]/95 backdrop-blur-xl p-4 pr-6 flex items-center gap-4 shadow-[0_10px_40px_rgba(34,211,238,0.15)]">
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm font-bold text-white font-[family-name:var(--font-space-grotesk)] tracking-wide">Sign In Required</p>
+              <p className="text-xs text-slate-400 font-light mt-0.5">Redirecting to login...</p>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }
