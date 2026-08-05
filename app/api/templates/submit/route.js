@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
-import DOMPurify from 'isomorphic-dompurify'
+import sanitizeHtml from 'sanitize-html'
 
 export async function POST(request) {
   try {
@@ -18,11 +18,14 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    // Sanitize the HTML using isomorphic-dompurify
-    // Forbid dangerous tags. DOMPurify removes <script> and on* handlers by default.
-    const cleanHtml = DOMPurify.sanitize(html, {
-      FORBID_TAGS: ['script', 'iframe', 'object', 'embed', 'form'],
-      ADD_ATTR: ['className'] // explicitly allow react-style classes if needed, though they usually use raw html class
+    // Sanitize the HTML using sanitize-html
+    const cleanHtml = sanitizeHtml(html, {
+      allowedTags: false, // allow all tags except the ones filtered out
+      allowedAttributes: false, // allow all attributes
+      allowVulnerableTags: true, // suppress warnings about style/script since we filter script manually
+      exclusiveFilter: function(frame) {
+        return ['script', 'iframe', 'object', 'embed', 'form'].includes(frame.tag);
+      }
     })
 
     // Prepare template object

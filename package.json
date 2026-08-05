@@ -18,12 +18,12 @@
     "framer-motion": "^12.38.0",
     "grapesjs": "^0.22.15",
     "grapesjs-preset-webpage": "^1.0.3",
-    "isomorphic-dompurify": "^3.21.0",
     "jszip": "^3.10.1",
     "next": "16.2.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "recharts": "^3.10.1",
+    "sanitize-html": "^2.17.6",
     "zustand": "^5.0.12"
   },
   "devDependencies": {
