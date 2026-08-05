@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase/client'
 export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSent, setIsSent] = useState(false)
+  const [errorMsg, setErrorMsg] = useState(null)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -27,14 +28,15 @@ export default function Contact() {
 
       if (error) {
         console.error('Error sending message:', error.message)
-        alert('Failed to send message: ' + error.message)
+        setErrorMsg('Failed to send message: ' + error.message)
       } else {
         setIsSent(true)
+        setErrorMsg(null)
         e.target.reset()
       }
     } catch (err) {
       console.error('Submit error:', err)
-      alert('An unexpected error occurred. Please try again.')
+      setErrorMsg('An unexpected error occurred. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -80,6 +82,12 @@ export default function Contact() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="flex flex-col gap-6 relative z-10">
+                {errorMsg && (
+                  <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl text-sm flex items-center gap-3">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    {errorMsg}
+                  </div>
+                )}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="flex flex-col gap-2">
                     <label htmlFor="name" className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Name</label>

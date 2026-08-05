@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase/client'
 export default function AdminMessages() {
   const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(true)
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null)
 
   useEffect(() => {
     fetchMessages()
@@ -51,8 +52,14 @@ export default function AdminMessages() {
     window.open(gmailUrl, '_blank')
   }
 
-  const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this message?')) return
+  const handleDelete = (id) => {
+    setDeleteConfirmId(id)
+  }
+
+  const confirmDelete = async () => {
+    if (!deleteConfirmId) return
+    const id = deleteConfirmId
+    setDeleteConfirmId(null)
 
     const { error } = await supabase
       .from('contact_messages')
@@ -157,6 +164,22 @@ export default function AdminMessages() {
           ))
         )}
       </div>
+
+      {deleteConfirmId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#030712]/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-[#0a0f24] border border-red-500/20 rounded-3xl p-8 max-w-md w-full shadow-[0_20px_60px_rgba(239,68,68,0.1)] flex flex-col items-center text-center">
+            <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 mb-6">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Delete Message?</h3>
+            <p className="text-slate-400 mb-8">Are you sure you want to delete this message? This action cannot be undone.</p>
+            <div className="flex gap-4 w-full">
+              <button onClick={() => setDeleteConfirmId(null)} className="flex-1 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold transition-colors">Cancel</button>
+              <button onClick={confirmDelete} className="flex-1 py-3 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold transition-colors shadow-[0_4px_20px_rgba(239,68,68,0.3)]">Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

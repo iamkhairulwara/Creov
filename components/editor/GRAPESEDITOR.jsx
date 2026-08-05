@@ -141,6 +141,7 @@ const [showMapEditor, setShowMapEditor] = useState(false)
   const [showSaveVersionModal, setShowSaveVersionModal] = useState(false)
 
   // Load versions from localStorage on mount
+  const [editorDialog, setEditorDialog] = useState(null)
   useEffect(() => {
     if (websiteId) {
       const savedVersions = localStorage.getItem(`versions_${websiteId}`)
@@ -1045,7 +1046,7 @@ const editableComponent = component
   // Version History Functions
   function saveCurrentVersion() {
     if (!gjsRef.current) {
-      alert('Editor not ready')
+      setEditorDialog({ type: 'alert', title: 'Error', message: 'Editor not ready' })
       return
     }
     
@@ -1054,7 +1055,7 @@ const editableComponent = component
     const js = gjsRef.current.getJs()
     
     if (!html || html.length < 10) {
-      alert('No content to save. Please add some elements to your page first.')
+      setEditorDialog({ type: 'alert', title: 'Empty Content', message: 'No content to save. Please add some elements to your page first.' })
       return
     }
     
@@ -1076,7 +1077,7 @@ const editableComponent = component
   
   function openVersionPreview(version) {
     if (!version.html || version.html.length < 10) {
-      alert('This version has no content to preview')
+      setEditorDialog({ type: 'alert', title: 'No Content', message: 'This version has no content to preview' })
       return
     }
     setSelectedVersionForPreview(version)
@@ -1089,51 +1090,61 @@ const editableComponent = component
   function restoreVersion(version) {
     if (!gjsRef.current) return
     
-    if (confirm(`Restore "${version.name}"? Current changes will be lost.`)) {
-      gjsRef.current.setComponents(version.html)
-      if (version.css) gjsRef.current.setStyle(version.css)
-      if (version.js) gjsRef.current.setJs(version.js)
-      
-      setTimeout(() => {
-        if (gjsRef.current) {
-          if (gjsRef.current.refresh) gjsRef.current.refresh()
-          if (gjsRef.current.getCanvas && gjsRef.current.getCanvas().render) {
-            gjsRef.current.getCanvas().render()
+    setEditorDialog({
+      type: 'confirm',
+      title: 'Restore Version',
+      message: `Restore "${version.name}"? Current changes will be lost.`,
+      onConfirm: () => {
+        gjsRef.current.setComponents(version.html)
+        if (version.css) gjsRef.current.setStyle(version.css)
+        if (version.js) gjsRef.current.setJs(version.js)
+        
+        setTimeout(() => {
+          if (gjsRef.current) {
+            if (gjsRef.current.refresh) gjsRef.current.refresh()
+            if (gjsRef.current.getCanvas && gjsRef.current.getCanvas().render) {
+              gjsRef.current.getCanvas().render()
+            }
           }
-        }
-      }, 100)
-      
-      setSelectedVersionForPreview(null)
-      setShowVersionHistory(false)
-      
-      const flash = document.createElement('div')
-      flash.innerHTML = `<svg style="display:inline-block;width:16px;height:16px;margin-right:6px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Restored "${version.name}"`
-      flash.style.cssText = `
-        position: fixed; bottom: 20px; right: 20px;
-        background: #8b5cf6; color: white; padding: 8px 16px;
-        border-radius: 8px; z-index: 10001; font-size: 14px;
-        animation: fadeInOut 2s ease;
-      `
-      document.body.appendChild(flash)
-      setTimeout(() => flash.remove(), 2000)
-    }
+        }, 100)
+        
+        setSelectedVersionForPreview(null)
+        setShowVersionHistory(false)
+        
+        const flash = document.createElement('div')
+        flash.innerHTML = `<svg style="display:inline-block;width:16px;height:16px;margin-right:6px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Restored "${version.name}"`
+        flash.style.cssText = `
+          position: fixed; bottom: 20px; right: 20px;
+          background: #8b5cf6; color: white; padding: 8px 16px;
+          border-radius: 8px; z-index: 10001; font-size: 14px;
+          animation: fadeInOut 2s ease;
+        `
+        document.body.appendChild(flash)
+        setTimeout(() => flash.remove(), 2000)
+      }
+    })
   }
   
   function deleteVersion(versionId, versionName) {
-    if (confirm(`Delete "${versionName}"? This cannot be undone.`)) {
-      setVersions(prev => prev.filter(v => v.id !== versionId))
-      
-      const flash = document.createElement('div')
-      flash.innerHTML = `<svg style="display:inline-block;width:16px;height:16px;margin-right:6px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2-2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Deleted "${versionName}"`
-      flash.style.cssText = `
-        position: fixed; bottom: 20px; right: 20px;
-        background: #ef4444; color: white; padding: 8px 16px;
-        border-radius: 8px; z-index: 10001; font-size: 14px;
-        animation: fadeInOut 2s ease;
-      `
-      document.body.appendChild(flash)
-      setTimeout(() => flash.remove(), 2000)
-    }
+    setEditorDialog({
+      type: 'confirm',
+      title: 'Delete Version',
+      message: `Delete "${versionName}"? This cannot be undone.`,
+      onConfirm: () => {
+        setVersions(prev => prev.filter(v => v.id !== versionId))
+        
+        const flash = document.createElement('div')
+        flash.innerHTML = `<svg style="display:inline-block;width:16px;height:16px;margin-right:6px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2-2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Deleted "${versionName}"`
+        flash.style.cssText = `
+          position: fixed; bottom: 20px; right: 20px;
+          background: #ef4444; color: white; padding: 8px 16px;
+          border-radius: 8px; z-index: 10001; font-size: 14px;
+          animation: fadeInOut 2s ease;
+        `
+        document.body.appendChild(flash)
+        setTimeout(() => flash.remove(), 2000)
+      }
+    })
   }
   
   function formatDate(timestamp) {
@@ -1558,7 +1569,7 @@ Return ONLY the redesigned HTML now:`.trim()
           <button
             onClick={() => {
               if (!websiteId) {
-                alert('Please Save your website first before publishing!');
+                setEditorDialog({ type: 'alert', title: 'Save Required', message: 'Please Save your website first before publishing!' })
               } else {
                 const url = window.location.origin + '/p/' + websiteId;
                 navigator.clipboard.writeText(url);
@@ -1693,7 +1704,7 @@ Return ONLY the redesigned HTML now:`.trim()
           autoFocus
         />
         <p className="text-[11px] mt-2 font-light" style={{ color: TEXT_MUTED }}>
-          Type a city, address, or landmark. It's passed straight to Google Maps search.
+          Type a city, address, or landmark. It&apos;s passed straight to Google Maps search.
         </p>
       </div>
       <div>
@@ -1748,7 +1759,7 @@ Return ONLY the redesigned HTML now:`.trim()
                   </div>
                   <p className="text-sm font-medium text-white mb-1">No versions yet</p>
                   <p className="text-xs text-center" style={{ color: TEXT_MUTED }}>
-                    Click "Save Version" to save<br />your first snapshot
+                    Click &quot;Save Version&quot; to save<br />your first snapshot
                   </p>
                 </div>
               ) : (
@@ -2012,6 +2023,32 @@ Return ONLY the redesigned HTML now:`.trim()
             </div>
           </div>
         )}
+
+      {/* Interactive Editor Dialog (Alerts / Confirms) */}
+      {editorDialog && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-[#030712]/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-[#0a0f24] border border-cyan-500/20 rounded-3xl p-8 max-w-md w-full shadow-[0_20px_60px_rgba(34,211,238,0.1)] flex flex-col items-center text-center">
+            <div className="w-16 h-16 rounded-full bg-cyan-500/10 flex items-center justify-center text-cyan-400 mb-6">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">{editorDialog.title}</h3>
+            <p className="text-slate-400 mb-8">{editorDialog.message}</p>
+            <div className="flex gap-4 w-full">
+              {editorDialog.type === 'confirm' && (
+                <button onClick={() => setEditorDialog(null)} className="flex-1 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold transition-colors">Cancel</button>
+              )}
+              <button 
+                onClick={() => {
+                  if (editorDialog.onConfirm) editorDialog.onConfirm()
+                  setEditorDialog(null)
+                }} 
+                className="flex-1 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-black font-bold transition-colors shadow-[0_4px_20px_rgba(34,211,238,0.3)]">
+                {editorDialog.type === 'confirm' ? 'Confirm' : 'Okay'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       </div>
 
       <style jsx global>{`
@@ -2048,7 +2085,7 @@ Return ONLY the redesigned HTML now:`.trim()
       `}</style>
     </div>
   )
-
+}
 
 function IconBtn({ onClick, title, children }) {
   return (
@@ -2126,4 +2163,4 @@ function DeleteIcon() {
       <path d="M6 6l12 12"/>
     </svg>
   )
-}}
+}
